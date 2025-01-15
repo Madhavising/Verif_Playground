@@ -1,5 +1,3 @@
-
-
 import React, { useState } from "react";
 import { Routes, Route } from "react-router-dom";
 import UvmRegBlock from "./uvmRegBlock/UvmRegBlock";
@@ -16,6 +14,14 @@ import TextEditor from "./features/TextEditor";
 function App() {
   const [loading, setLoading] = useState(true);
 
+  const [manualData, setManualData] = useState([]);
+  const [useManualInput, setUseManualInput] = useState(false);
+
+  const handleManualDataSubmit = (data) => {
+    setManualData(data);
+    setUseManualInput(true);
+  };
+
   const handleLoadComplete = () => {
     setLoading(false);
   };
@@ -29,8 +35,22 @@ function App() {
           {/* Apply Layout to routes requiring a fixed sidebar */}
           <Route path="/" element={<Layout />}>
             <Route index element={<VerificationLayout />} />
-            <Route path="/uvm-reg-block" element={<UvmRegBlock />} />
-            <Route path="/input-field" element={<InputField />} />
+            {/* <Route path="/uvm-reg-block" element={<UvmRegBlock />} />
+            <Route path="/input-field" element={<InputField />} /> */}
+            <Route
+              path="/uvm-reg-block"
+              element={
+                <UvmRegBlock
+                  useManualInput={useManualInput}
+                  manualData={manualData}
+                  setUseManualInput={setUseManualInput}
+                />
+              }
+            />
+            <Route
+              path="/input-field"
+              element={<InputField onSubmit={handleManualDataSubmit} />}
+            />
             <Route path="/texteditor" element={<TextEditor />} />
             <Route path="/feature1" element={<Feature1 />} />
             <Route path="/feature2" element={<Feature2 />} />
