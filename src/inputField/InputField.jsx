@@ -266,28 +266,87 @@ const InputField = ({ onSubmit }) => {
     setRows(updatedRows);
   };
 
+  // const handleDownload = () => {
+  //   const data = rows.flatMap((row) => {
+  //     const maxFieldsLength = Math.max(
+  //       row.fields.length,
+  //       row.defaultValue.length,
+  //       row.resetValue.length
+  //     );
+  //     return Array.from({ length: maxFieldsLength }).map((_, i) => ({
+  //       "Register Name": row.registerName,
+  //       Offset: row.offset,
+  //       "Read/Write": row.readWrite,
+  //       Fields: row.fields[i] || "",
+  //       "Default value": row.defaultValue[i] || "",
+  //       "Reset value": row.resetValue[i] || "",
+  //       Description: row.description,
+  //     }));
+  //   });
+
+  //   const ws = XLSX.utils.json_to_sheet(data);
+  //   const wb = XLSX.utils.book_new();
+  //   XLSX.utils.book_append_sheet(wb, ws, "Sheet1");
+  //   // Set the filename as 'register_definitions.xlsx'
+  //   XLSX.writeFile(wb, "register_definitions.xlsx");
+  // };
+
   const handleDownload = () => {
     const data = rows.flatMap((row) => {
-      const maxFieldsLength = Math.max(
-        row.fields.length,
-        row.defaultValue.length,
-        row.resetValue.length
-      );
-      return Array.from({ length: maxFieldsLength }).map((_, i) => ({
-        "Register Name": row.registerName,
-        Offset: row.offset,
-        "Read/Write": row.readWrite,
-        Fields: row.fields[i] || "",
-        "Default value": row.defaultValue[i] || "",
-        "Reset value": row.resetValue[i] || "",
-        Description: row.description,
+      return row.fields.map((field, index) => ({
+        "Register Name": index === 0 ? row.registerName : "", // Merge Register Name
+        Offset: index === 0 ? row.offset : "", // Merge Offset
+        "Read/Write": index === 0 ? row.readWrite : "", // Merge Read/Write
+        Fields: field || "",
+        "Default value": row.defaultValue[index] || "",
+        "Reset value": row.resetValue[index] || "",
+        Description: index === 0 ? row.description : "", // Merge Description
       }));
     });
 
     const ws = XLSX.utils.json_to_sheet(data);
+
+    // Merge cells for Register Name, Offset, Read/Write, and Description
+    const merges = [];
+    let startRow = 1; // Start after the header row
+    rows.forEach((row) => {
+      const endRow = startRow + row.fields.length - 1;
+      if (row.fields.length > 1) {
+        merges.push(
+          { s: { r: startRow, c: 0 }, e: { r: endRow, c: 0 } }, // Merge "Register Name"
+          { s: { r: startRow, c: 1 }, e: { r: endRow, c: 1 } }, // Merge "Offset"
+          { s: { r: startRow, c: 2 }, e: { r: endRow, c: 2 } }, // Merge "Read/Write"
+          { s: { r: startRow, c: 6 }, e: { r: endRow, c: 6 } } // Merge "Description"
+        );
+      }
+      startRow = endRow + 1;
+    });
+
+    ws["!merges"] = merges;
+    // Apply styles to align merged cells to top-left
+    Object.keys(ws).forEach((cell) => {
+      if (cell[0] === "!") return; // Skip metadata
+      ws[cell].s = {
+        alignment: {
+          vertical: "top", // Align to top
+          horizontal: "left", // Align to left
+        },
+      };
+    });
+
+    // Apply column widths (optional for better formatting)
+    ws["!cols"] = [
+      { wch: 20 }, // Register Name
+      { wch: 10 }, // Offset
+      { wch: 10 }, // Read/Write
+      { wch: 25 }, // Fields
+      { wch: 15 }, // Default Value
+      { wch: 15 }, // Reset Value
+      { wch: 100 }, // Description
+    ];
+
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, "Sheet1");
-    // Set the filename as 'register_definitions.xlsx'
     XLSX.writeFile(wb, "register_definitions.xlsx");
   };
 
