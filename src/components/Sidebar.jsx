@@ -34,14 +34,14 @@ const Sidebar = () => {
               UVM REG Block
             </Link>
           </li>
-          <li>
+          {/* <li>
             <Link
               to="/input-field"
               className="block py-2 px-4 rounded-md text-gray-200 hover:bg-red-600 hover:text-white transition-all duration-200"
             >
               Input Field
             </Link>
-          </li>
+          </li> */}
           <li>
             <Link
               to="/texteditor"
