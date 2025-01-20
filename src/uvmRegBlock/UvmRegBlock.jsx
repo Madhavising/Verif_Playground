@@ -79,7 +79,7 @@ function UVMRegBlock() {
   };
 
   return (
-    <div className="min-h-screen h-screen bg-gray-100 flex flex-col items-center mx-auto py-16">
+    <div className=" mt-24 bg-gray-100 flex flex-col items-center mx-auto py-16">
       <main className="w-full max-w-5xl bg-white shadow-lg rounded-lg p-8 mt-8">
         <h2 className="text-xl font-semibold text-center mb-6">
           Automate Your UVM Register Block Generation
