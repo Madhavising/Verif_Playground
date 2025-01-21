@@ -1,96 +1,3 @@
-// import { useRef } from "react";
-// import { Editor } from "@tinymce/tinymce-react";
-// import "../App.css";
-
-// function TextEditor(props) {
-//   const editorRef = useRef(null);
-
-//   const handleEditorInit = (evt, editor) => {
-//     editorRef.current = editor;
-//   };
-
-//   const insertWave = () => {
-//     if (editorRef.current) {
-//       editorRef.current.insertContent('<div style="text-align: center;">🌊 Wave Content 🌊</div>');
-//     }
-//   };
-
-//   const insertBlockDiagram = () => {
-//     if (editorRef.current) {
-//       editorRef.current.insertContent('<div style="border: 2px solid black; padding: 10px;">Block Diagram</div>');
-//     }
-//   };
-
-//   const customAction = () => {
-//     if (editorRef.current) {
-//       editorRef.current.insertContent('<p>✨ Custom Action Content ✨</p>');
-//     }
-//   };
-
-//   const config = props.config || {}; // Ensure config always has a value
-//   const editorId = config.id || "default-editor-id";
-
-//   return (
-//     <div className="mt-10 p-6 bg-gray-50 shadow-lg rounded-lg" style={{ height: "80vh", width: "83vw" }}>
-//       <Editor
-//         onInit={(evt, editor) => handleEditorInit(evt, editor)}
-//         id={editorId}
-//         tinymceScriptSrc={
-//           import.meta.env.BASE_URL + "tinymce/js/tinymce/tinymce.min.js"
-//         }
-//         initialValue={config.html || ""}
-//         init={{
-//           height: "100%",
-//           width: "100%",
-//           menubar: true,
-//           branding: false,
-//           plugins: [
-//             "advlist",
-//             "autolink",
-//             "lists",
-//             "link",
-//             "image",
-//             "charmap",
-//             "anchor",
-//             "searchreplace",
-//             "visualblocks",
-//             "code",
-//             "fullscreen",
-//             "insertdatetime",
-//             "media",
-//             "table",
-//             "preview",
-//             "help",
-//           ],
-//           toolbar: "undo redo | bold italic forecolor | fontsize | bullist numlist outdent indent | alignleft aligncenter alignright alignjustify | table | wave blockdiagram customaction",
-//           setup: (editor) => {
-//             // Add Wave Button
-//             editor.ui.registry.addButton("wave", {
-//               text: "Wave",
-//               onAction: insertWave, // Function to insert wave content
-//             });
-
-//             // Add Block Diagram Button
-//             editor.ui.registry.addButton("blockdiagram", {
-//               text: "Block Diagram",
-//               onAction: insertBlockDiagram, // Function to insert block diagram
-//             });
-
-//             // Add Custom Action Button
-//             editor.ui.registry.addButton("customaction", {
-//               text: "Custom Action",
-//               onAction: customAction, // Function for custom action
-//             });
-//           },
-//           content_style: "body { font-family:Helvetica,Arial,sans-serif; font-size:14px; margin: 0; }",
-//         }}
-//       />
-//     </div>
-//   );
-// }
-
-// export default TextEditor;
-
 import { useRef } from "react";
 import { Editor } from "@tinymce/tinymce-react";
 import "../App.css";
@@ -189,7 +96,7 @@ function TextEditor(props) {
           ],
           toolbar:
             "undo redo | bold italic forecolor | fontsize | bullist numlist outdent indent | alignleft aligncenter alignright alignjustify | table | wave blockdiagram",
-            menubar: "file edit insert view format tools table",
+          menubar: "file edit insert view format tools table",
           setup: (editor) => {
             // Add Wave Button
             editor.ui.registry.addButton("wave", {
