@@ -2,7 +2,7 @@ import { useRef } from "react";
 import { Editor } from "@tinymce/tinymce-react";
 import "../App.css";
 
-function TextEditor(props) {
+function DocSphere(props) {
   const editorRef = useRef(null);
 
   const handleEditorInit = (evt, editor) => {
@@ -118,4 +118,4 @@ function TextEditor(props) {
   );
 }
 
-export default TextEditor;
+export default DocSphere;

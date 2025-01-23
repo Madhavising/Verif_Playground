@@ -43,35 +43,35 @@ const Sidebar = () => {
             </Link>
           </li> */}
           <li>
-            <Link
-              to="/texteditor"
+            <Link // doucmentation
+              to="/docSphere"
               className="block py-2 px-4 rounded-md text-gray-200 hover:bg-red-600 hover:text-white transition-all duration-200"
             >
-              Text Editor
+              DocSphere
             </Link>
           </li>
           <li>
             <Link
-              to="/feature2"
+              to="/autoVerify"
               className="block py-2 px-4 rounded-md text-gray-200 hover:bg-red-600 hover:text-white transition-all duration-200"
             >
-              Feature 2
+              AutoVerify
             </Link>
           </li>
           <li>
             <Link
-              to="/feature3"
+              to="/regressionTracker"
               className="block py-2 px-4 rounded-md text-gray-200 hover:bg-red-600 hover:text-white transition-all duration-200"
             >
-              Feature 3
+              RegressionTracker
             </Link>
           </li>
           <li>
             <Link
-              to="/feature4"
+              to="/dataHub"
               className="block py-2 px-4 rounded-md text-gray-200 hover:bg-red-600 hover:text-white transition-all duration-200"
             >
-              Feature 4
+              DataHub
             </Link>
           </li>
         </ul>

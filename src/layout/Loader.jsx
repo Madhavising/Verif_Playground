@@ -37,8 +37,8 @@ const Loader = ({ onLoadComplete }) => {
       targets: ".ml16 .letter",
       translateY: [-100, 0],
       easing: "easeOutExpo",
-      duration: 1500,
-      delay: (el, i) => 25 * i,
+      duration: 2000,
+      delay: (el, i) => 50 * i,
     });
 
     // Loader animations with onComplete callback

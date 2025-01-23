@@ -5,12 +5,12 @@ import UvmRegBlock from "./uvmRegBlock/UvmRegBlock";
 import Loader from "./layout/Loader";
 import Layout from "./layout/Layout";
 import VerificationLayout from "./layout/VerificationLayout";
-import Feature1 from "./features/Feature1";
-import Feature2 from "./features/Feature2";
-import Feature3 from "./features/Feature3";
-import Feature4 from "./features/Feature4";
-import TextEditor from "./features/TextEditor";
+import DataHub from "./features/DataHub";
 import InputField from "./inputField/InputField";
+import DocSphere from "./features/DocSphere";
+import RegressionTracker from "./features/RegressionTracker";
+import AutoVerify from "./features/AutoVerify";
+import Feature4 from "./features/Feature4";
 
 function App() {
   const [loading, setLoading] = useState(true);
@@ -38,11 +38,12 @@ function App() {
             <Route index element={<VerificationLayout />} />
             <Route path="/uvm-reg-block" element={<UvmRegBlock />} />
             <Route path="/input-field" element={<InputField />} />
-           
-            <Route path="/texteditor" element={<TextEditor />} />
-            <Route path="/feature1" element={<Feature1 />} />
-            <Route path="/feature2" element={<Feature2 />} />
-            <Route path="/feature3" element={<Feature3 />} />
+
+            <Route path="/docSphere" element={<DocSphere />} />
+            <Route path="/autoVerify" element={<AutoVerify />} />
+            <Route path="/regressionTracker" element={<RegressionTracker />} />
+            <Route path="/dataHub" element={<DataHub />} />
+
             <Route path="/feature4" element={<Feature4 />} />
           </Route>
         </Routes>
