@@ -1,91 +1,83 @@
-// // import React from 'react';
-// // import Flow from '../components/autoVerify/Flow';
+import React, { useState, useEffect } from "react";
 
-// // const AutoVerify = () => {
-// //   return (
-// //     <div className="min-h-screen flex items-center justify-center bg-gray-100">
-// //     <Flow />
-// //   </div>
-// //   );
-// // };
+const frames = [
+  "frame_1.png",
+  "frame_2.png",
+  "frame_3.png",
+  "frame_4.png",
+  "frame_5.png",
+  "frame_6.png",
+  "frame_7.png",
+  "frame_8.png",
+  "frame_9.png",
+  "frame_10.png",
+  "frame_11.png",
+  "frame_12.png",
+  "frame_13.png",
+  "frame_14.png",
+  "frame_15.png",
+  "frame_16.png",
+  "frame_17.png",
+  "frame_18.png",
+  "frame_19.png",
+  "frame_20.png",
+  "frame_21.png",
+  "frame_22.png",
+  "frame_23.png",
+  "frame_24.png",
+  "frame_25.png",
+  "frame_26.png",
+  "frame_27.png",
+  "frame_28.png",
+  "frame_29.png",
+  "frame_30.png",
+  "frame_31.png",
+  "frame_32.png",
+  "frame_33.png",
+  "frame_34.png",
+  "frame_35.png",
+  "frame_36.png",
+  "frame_37.png",
+  "frame_38.png",
+  "frame_39.png",
+  "frame_40.png",
+  "frame_41.png",
+  "frame_42.png",
+  "frame_43.png",
+  "frame_44.png",
+  "frame_45.png",
+  "frame_46.png",
+  "frame_47.png",
+  "frame_48.png",
+  "frame_49.png",
+  "frame_50.png",
+  "frame_51.png",
+  "frame_52.png",
+  "frame_53.png",
+  "frame_54.png",
+  "frame_55.png",
+];
 
-// // export default AutoVerify;
+const AutoVerify = () => {
+  const [currentFrame, setCurrentFrame] = useState(0);
 
-// import React from "react";
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentFrame((prevFrame) => (prevFrame + 1) % frames.length);
+    }, 1500); // Change image every second
 
-// const AutoVerify = () => {
-//   const steps = [
-//     {
-//       title: "Generate Stimulus",
-//       description:
-//         "Create the test inputs that will drive the DUT, such as signal values or test patterns.",
-//     },
-//     {
-//       title: "Apply Stimulus to the DUT",
-//       description:
-//         "Apply the generated stimulus to the DUT, simulating various operating conditions.",
-//     },
-//     {
-//       title: "Capture the Response",
-//       description:
-//         "Capture the DUT's output or response to the applied stimulus.",
-//     },
-//     {
-//       title: "Check for Correctness",
-//       description:
-//         "Compare the captured response with the expected results to verify correctness.",
-//     },
-//     {
-//       title: "Measure Progress Against Verification Goals",
-//       description:
-//         "Evaluate the overall progress and coverage against verification goals.",
-//     },
-//   ];
+    return () => clearInterval(interval);
+  }, []);
 
-//   return (
-//     <div className="flex flex-col items-center py-8">
-//       <h1 className="text-3xl font-bold mb-6">Verification Workflow</h1>
-//       <div className="flex flex-col space-y-8 w-full md:w-2/3">
-//         {steps.map((step, index) => (
-//           <div key={index} className="relative">
-//             {/* Box for each step */}
-//             <div
-//               className="p-6 bg-blue-100 border rounded-lg shadow-lg"
-//               style={{ minHeight: "120px" }}
-//             >
-//               <h2 className="text-xl font-semibold">{step.title}</h2>
-//               <p className="mt-2 text-gray-700">{step.description}</p>
-//             </div>
-
-//             {/* Arrow for each step except the last one */}
-//             {index < steps.length - 1 && (
-//               <div className="absolute right-0 top-[calc(100%+10px)]">
-//                 <div className="w-0 h-0 border-l-8 border-l-transparent border-r-8 border-r-transparent border-t-8 border-t-blue-500"></div>
-//               </div>
-//             )}
-//           </div>
-//         ))}
-//       </div>
-//     </div>
-//   );
-// };
-
-// export default AutoVerify;
-
-import React from "react";
-
-import autoVerifyGif from "../assets/autoVerify.gif";
-
-function AutoVerify() {
   return (
-    <div className="p-6 mt-20 ">
-      {/* Use an img tag to display the GIF */}
-      <h1 className="text-2xl font-extrabold text-gray-900">Automated Verification</h1>
-      {/* <img src={autoVerifyGif} alt="Auto Verify Animation" className="w-[80vw] h-[70vh]" /> */}
+    <div className="flex flex-col items-center justify-center h-full bg-gray-100 p-4">
+      {/* <h2 className="text-2xl font-bold mb-4">Workflow Step {currentFrame + 1}</h2> */}
+      <img
+        src={`/src/assets/${frames[currentFrame]}`}
+        alt={`Frame ${currentFrame + 1}`}
+        className="w-1/2 h-auto border-4 border-gray-300 shadow-lg rounded-lg"
+      />
     </div>
   );
-}
-
+};
 export default AutoVerify;
-
-

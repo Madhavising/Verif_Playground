@@ -58,6 +58,14 @@ const Sidebar = () => {
               AutoVerify
             </Link>
           </li>
+            <li>
+            <Link
+              to="/asicverify"
+              className="block py-2 px-4 rounded-md text-gray-200 hover:bg-red-600 hover:text-white transition-all duration-200"
+            >
+              AsicVerif
+            </Link>
+          </li>
           <li>
             <Link
               to="/regressionTracker"
@@ -81,3 +89,4 @@ const Sidebar = () => {
 };
 
 export default Sidebar;
+

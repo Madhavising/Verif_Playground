@@ -9,17 +9,41 @@ function DocSphere(props) {
     editorRef.current = editor;
   };
 
+  const testWaveApi = async () => {
+    try {
+      const response = await fetch("https://api.verifplay.com/drawSystemBlockAPIView/");
+      const data = await response.json();
+      console.log(data); // Corrected log statement
+    } catch (error) {
+      console.error("API Error:", error.message);
+    }
+  };
+  
+
+  
+
   const callWaveApi = async () => {
     try {
-      const response = await fetch("https://picsum.photos/400/300");
+      const response = await fetch(
+        "https://api.verifplay.com/drawSystemBlockAPIView/",
+        {
+          method: "POST", // Change to POST
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({}), // Add necessary payload if required
+        }
+      );
+
       if (response.ok) {
-        const imageUrl = response.url;
+        const data = await response.json(); // Assuming the API returns JSON
+        const imageUrl = data.image_url; // Adjust based on the actual response structure
         console.log("Image URL:", imageUrl);
 
         // Insert the image into TinyMCE editor
         if (editorRef.current) {
           editorRef.current.insertContent(
-            `<img src="${imageUrl}" alt="Random Image" style="max-width: 100%; height: auto;" />`
+            `<img src="${imageUrl}" alt="Generated Block Diagram" style="max-width: 100%; height: auto;" />`
           );
         }
       } else {
@@ -101,7 +125,7 @@ function DocSphere(props) {
             // Add Wave Button
             editor.ui.registry.addButton("wave", {
               text: "Wave",
-              onAction: callWaveApi,
+              onAction: testWaveApi,
             });
 
             // Add Block Diagram Button

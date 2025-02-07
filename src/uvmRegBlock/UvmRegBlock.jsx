@@ -39,7 +39,8 @@ function UVMRegBlock() {
 
     try {
       const response = await fetch(
-        "http://3.145.185.106:8000/generate-uvm-ral-base/",
+        // "http://3.145.185.106:8000/generate-uvm-ral-base/",
+        "https://api.verifplay.com/generate-uvm-ral-base/",
         {
           method: "POST",
           body: formData,
@@ -85,70 +86,57 @@ function UVMRegBlock() {
           Automate Your UVM Register Block Generation
         </h2>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Left Column: Options */}
-          <div className="bg-gray-50 p-6 rounded-lg shadow-sm space-y-4">
-            <h3 className="font-bold text-center text-gray-700">Options</h3>
-            <button className="w-full bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600">
-              uvm_mem
-            </button>
-            <button className="w-full bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600">
-              uvm_reg_map
-            </button>
-          </div>
-
-          {/* Center Column: File Upload & Controls */}
-          <div className="col-span-2 space-y-6">
-            <div className="bg-gray-50 p-6 rounded-lg shadow-sm">
-              <h3 className="font-bold text-center text-gray-700 mb-4">
-                Upload Excel File
-              </h3>
-              <div className="flex items-center justify-between">
-                <input
-                  type="file"
-                  className="border border-gray-300 rounded px-2 py-1 w-full"
-                  onChange={handleFileChange}
-                />
-                <button
-                  onClick={handleInputField}
-                  className="ml-4 bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600"
-                >
-                  Enter Data Manually
-                </button>
-              </div>
-              {fileName && (
-                <p className="text-sm text-gray-500 mt-2">
-                  File Selected: {fileName}
-                </p>
-              )}
-            </div>
-
-            <div className="bg-gray-50 p-6 rounded-lg shadow-sm">
-              <div className="flex items-center justify-between">
-                <span>Run Script</span>
-                <input
-                  type="checkbox"
-                  className="toggle toggle-blue"
-                  checked={isScriptRunning}
-                  onChange={handleSwitchChange}
-                />
-              </div>
-              {loading && (
-                <div className="text-center mt-4">
-                  <span className="text-blue-500">Processing...</span>
-                </div>
-              )}
-            </div>
-
-            <div className="bg-gray-50 p-6 rounded-lg shadow-sm">
+        {/* Center Column: File Upload & Controls */}
+        <div className="space-y-6">
+          <div className="bg-gray-50 p-6 rounded-lg shadow-sm">
+            <h3 className="font-bold text-center text-gray-700 mb-4">
+              Upload Excel File
+            </h3>
+            <div className="flex items-center justify-between">
+              <input
+                type="file"
+                className="border border-gray-300 rounded px-2 py-1 w-full"
+                onChange={handleFileChange}
+              />
               <button
-                onClick={downloadScript}
-                className="w-full bg-green-500 text-white py-2 px-4 rounded hover:bg-green-600"
-                disabled={!result}
+                onClick={handleInputField}
+                className="ml-4 bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600"
               >
-                Download Script
+                Enter Data Manually
               </button>
             </div>
+            {fileName && (
+              <p className="text-sm text-gray-500 mt-2">
+                File Selected: {fileName}
+              </p>
+            )}
+          </div>
+
+          <div className="bg-gray-50 p-6 rounded-lg shadow-sm">
+            <div className="flex items-center justify-between">
+              <span>Run Script</span>
+              <input
+                type="checkbox"
+                className="toggle toggle-blue"
+                checked={isScriptRunning}
+                onChange={handleSwitchChange}
+              />
+            </div>
+            {loading && (
+              <div className="text-center mt-4">
+                <span className="text-blue-500">Processing...</span>
+              </div>
+            )}
+          </div>
+
+          <div className="bg-gray-50 p-6 rounded-lg shadow-sm">
+            <button
+              onClick={downloadScript}
+              className="w-full bg-green-500 text-white py-2 px-4 rounded hover:bg-green-600"
+              disabled={!result}
+            >
+              Download Script
+            </button>
           </div>
         </div>
 
