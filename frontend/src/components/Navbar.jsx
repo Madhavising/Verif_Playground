@@ -11,7 +11,7 @@ const Navbar = ({ toggleSidebar }) => {
         </button>
         <Link to="/" className="flex items-center gap-2">
           <img
-            src="/src/assets/logo.jpg"
+            src="/assets/logo.jpg"
             alt="Logo"
             className="w-16 h-16 rounded-lg"
           />

@@ -73,7 +73,7 @@ const AutoVerify = () => {
     <div className="flex flex-col items-center justify-center h-full bg-gray-100 p-4">
       {/* <h2 className="text-2xl font-bold mb-4">Workflow Step {currentFrame + 1}</h2> */}
       <img
-        src={`/src/assets/${frames[currentFrame]}`}
+        src={`/assets/${frames[currentFrame]}`}
         alt={`Frame ${currentFrame + 1}`}
         className="w-1/2 h-auto border-4 border-gray-300 shadow-lg rounded-lg"
       />
