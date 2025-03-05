@@ -109,7 +109,7 @@ const InputField = ({ onSubmit }) => {
   
 
   return (
-    <div className="p-6 mt-16 bg-gray-50 shadow-lg rounded-lg">
+    <div className="p-6 mt-1 bg-gray-50 shadow-lg rounded-lg">
       <table className="min-w-full border-collapse border border-gray-300 rounded-lg overflow-hidden">
         <thead className="bg-gray-100">
           <tr>

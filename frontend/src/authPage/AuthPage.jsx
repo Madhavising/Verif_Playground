@@ -33,7 +33,7 @@ const AuthPage = ({ onLogin }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     const formData = new FormData(e.target); // Get form data
-    const data = Object.fromEntries(formData.entries()); // Convert to object
+    const data = Object.fromEntries(formData.entries()); 
 
     try {
       const endpoint = isLogin ? "/api/auth/login" : "/api/auth/register";

@@ -4,12 +4,12 @@ import { Menu } from "lucide-react";
 
 const Navbar = ({ toggleSidebar }) => {
   return (
-    <nav className="bg-gradient-to-b from-black to-red-500 text-white sticky top-0 z-50 shadow-md p-4 flex justify-between items-center">
-      <div className="flex items-center gap-4">
+    <nav className="bg-gradient-to-b from-black to-red-500 text-white sticky top-0 z-50 shadow-md p-4 flex justify-between items-center w-full">
+      <div className="flex items-center gap-4 w-full">
         <button onClick={toggleSidebar} className="lg:hidden">
           <Menu className="w-6 h-6" />
         </button>
-        <Link to="/" className="flex items-center gap-2">
+        <Link to="/" className="flex items-center gap-2 w-full">
           <img
             src="/assets/logo.jpg"
             alt="Logo"

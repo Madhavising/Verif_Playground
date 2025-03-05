@@ -86,7 +86,7 @@ function DocSphere(props) {
   return (
     <div
       className=" p-4 bg-gray-50 shadow-lg w-full  "
-      style={{ height: "87vh" }}
+      style={{ height: "83vh" }}
     >
       <Editor
         onInit={(evt, editor) => handleEditorInit(evt, editor)}

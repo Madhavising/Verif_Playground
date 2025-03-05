@@ -9,7 +9,6 @@ import InputField from "./inputField/InputField";
 import DocSphere from "./features/DocSphere";
 import RegressionTracker from "./features/RegressionTracker";
 import AutoVerify from "./features/AutoVerify";
-
 import ASICVerification from "./features/ASICVerification";
 import AuthPage from "./authPage/AuthPage";
 
@@ -36,10 +35,7 @@ function App() {
                 <Route path="/input-field" element={<InputField />} />
                 <Route path="/docSphere" element={<DocSphere />} />
                 <Route path="/autoVerify" element={<AutoVerify />} />
-                <Route
-                  path="/regressionTracker"
-                  element={<RegressionTracker />}
-                />
+                <Route path="/regressionTracker" element={<RegressionTracker />} />
                 <Route path="/dataHub" element={<DataHub />} />
                 <Route path="/asicverify" element={<ASICVerification />} />
               </Route>
