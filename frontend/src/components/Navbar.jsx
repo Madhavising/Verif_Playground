@@ -143,7 +143,8 @@ const Navbar = ({ toggleSidebar }) => {
             <div className="absolute right-0 mt-3 w-48 bg-white text-black rounded-lg shadow-lg animate-fade-in transition-all duration-200">
               <div className="px-4 py-3 border-b border-gray-200">
                 <p className="text-sm font-semibold">
-                  {user.firstName} {user.lastName}
+                  Hii &nbsp;
+                  {user.firstName} {user.lastName} 👋
                 </p>
               </div>
               <Link
