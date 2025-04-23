@@ -129,13 +129,17 @@ function UVMRegBlock() {
             )}
           </div>
 
-          <div className="bg-gray-50 p-6 rounded-lg shadow-sm">
+          <div className="bg-gray-50 flex flex-col justify-center items-center md:flex-row gap-4 p-6 rounded-lg shadow-sm">
             <button
               onClick={downloadScript}
-              className="w-full bg-green-500 text-white py-2 px-4 rounded hover:bg-green-600"
+              className="w-full md:w-auto bg-green-500 text-white py-2 px-6 rounded-lg hover:bg-green-600 transition "
               disabled={!result}
             >
               Download Script
+            </button>
+
+            <button className="w-full md:w-auto bg-blue-500 text-white py-2 px-6 rounded-lg hover:bg-blue-600 transition duration-300">
+              Save
             </button>
           </div>
         </div>
