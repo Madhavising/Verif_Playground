@@ -1418,7 +1418,7 @@ button::-moz-focus-inner {
   fill: #fff;
   paint-order: stroke;
   stroke: #222f3e;
-  stroke-width: 2px;
+  strokeWidth: 2px;
 }
 .tox div.tox-swatch:not(.tox-swatch--remove).tox-collection__item--enabled svg {
   display: block;

@@ -40,7 +40,6 @@ function UVMRegBlock() {
     try {
       const response = await fetch(
         // "http://3.145.185.106:8000/generate-uvm-ral-base/",
-        // "https://api.verifplay.com/generate-uvm-ral-base/",
         "https://python.verifplay.com/generate-uvm-ral-base/",
         {
           method: "POST",
