@@ -11,6 +11,6 @@ const router = express.Router();
 
 router.post("/register", registerUser);
 router.post("/login", loginUser);
-router.post("/getUserById/:id", authMiddleware, getUserDetailsById);
+router.get("/getUserById/:id", authMiddleware, getUserDetailsById);
 
 module.exports = router;

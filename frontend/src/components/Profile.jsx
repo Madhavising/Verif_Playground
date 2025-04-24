@@ -1,66 +1,58 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
+import { useSelector } from "react-redux";
+import { FaUserCircle } from "react-icons/fa";
+
+// Capitalize first letter utility
+const capitalize = (str) => str?.charAt(0).toUpperCase() + str?.slice(1).toLowerCase();
 
 const Profile = () => {
-  const [user, setUser] = useState(null);
-
-  useEffect(() => {
-    const storedUser = localStorage.getItem("user");
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
-    }
-  }, []);
+  const { user, isAdmin } = useSelector((state) => state);
 
   if (!user) {
     return (
-      <div className="flex justify-center items-center min-h-screen">
-        <p>Loading...</p>
+      <div className="flex justify-center items-center min-h-screen bg-gray-100">
+        <div className="text-lg font-semibold text-gray-600 animate-pulse">
+          Loading Profile...
+        </div>
       </div>
     );
   }
 
+  const { firstName, lastName, email, companyName } = user.userData;
+
   return (
-    <div className="bg-gray-100 min-h-screen flex justify-center items-center">
-      <div className="bg-white rounded-xl shadow-lg p-8 w-96 md:w-1/3">
+      <div className="m-auto bg-white rounded-2xl shadow-2xl p-8 w-full max-w-md md:max-w-lg transition duration-300">
         {/* Profile Header */}
         <div className="flex flex-col items-center mb-6">
-          {/* <div className="w-24 h-24 rounded-full bg-gray-300 mb-4">
-            
-            <img
-              src={user.profilePicture || "/assets/default-avatar.jpg"}
-              alt="Profile"
-              className="w-full h-full rounded-full object-cover"
-            />
-          </div> */}
-          <h2 className="text-2xl font-semibold text-gray-800">
-            {user.firstName} {user.lastName}
+          <FaUserCircle className="text-6xl text-blue-500 mb-2" />
+          <h2 className="text-2xl font-bold text-gray-800">
+            {capitalize(firstName)} {capitalize(lastName)}
           </h2>
-          <p className="text-sm text-gray-500">{user.email}</p>
+          <p className="text-sm text-gray-500">{email}</p>
         </div>
 
-        {/* User Info Section */}
-        <div className="space-y-4">
-          <div className="flex justify-between items-center">
-            <label className="font-medium text-gray-700">First Name:</label>
-            <p className="text-gray-600">{user.firstName}</p>
-          </div>
-          <div className="flex justify-between items-center">
-            <label className="font-medium text-gray-700">Last Name:</label>
-            <p className="text-gray-600">{user.lastName}</p>
-          </div>
-          <div className="flex justify-between items-center">
-            <label className="font-medium text-gray-700">Email:</label>
-            <p className="text-gray-600">{user.email}</p>
-          </div>
-          <div className="flex justify-between items-center">
-            <label className="font-medium text-gray-700">Company Name:</label>
-            <p className="text-gray-600">{user.companyName || "Not provided"}</p>
-          </div>
+        {/* Info Section */}
+        <div className="space-y-4 divide-y divide-gray-200">
+          <InfoRow label="First Name" value={capitalize(firstName)} />
+          <InfoRow label="Last Name" value={capitalize(lastName)} />
+          <InfoRow label="Email" value={email} />
+          <InfoRow label="Company Name" value={companyName || "Not provided"} />
+          {isAdmin && (
+            <div className="pt-4 text-center text-sm text-green-600 font-semibold">
+              ✅ You have Admin Access
+            </div>
+          )}
         </div>
-
-        
       </div>
-    </div>
   );
 };
+
+// Reusable info row component
+const InfoRow = ({ label, value }) => (
+  <div className="flex justify-between items-center pt-4">
+    <span className="text-gray-600 font-medium">{label}:</span>
+    <span className="text-gray-700">{value}</span>
+  </div>
+);
 
 export default Profile;

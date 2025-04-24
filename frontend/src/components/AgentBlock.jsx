@@ -34,7 +34,7 @@ const AgentBlock = () => {
           xmlns="http://www.w3.org/2000/svg"
           className="icon flat-line"
         >
-          <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+          <g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
           <g
             id="SVGRepo_tracerCarrier"
             strokeLinecap="round"
@@ -121,7 +121,7 @@ const AgentBlock = () => {
               xmlns="http://www.w3.org/2000/svg"
               className="icon flat-line h-16"
             >
-              <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+              <g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
               <g
                 id="SVGRepo_tracerCarrier"
                 strokeLinecap="round"
@@ -168,11 +168,11 @@ const AgentBlock = () => {
               xmlns="http://www.w3.org/2000/svg"
               className="icon flat-line h-16"
             >
-              <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+              <g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
               <g
                 id="SVGRepo_tracerCarrier"
-                stroke-linecap="round"
-                stroke-linejoin="round"
+                strokeLinecap="round"
+                strokeLinejoin="round"
               ></g>
               <g id="SVGRepo_iconCarrier">
                 <line
@@ -233,21 +233,21 @@ const AgentBlock = () => {
               xmlns="http://www.w3.org/2000/svg"
               fill="none"
             >
-              <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+              <g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
               <g
                 id="SVGRepo_tracerCarrier"
-                stroke-linecap="round"
-                stroke-linejoin="round"
+                strokeLinecap="round"
+                strokeLinejoin="round"
                 stroke="#000000"
-                stroke-width="0.24000000000000005"
+                strokeWidth="0.24000000000000005"
               ></g>
               <g id="SVGRepo_iconCarrier">
                 <path
                   stroke="#000000" /* Lighter stroke color */
                   strokeWidth="0.6"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  // stroke-width="0.384"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  // strokeWidth="0.384"
                   d="M20 19v-6.5a3 3 0 013-3h60M76.5 6L80 9.5 76.5 13" // Added an offset to move the arrow
                 ></path>
               </g>
@@ -310,11 +310,11 @@ const AgentBlock = () => {
               xmlns="http://www.w3.org/2000/svg"
               className="icon flat-line h-16"
             >
-              <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+              <g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
               <g
                 id="SVGRepo_tracerCarrier"
-                stroke-linecap="round"
-                stroke-linejoin="round"
+                strokeLinecap="round"
+                strokeLinejoin="round"
               ></g>
               <g id="SVGRepo_iconCarrier">
                 <line
