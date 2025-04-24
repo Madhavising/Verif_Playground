@@ -19,7 +19,7 @@ const Profile = () => {
   }
 
   return (
-    <div className="bg-gray-100 min-h-screen flex justify-center items-center">
+    <div className="bg-gray-100  min-h-full flex justify-center items-center ">
       <div className="bg-white rounded-xl shadow-lg p-8 w-96 md:w-1/3">
         {/* Profile Header */}
         <div className="flex flex-col items-center mb-6">
