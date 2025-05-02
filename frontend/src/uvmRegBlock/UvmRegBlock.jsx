@@ -40,7 +40,7 @@ function UVMRegBlock() {
     try {
       const response = await fetch(
         // "http://3.145.185.106:8000/generate-uvm-ral-base/",
-        "https://python.verifplay.com/generate-uvm-ral-base/",
+         "https://python.verifplay.com/generate-uvm-ral-base/",
         {
           method: "POST",
           body: formData,
@@ -77,6 +77,28 @@ function UVMRegBlock() {
     a.click();
 
     URL.revokeObjectURL(url);
+  };
+
+  const handleSave = () => {
+    if (!result) {
+      alert("Nothing to save!");
+      return;
+    }
+
+    // Create an object to save
+    const savedFile = {
+      name: fileName || "unnamed_script.txt",
+      content: result,
+      timestamp: new Date().toLocaleString(),
+    };
+
+    // Save to localStorage (append to existing files)
+    const existing = JSON.parse(localStorage.getItem("uvmScripts") || "[]");
+    existing.unshift(savedFile);
+    localStorage.setItem("uvmScripts", JSON.stringify(existing));
+
+    // Navigate to dashboard
+    navigate("/dashboard");
   };
 
   return (
@@ -138,7 +160,10 @@ function UVMRegBlock() {
               Download Script
             </button>
 
-            <button className="w-full md:w-auto bg-blue-500 text-white py-2 px-6 rounded-lg hover:bg-blue-600 transition duration-300">
+            <button
+              onClick={handleSave}
+              className="w-full md:w-auto bg-blue-500 text-white py-2 px-6 rounded-lg hover:bg-blue-600 transition duration-300"
+            >
               Save
             </button>
           </div>

@@ -2,7 +2,7 @@ import React from "react";
 import { useSelector } from "react-redux";
 import { FaUserCircle } from "react-icons/fa";
 
-// Capitalize first letter utility
+// Capitalize utility
 const capitalize = (str) => str?.charAt(0).toUpperCase() + str?.slice(1).toLowerCase();
 
 const Profile = () => {
@@ -21,7 +21,8 @@ const Profile = () => {
   const { firstName, lastName, email, companyName } = user.userData;
 
   return (
-      <div className="m-auto bg-white rounded-2xl shadow-2xl p-8 w-full max-w-md md:max-w-lg transition duration-300">
+    <div className="flex justify-center items-center min-h-full bg-gray-100">
+      <div className="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-md md:max-w-lg transition duration-300">
         {/* Profile Header */}
         <div className="flex flex-col items-center mb-6">
           <FaUserCircle className="text-6xl text-blue-500 mb-2" />
@@ -44,10 +45,11 @@ const Profile = () => {
           )}
         </div>
       </div>
+    </div>
   );
 };
 
-// Reusable info row component
+// Reusable info row
 const InfoRow = ({ label, value }) => (
   <div className="flex justify-between items-center pt-4">
     <span className="text-gray-600 font-medium">{label}:</span>

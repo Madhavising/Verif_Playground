@@ -19,6 +19,7 @@ import VerificationLayout from "./layout/VerificationLayout";
 import Loader from "./layout/Loader";
 import Profile from "./components/Profile";
 import Loading from "./components/Loading";
+import Dashboard from "./components/Dashboard";
 
 function App() {
   const navigate = useNavigate();
@@ -69,8 +70,9 @@ function App() {
         ) : (
           <>
             <Route path="/" element={<Layout />}>
-              <Route index element={<VerificationLayout />} />
+              <Route index element={<Dashboard />} />
               <Route path="profile" element={<Profile />} />
+              <Route path="verificationLayout" element={<VerificationLayout/>}/>
               <Route path="uvm-reg-block" element={<UvmRegBlock />} />
               <Route path="input-field" element={<InputField />} />
               <Route path="docSphere" element={<DocSphere />} />
