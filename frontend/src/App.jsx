@@ -21,6 +21,8 @@ import Profile from "./components/Profile";
 import Loading from "./components/Loading";
 import Dashboard from "./components/Dashboard";
 
+import DemoRequestPage from "./components/DemoRequestPage";
+
 function App() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -72,7 +74,10 @@ function App() {
             <Route path="/" element={<Layout />}>
               <Route index element={<Dashboard />} />
               <Route path="profile" element={<Profile />} />
-              <Route path="verificationLayout" element={<VerificationLayout/>}/>
+              <Route
+                path="verificationLayout"
+                element={<VerificationLayout />}
+              />
               <Route path="uvm-reg-block" element={<UvmRegBlock />} />
               <Route path="input-field" element={<InputField />} />
               <Route path="docSphere" element={<DocSphere />} />
@@ -80,11 +85,12 @@ function App() {
               <Route path="regressionTracker" element={<RegressionTracker />} />
               <Route path="dataHub" element={<DataHub />} />
               <Route path="asicverify" element={<ASICVerification />} />
+              <Route path="demo-request-page" element={<DemoRequestPage />} />
             </Route>
             <Route path="*" element={<Navigate to="/" replace />} />
           </>
         )}
-      </Routes>      
+      </Routes>
     </div>
   );
 }

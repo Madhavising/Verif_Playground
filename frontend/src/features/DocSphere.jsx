@@ -1,95 +1,160 @@
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { Editor } from "@tinymce/tinymce-react";
+import axios from "axios";
 import "../App.css";
 
 function DocSphere(props) {
   const editorRef = useRef(null);
+  const [showModal, setShowModal] = useState(false);
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [generatedHtml, setGeneratedHtml] = useState("");
+  const [showOutputModal, setShowOutputModal] = useState(false);
 
   const handleEditorInit = (evt, editor) => {
     editorRef.current = editor;
   };
 
-  const testWaveApi = async () => {
-    try {
-      const response = await fetch("https://api.verifplay.com/drawSystemBlockAPIView/");
-      const data = await response.json();
-      console.log(data); // Corrected log statement
-    } catch (error) {
-      console.error("API Error:", error.message);
-    }
+  const handleFileChange = (e) => {
+    setSelectedFile(e.target.files[0]);
   };
-  
 
-  
+  const handleGenerate = async () => {
+    if (!selectedFile) {
+      alert("Please choose a file.");
+      return;
+    }
 
-  const callWaveApi = async () => {
+    const formData = new FormData();
+    formData.append("file", selectedFile);
+
     try {
-      const response = await fetch(
-        "https://api.verifplay.com/drawSystemBlockAPIView/",
+      setLoading(true);
+      const response = await axios.post(
+        "http://localhost:3030/upload",
+        formData,
         {
-          method: "POST", // Change to POST
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({}), // Add necessary payload if required
+          headers: { "Content-Type": "multipart/form-data" },
         }
       );
 
-      if (response.ok) {
-        const data = await response.json(); // Assuming the API returns JSON
-        const imageUrl = data.image_url; // Adjust based on the actual response structure
-        console.log("Image URL:", imageUrl);
-
-        // Insert the image into TinyMCE editor
-        if (editorRef.current) {
-          editorRef.current.insertContent(
-            `<img src="${imageUrl}" alt="Generated Block Diagram" style="max-width: 100%; height: auto;" />`
-          );
-        }
-      } else {
-        console.error("Image API Error:", response.statusText);
-        alert("Failed to fetch the image. Please try again.");
-      }
+      const outputUrl = response.data.output;
+      const fullOutputUrl = `http://localhost:3030${outputUrl}`;
+      setGeneratedHtml(fullOutputUrl);
+      setShowOutputModal(true);
+      setShowModal(false);
     } catch (error) {
-      console.error("Image API Error:", error);
-      alert("An error occurred while fetching the image.");
+      console.error("Upload failed:", error);
+      alert("Waveform generation failed.");
+    } finally {
+      setLoading(false);
+      setSelectedFile(null);
     }
+  };
+
+  const handleInsertToEditor = () => {
+    if (editorRef.current) {
+      editorRef.current.insertContent(`
+        <iframe
+          src="${generatedHtml}"
+          width="100%"
+          height="400px"
+          style="border: 1px solid #ccc;"
+          sandbox="allow-scripts allow-same-origin allow-popups allow-forms"
+        ></iframe>
+      `);
+    }
+    setShowOutputModal(false);
   };
 
   const callBlockDiagramApi = async () => {
     try {
-      // Fetching the image URL directly from Picsum (or you can modify it to use a valid API that returns JSON content)
       const response = await fetch("https://picsum.photos/400/300");
       if (response.ok) {
-        const imageUrl = response.url; // Get the image URL directly
-        console.log("Block Diagram Image URL:", imageUrl);
-
-        // Insert the image into TinyMCE editor
+        const imageUrl = response.url;
         if (editorRef.current) {
           editorRef.current.insertContent(
             `<div style="border: 2px solid black; padding: 10px;"><img src="${imageUrl}" alt="Block Diagram" style="max-width: 100%; height: auto;" /></div>`
           );
         }
       } else {
-        console.error("Block Diagram API Error:", response.statusText);
-        alert("Failed to load block diagram content. Please try again.");
+        alert("Failed to load block diagram.");
       }
     } catch (error) {
-      console.error("Block Diagram API Error:", error);
-      alert("An error occurred while calling the Block Diagram API.");
+      console.error("Error:", error);
+      alert("Block diagram API failed.");
     }
   };
 
-  const config = props.config || {}; // Ensure config always has a value
+  const config = props.config || {};
   const editorId = config.id || "default-editor-id";
 
   return (
-    <div
-      className=" p-4 bg-gray-50 shadow-lg w-full  "
-      style={{ height: "83vh" }}
-    >
+    <div className="p-4 bg-gray-50 shadow-lg w-full" style={{ height: "83vh" }}>
+      {/* Upload Modal */}
+      {showModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-30 backdrop-blur-sm flex justify-center items-center z-50">
+          <div className="bg-white p-6 rounded shadow-lg w-96">
+            <h2 className="text-lg font-semibold mb-4 text-center">
+              Upload Excel File
+            </h2>
+            <input
+              type="file"
+              accept=".xls"
+              onChange={handleFileChange}
+              className="w-full mb-4"
+            />
+            <div className="flex justify-end gap-2">
+              <button
+                onClick={() => setShowModal(false)}
+                className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleGenerate}
+                className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                disabled={loading}
+              >
+                {loading ? "Generating..." : "Generate"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Output Modal */}
+      {showOutputModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-30 backdrop-blur-sm flex justify-center items-center z-50">
+          <div className="bg-white p-4 rounded shadow-lg w-11/12 h-[90vh] overflow-auto relative">
+            <button
+              onClick={() => setShowOutputModal(false)}
+              className="absolute top-2 right-2 px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600"
+            >
+              Close
+            </button>
+            <iframe
+              src={generatedHtml}
+              width="100%"
+              height="100%"
+              style={{ border: "1px solid #ccc" }}
+              sandbox="allow-scripts allow-same-origin"
+            ></iframe>
+            <div className="flex justify-center mt-4">
+              <button
+                onClick={handleInsertToEditor}
+                className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
+              >
+                Insert to Editor
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* TinyMCE Editor */}
       <Editor
-        onInit={(evt, editor) => handleEditorInit(evt, editor)}
+        onInit={handleEditorInit}
         id={editorId}
         tinymceScriptSrc={
           import.meta.env.BASE_URL + "tinymce/js/tinymce/tinymce.min.js"
@@ -122,18 +187,23 @@ function DocSphere(props) {
             "undo redo | bold italic forecolor | fontsize | bullist numlist outdent indent | alignleft aligncenter alignright alignjustify | table | wave blockdiagram",
           menubar: "file edit insert view format tools table",
           setup: (editor) => {
-            // Add Wave Button
             editor.ui.registry.addButton("wave", {
               text: "Wave",
-              onAction: testWaveApi,
+              onAction: () => {
+                if (!showModal && !showOutputModal) setShowModal(true);
+              },
             });
 
-            // Add Block Diagram Button
             editor.ui.registry.addButton("blockdiagram", {
               text: "Block Diagram",
-              onAction: callBlockDiagramApi,
+              onAction: () => {
+                if (!showModal && !showOutputModal) callBlockDiagramApi();
+              },
             });
           },
+          extended_valid_elements:
+            "iframe[src|width|height|style|sandbox|allowfullscreen|frameborder]",
+          valid_elements: "*[*]",
           content_style:
             "body { font-family:Helvetica,Arial,sans-serif; font-size:14px; margin: 0; }",
         }}
