@@ -4,11 +4,8 @@ import Navbar from "../components/Navbar";
 import { Outlet } from "react-router-dom";
 
 const Layout = () => {
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-
-  const toggleSidebar = () => {
-    setIsSidebarOpen(!isSidebarOpen);
-  };
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const toggleSidebar = () => setIsSidebarOpen(prev => !prev);
 
   return (
     <div className="flex flex-col h-screen w-full">
