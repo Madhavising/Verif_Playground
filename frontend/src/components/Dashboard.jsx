@@ -1,44 +1,15 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Eye, Share2, Trash2 } from "lucide-react";
+import { baseUrl } from "../api"
+import axios from "axios";
+import moment from "moment/moment";
 
 export default function Dashboard() {
-  const recentFiles = [
-    {
-      name: "Project Plan.docx",
-      reason: "Client update",
-      owner: "You",
-      timestamp: "2024-04-29 10:30",
-      type: "docx",
-    },
-    {
-      name: "Presentation.pptx",
-      reason: "Team review",
-      owner: "Jane Smith",
-      timestamp: "2024-04-28 15:00",
-      type: "pptx",
-    },
-    {
-      name: "Budget.xlsx",
-      reason: "Quarterly update",
-      owner: "Mark Lee",
-      timestamp: "2024-04-27 09:45",
-      type: "xlsx",
-    },
-    {
-      name: "Notes.txt",
-      reason: "Meeting summary",
-      owner: "John Doe",
-      timestamp: "2024-04-26 12:10",
-      type: "txt",
-    },
-    {
-      name: "Report.pdf",
-      reason: "Audit",
-      owner: "Emma Wilson",
-      timestamp: "2024-04-25 14:30",
-      type: "pdf",
-    },
-  ];
+  const [recentFiles, setRecentFiles] = useState([]);
+  const [recentActivityrecentFiles, setRecentActivity] = useState([]);
+  const [isOpen, setIsOpen] = useState(false)
+  const [isShareOpen, setIsShareOpen] = useState(false);
+  const [script, setScript] = useState("")
 
   const activityLog = [
     { name: "John Doe", action: "uploaded", file: "Image.png" },
@@ -49,10 +20,41 @@ export default function Dashboard() {
     { name: "Emma Wilson", action: "commented", file: "Report.txt" },
   ];
 
-  const handleView = (fileName) => alert(`Opening ${fileName}...`);
-  const handleShare = (fileName) => alert(`Sharing ${fileName}...`);
   const handleDelete = (fileName) => alert(`Deleting ${fileName}...`);
 
+  const getAllRecentFiles = async () => {
+    try {
+      let { data } = await axios.get(`${baseUrl}/api/getAllScript`);
+      const decodedText = atob(data.data[0].file);
+      setScript(decodedText);
+      setRecentFiles(data.data);
+    } catch (error) {
+      console.log("get recentFiles eror :", error.message);
+    }
+  }
+  const getAllActivity = async () => {
+    try {
+      let { data } = await axios.get(`${baseUrl}/api/getAllActivity`);
+      console.log("data", data);
+      setRecentActivity(data.data);
+    } catch (error) {
+      console.log("get recentFiles eror :", error.message);
+    }
+  }
+
+  const deleteScript = async (id) => {
+    try {
+      await axios.delete(`${baseUrl}/api/deleteScript/${id}`);
+      getAllRecentFiles()
+    } catch (error) {
+      console.log("get recentFiles eror :", error.message);
+    }
+  }
+
+  useEffect(() => {
+    getAllRecentFiles();
+    getAllActivity();
+  }, []);
   return (
     <div className="flex">
       {/* Main content */}
@@ -74,8 +76,8 @@ export default function Dashboard() {
               <thead className="text-gray-500 border-b">
                 <tr>
                   <th className="py-2">Name</th>
-                  <th className="py-2">Reason</th>
                   <th className="py-2">Owner</th>
+                  <th className="py-2">Company</th>
                   <th className="py-2">Timestamp</th>
                   <th className="py-2">Actions</th>
                 </tr>
@@ -83,27 +85,27 @@ export default function Dashboard() {
               <tbody>
                 {recentFiles.map((file, idx) => (
                   <tr key={idx} className="hover:bg-gray-100 border-b">
+                    <td className="py-2">{file.fileName}</td>
                     <td className="py-2">{file.name}</td>
-                    <td className="py-2">{file.reason}</td>
-                    <td className="py-2">{file.owner}</td>
+                    <td className="py-2">{file.organization}</td>
                     <td className="py-2 text-xs text-gray-500">
-                      {file.timestamp}
+                      {moment(file.createdAt).format('dddd, YYYY-MM-DD HH:mm')}
                     </td>
                     <td className="py-2 space-x-2">
                       <button
-                        onClick={() => handleView(file.name)}
+                        onClick={() => setIsOpen(!isOpen)}
                         title="View"
                       >
                         <Eye className="w-4 h-4" />
                       </button>
                       <button
-                        onClick={() => handleShare(file.name)}
+                        onClick={() => setIsShareOpen(!isShareOpen)}
                         title="Share"
                       >
                         <Share2 className="w-4 h-4" />
                       </button>
                       <button
-                        onClick={() => handleDelete(file.name)}
+                        onClick={() => deleteScript(file._id)}
                         title="Delete"
                       >
                         <Trash2 className="w-4 h-4 text-red-500" />
@@ -116,19 +118,90 @@ export default function Dashboard() {
           </div>
         </section>
 
+        {/*View Pop-up*/}
+
+        {isOpen && (
+          <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40 z-50">
+            <div className="relative bg-white p-6 rounded-lg shadow-lg w-full max-w-4xl mx-4">
+              {/* Close button */}
+              <button
+                onClick={() => setIsOpen(false)}
+                className="absolute top-2 right-2 text-gray-500 hover:text-gray-700 text-2xl"
+                aria-label="Close"
+              >
+                &times;
+              </button>
+
+              <h3 className="font-bold text-gray-700 mb-2">Output:</h3>
+              <pre className="bg-gray-100 p-4 rounded text-sm overflow-auto max-h-[70vh]">
+                {script}
+              </pre>
+            </div>
+          </div>
+        )}
+
+        {/*Share pop-up */}
+
+        {
+          isShareOpen && (
+            <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40 z-50">
+              <div className="relative bg-white p-6 rounded-lg shadow-lg w-full max-w-md mx-4">
+                <button
+                  onClick={() => setIsShareOpen(false)}
+                  className="absolute top-2 right-2 text-gray-500 hover:text-gray-700 text-2xl"
+                  aria-label="Close"
+                >
+                  &times;
+                </button>
+                <h3 className="font-bold text-gray-800 mb-4">Share this content</h3>
+                <div className="space-y-3">
+                  {/* Copy Link */}
+                  <button
+                    onClick={() => {
+                      navigator.clipboard.writeText(baseUrl);
+                      alert("Link copied to clipboard!");
+                    }}
+                    className="w-full text-left px-4 py-2 border rounded hover:bg-gray-100"
+                  >
+                    📋 Copy Link
+                  </button>
+
+                  {/* Twitter */}
+                  <a
+                    href={`https://twitter.com/intent/tweet?url=${encodeURIComponent(baseUrl)}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="block px-4 py-2 border rounded hover:bg-gray-100"
+                  >
+                    🐦 Share on Twitter
+                  </a>
+
+                  {/* Email */}
+                  <a
+                    href={`https://mail.google.com/mail/?view=cm&fs=1&to=&su=${encodeURIComponent("dsd")}&body=${encodeURIComponent(script)}`}
+                    className="block px-4 py-2 border rounded hover:bg-gray-100"
+                  >
+                    ✉️ Share via Email
+                  </a>
+                </div>
+              </div>
+            </div>
+          )
+        }
+
         {/* Activity */}
         <section className="bg-white p-6 rounded-xl shadow-sm">
           <h2 className="text-lg font-semibold mb-4">Recent Activity</h2>
           <ul className="space-y-4">
-            {activityLog.map((activity, idx) => (
+            {recentActivityrecentFiles.map((activity, idx) => (
               <li key={idx} className="flex items-center space-x-3">
                 <div className="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center text-sm font-medium">
                   {activity.name[0]}
                 </div>
                 <div className="text-sm">
                   <span className="font-semibold">{activity.name}</span>{" "}
-                  {activity.action}{" "}
-                  <span className="text-gray-500">{activity.file}</span>
+                  uploaded{" "}
+                  <span className="text-gray-500">{activity.fileName}</span>
                 </div>
               </li>
             ))}

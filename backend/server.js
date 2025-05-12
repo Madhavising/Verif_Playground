@@ -7,15 +7,19 @@ const authRoutes = require("./routes/authRoutes");
 const dbConnection = require("./db/dbCoonection");
 const cors = require("cors");
 const executeRoutes = require("./routes/executeRoutes");
+const scriptRouter = require("./routes/scriptRoutes");
 
 dotenv.config();
 
 const app = express();
 app.use(cors());
-app.use(express.json());
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ limit: '10mb', extended: true }));
+
 
 app.use("/api/auth", authRoutes);
 app.use("/api", executeRoutes);
+app.use("/api", scriptRouter);
 
 // Get Execution Stats
 app.get("/api/stats", (req, res) => {

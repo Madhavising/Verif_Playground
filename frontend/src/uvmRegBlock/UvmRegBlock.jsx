@@ -1,6 +1,10 @@
+import axios from "axios";
 import React, { useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import * as XLSX from "xlsx";
+
+import { baseUrl } from "../api";
 
 function UVMRegBlock() {
   const [loading, setLoading] = useState(false);
@@ -10,6 +14,7 @@ function UVMRegBlock() {
   const [isScriptRunning, setIsScriptRunning] = useState(false);
 
   const navigate = useNavigate();
+  const user = useSelector((state) => state.user);
 
   const handleInputField = () => {
     navigate("/input-field");
@@ -33,14 +38,14 @@ function UVMRegBlock() {
     sendCSVToServer(file);
   };
 
-  const sendCSVToServer = async () => {
+  const sendCSVToServer = async (file) => {
     const formData = new FormData();
     formData.append("file", file);
 
     try {
       const response = await fetch(
         // "http://3.145.185.106:8000/generate-uvm-ral-base/",
-         "https://python.verifplay.com/generate-uvm-ral-base/",
+        "https://python.verifplay.com/generate-uvm-ral-base/",
         {
           method: "POST",
           body: formData,
@@ -49,6 +54,16 @@ function UVMRegBlock() {
 
       if (response.ok) {
         const apiResult = await response.json();
+
+        let formData = {
+          userId: user.userData._id,
+          file: apiResult.file,
+          fileName : file.name,
+          name: user.userData.firstName + " " + user.userData.lastName,
+          organization: user.userData.companyName,
+        };
+
+        await axios.post(`${baseUrl}/api/createScript`, formData);
         const decodedText = atob(apiResult.file);
         setResult(decodedText);
       } else {
