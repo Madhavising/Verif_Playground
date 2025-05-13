@@ -22,6 +22,7 @@ import Loading from "./components/Loading";
 import Dashboard from "./components/Dashboard";
 
 import DemoRequestPage from "./components/DemoRequestPage";
+import WaveInput from "./inputField/WaveInput.jsx";
 
 function App() {
   const navigate = useNavigate();
@@ -80,6 +81,7 @@ function App() {
               />
               <Route path="uvm-reg-block" element={<UvmRegBlock />} />
               <Route path="input-field" element={<InputField />} />
+              <Route path = "wave-input" element={<WaveInput />} />
               <Route path="docSphere" element={<DocSphere />} />
               <Route path="autoVerify" element={<AutoVerify />} />
               <Route path="regressionTracker" element={<RegressionTracker />} />

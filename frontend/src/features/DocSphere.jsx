@@ -55,17 +55,16 @@ function DocSphere(props) {
   const handleInsertToEditor = () => {
     if (editorRef.current) {
       editorRef.current.insertContent(`
-        <iframe
-          src="${generatedHtml}"
-          width="100%"
-          height="400px"
-          style="border: 1px solid #ccc;"
-          sandbox="allow-scripts allow-same-origin allow-popups allow-forms"
-        ></iframe>
+        <div style="text-align: center; margin: 10px 0;">
+          <a href="${generatedHtml}" target="_blank" rel="noopener noreferrer">
+            View Waveform
+          </a>
+        </div>
       `);
     }
     setShowOutputModal(false);
   };
+  
 
   const callBlockDiagramApi = async () => {
     try {

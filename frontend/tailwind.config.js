@@ -1,4 +1,7 @@
 /** @type {import('tailwindcss').Config} */
+
+const { skeleton } = require('@skeletonlabs/tw-plugin');
+
 export default {
   content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"],
   theme: {
@@ -14,5 +17,11 @@ export default {
       },
     },
   },
-  plugins: [],
+  plugins: [
+    skeleton({
+      themes: {
+        preset: ['skeleton', 'modern'], // choose themes
+      },
+    }),
+  ],
 };
