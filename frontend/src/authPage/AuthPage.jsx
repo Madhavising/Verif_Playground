@@ -214,7 +214,11 @@ import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import axios from "axios";
+import { useDispatch } from "react-redux";
+
 import { LOGIN_BASE_URL } from "../api";
+import { getUserDetails } from "../utils/auth";
+import { setUser } from "../store/slice/userSclice";
 
 const AuthPage = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -228,6 +232,7 @@ const AuthPage = () => {
   });
 
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const togglePasswordVisibility = () => setShowPassword(!showPassword);
 
@@ -237,6 +242,7 @@ const AuthPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     const payload = {
       email: formData.email,
       password: formData.password,
@@ -253,12 +259,18 @@ const AuthPage = () => {
       const endpoint = isLogin ? "/api/auth/login" : "/api/auth/register";
       const response = await axios.post(`${LOGIN_BASE_URL}${endpoint}`, payload);
 
-      if (response.data.status) alert("Login Successful.");
+      if (!response.data.status) throw new Error("Authentication failed.");
 
       if (isLogin && response.data.token) {
         localStorage.setItem("token", response.data.token);
-        window.location.reload(); 
 
+        try {
+          const user = await getUserDetails(response.data.token);
+          dispatch(setUser({ ...user, token: response.data.token }));
+          navigate("/dashboard", { replace: true });
+        } catch (err) {
+          alert("Login succeeded, but fetching user details failed.");
+        }
       }
 
       if (!isLogin) {
@@ -348,3 +360,4 @@ const AuthPage = () => {
 };
 
 export default AuthPage;
+
