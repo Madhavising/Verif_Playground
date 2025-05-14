@@ -7,7 +7,7 @@ const scriptSchema = new mongoose.Schema({
     userId: { type: mongoose.Schema.Types.ObjectId, ref: "user" },
     organization: String
 }, {
-    versionKey : false,
+    versionKey: false,
     timestamps: true
 });
 
