@@ -34,7 +34,6 @@ const getAllActivity = async (req, res) => {
     const user = req.user;
     try {
         const scripts = await Script.find({ organization: user.companyName }).sort("-1");
-        console.log("script", scripts)
         return res.status(200).json({ success: true, data: scripts });
     } catch (error) {
         console.error("Get Script Error:", error.message);

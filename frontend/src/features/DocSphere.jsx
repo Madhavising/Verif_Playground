@@ -2,6 +2,7 @@ import { useRef, useState } from "react";
 import { Editor } from "@tinymce/tinymce-react";
 import axios from "axios";
 import "../App.css";
+import { baseUrl } from "../api";
 
 function DocSphere(props) {
   const editorRef = useRef(null);
@@ -31,7 +32,7 @@ function DocSphere(props) {
     try {
       setLoading(true);
       const response = await axios.post(
-        "http://localhost:3030/upload",
+        `${baseUrl}/waveform/upload`,
         formData,
         {
           headers: { "Content-Type": "multipart/form-data" },
@@ -39,7 +40,7 @@ function DocSphere(props) {
       );
 
       const outputUrl = response.data.output;
-      const fullOutputUrl = `http://localhost:3030${outputUrl}`;
+      const fullOutputUrl = `${baseUrl}/${outputUrl}`;
       setGeneratedHtml(fullOutputUrl);
       setShowOutputModal(true);
       setShowModal(false);

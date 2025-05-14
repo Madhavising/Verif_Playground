@@ -3,7 +3,7 @@ import  { useState } from "react";
 import {  useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 
-import { baseUrl } from "../api";
+import { baseUrl_1 } from "../api";
 
 function UVMRegBlock() {
   const [loading, setLoading] = useState(false);
@@ -44,7 +44,7 @@ function UVMRegBlock() {
     try {
       const response = await fetch(
         // "http://3.145.185.106:8000/generate-uvm-ral-base/",
-        "https://python.verifplay.com/generate-uvm-ral-base/",
+        `${baseUrl_1}/generate-uvm-ral-base/`,
         {
           method: "POST",
           body: formData,
@@ -62,7 +62,7 @@ function UVMRegBlock() {
           organization: user.userData.companyName,
         };
 
-        await axios.post(`${baseUrl}/api/createScript`, formData);
+        await axios.post(`${baseUrl_1}/api/createScript`, formData);
         const decodedText = atob(apiResult.file);
         setResult(decodedText);
       } else {
