@@ -323,10 +323,7 @@ export default function Dashboard() {
                           )}
                         </td>
                         <td className="py-2 space-x-2">
-                          <button
-                            onClick={() => setIsOpen(true)}
-                            title="View"
-                          >
+                          <button onClick={() => setIsOpen(true)} title="View">
                             <Eye className="w-4 h-4" />
                           </button>
                           <button
@@ -383,6 +380,7 @@ export default function Dashboard() {
                 Share this content
               </h3>
               <div className="space-y-3">
+                {/* Copy Link */}
                 <button
                   onClick={() => {
                     navigator.clipboard.writeText(baseUrl);
@@ -392,24 +390,62 @@ export default function Dashboard() {
                 >
                   📋 Copy Link
                 </button>
+
+                {/* Email */}
+                <a
+                  href={`mailto:?subject=Check this out&body=${encodeURIComponent(
+                    `Check this link: ${baseUrl}`
+                  )}`}
+                  className="block px-4 py-2 border rounded hover:bg-gray-100"
+                >
+                  ✉️ Share via Email
+                </a>
+
+                {/* WhatsApp */}
+                <a
+                  href={`https://wa.me/?text=${encodeURIComponent(
+                    `Check this link: ${baseUrl}`
+                  )}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="block px-4 py-2 border rounded hover:bg-gray-100"
+                >
+                  💬 Share on WhatsApp
+                </a>
+
+                {/* Twitter */}
                 <a
                   href={`https://twitter.com/intent/tweet?url=${encodeURIComponent(
                     baseUrl
-                  )}`}
+                  )}&text=${encodeURIComponent("Check this out!")}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="block px-4 py-2 border rounded hover:bg-gray-100"
                 >
                   🐦 Share on Twitter
                 </a>
-                <a
-                  href={`https://mail.google.com/mail/?view=cm&fs=1&to=&su=${encodeURIComponent(
-                    "Check this out"
-                  )}&body=${encodeURIComponent(script)}`}
-                  className="block px-4 py-2 border rounded hover:bg-gray-100"
+
+                {/* Web Share API for mobile */}
+                <button
+                  onClick={async () => {
+                    if (navigator.share) {
+                      try {
+                        await navigator.share({
+                          title: "Shared via Dashboard",
+                          text: "Check this out!",
+                          url: baseUrl,
+                        });
+                      } catch (err) {
+                        console.error("Sharing failed", err);
+                      }
+                    } else {
+                      alert("Web Share API is not supported in your browser.");
+                    }
+                  }}
+                  className="w-full text-left px-4 py-2 border rounded hover:bg-gray-100"
                 >
-                  ✉️ Share via Email
-                </a>
+                  📱 Share via Device
+                </button>
               </div>
             </div>
           </div>
@@ -423,7 +459,10 @@ export default function Dashboard() {
               ? Array(4)
                   .fill(0)
                   .map((_, i) => (
-                    <li key={i} className="flex items-center space-x-3 animate-pulse">
+                    <li
+                      key={i}
+                      className="flex items-center space-x-3 animate-pulse"
+                    >
                       <div className="w-8 h-8 rounded-full bg-gray-300 skeleton" />
                       <div className="h-4 w-48 bg-gray-300 rounded skeleton" />
                     </li>
@@ -436,9 +475,7 @@ export default function Dashboard() {
                     <div className="text-sm">
                       <span className="font-semibold">{activity.name}</span>{" "}
                       uploaded{" "}
-                      <span className="text-gray-500">
-                        {activity.fileName}
-                      </span>
+                      <span className="text-gray-500">{activity.fileName}</span>
                     </div>
                   </li>
                 ))}
@@ -448,4 +485,3 @@ export default function Dashboard() {
     </div>
   );
 }
-
