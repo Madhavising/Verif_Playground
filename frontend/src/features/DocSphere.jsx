@@ -53,18 +53,15 @@ function DocSphere(props) {
   };
 
   const handleInsertToEditor = () => {
-    if (editorRef.current) {
+    if (editorRef.current && generatedHtml) {
       editorRef.current.insertContent(`
-        <div style="text-align: center; margin: 10px 0;">
-          <a href="${generatedHtml}" target="_blank" rel="noopener noreferrer">
-            View Waveform
-          </a>
-        </div>
-      `);
+      <div style="width: 100%; text-align: center; margin: 10px 0;">
+        <img src="${generatedHtml}" alt="Waveform" style="width: 80%; height: 90%; display: block; max-width: 90%;" />
+      </div>
+    `);
     }
     setShowOutputModal(false);
   };
-  
 
   const callBlockDiagramApi = async () => {
     try {
@@ -125,28 +122,24 @@ function DocSphere(props) {
       {/* Output Modal */}
       {showOutputModal && (
         <div className="fixed inset-0 bg-black bg-opacity-30 backdrop-blur-sm flex justify-center items-center z-50">
-          <div className="bg-white p-4 rounded shadow-lg w-11/12 h-[90vh] overflow-auto relative">
+          <div className="bg-white p-4 rounded shadow-lg max-w-4xl w-full relative flex flex-col items-center">
             <button
               onClick={() => setShowOutputModal(false)}
               className="absolute top-2 right-2 px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600"
             >
               Close
             </button>
-            <iframe
+            <img
               src={generatedHtml}
-              width="100%"
-              height="100%"
-              style={{ border: "1px solid #ccc" }}
-              sandbox="allow-scripts allow-same-origin"
-            ></iframe>
-            <div className="flex justify-center mt-4">
-              <button
-                onClick={handleInsertToEditor}
-                className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
-              >
-                Insert to Editor
-              </button>
-            </div>
+              alt="Generated Waveform"
+              className="w-full h-auto max-h-[80vh] object-contain border"
+            />
+            <button
+              onClick={handleInsertToEditor}
+              className="mt-4 px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
+            >
+              Insert to Editor
+            </button>
           </div>
         </div>
       )}

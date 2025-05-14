@@ -1,12 +1,16 @@
 const express = require('express');
+const cors = require("cors");
 const multer = require('multer');
 const { spawn } = require('child_process');
 const path = require('path');
 const fs = require('fs');
 
+
 const app = express();
 const PORT = 3030;
 
+app.use(cors());
+app.use(express.json());
 // Ensure directories exist
 const uploadsDir = path.join(__dirname, 'Uploads');
 const outputDir = path.join(__dirname, 'Generated Output');
@@ -30,7 +34,7 @@ app.post('/upload', upload.single('file'), (req, res) => {
   const outputFilePath = path.join(outputDir, outputFileName);
 
   // Call the updated Python script
-  const python = spawn('./venv/bin/python3', ['script.py', inputFilePath, outputFilePath]);
+  const python = spawn('./venv/Scripts/python.exe', ['script.py', inputFilePath, outputFilePath]);
 
   python.stdout.on('data', (data) => {
     console.log(`Python output: ${data}`);
