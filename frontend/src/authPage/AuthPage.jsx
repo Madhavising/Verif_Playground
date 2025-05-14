@@ -3,7 +3,7 @@
 // import { useNavigate } from "react-router-dom";
 // import { FaEye, FaEyeSlash } from "react-icons/fa";
 // import axios from "axios";
-// import { LOGIN_BASE_URL } from "../api"
+// import { baseUrl } from "../api"
 
 // const useMousePosition = () => {
 //   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
@@ -58,7 +58,7 @@
 
 //     try {
 //       const endpoint = isLogin ? "/api/auth/login" : "/api/auth/register";
-//       const response = await axios.post(`${LOGIN_BASE_URL}${endpoint}`, payload);
+//       const response = await axios.post(`${baseUrl}${endpoint}`, payload);
 
 //       if (response.data.status) alert("Login Successful.");
 
@@ -205,6 +205,8 @@
 // };
 
 // export default AuthPage;
+
+
 
 
 import React, { useState } from "react";
