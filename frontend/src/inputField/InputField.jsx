@@ -140,9 +140,9 @@ const InputField = ({ onSubmit }) => {
   };
 
   return (
-    <div className="max-w-7xl mx-auto p-8 mt-5 bg-white shadow-xl rounded-xl border border-gray-200">
+    <div className="max-w-7xl mx-auto p-8  bg-white shadow-xl rounded-xl border border-gray-200">
       {/* Top Bar */}
-      <div className="flex flex-wrap gap-3 justify-start items-center mb-6 bg-gray-100 p-2 rounded-md shadow text-white">
+      <div className="flex flex-wrap gap-3 justify-start items-center mb-3 bg-gray-100 p-2 rounded-md shadow text-white">
         {/* File Dropdown */}
         <FileMenu onAction={handleDropdownAction} />
 
@@ -176,7 +176,7 @@ const InputField = ({ onSubmit }) => {
                 "Fields",
                 "Default value",
                 "Reset value",
-                "Add Field",
+                " Field",
                 "Description",
                 "Action",
               ].map((header) => (
