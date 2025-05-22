@@ -7,7 +7,7 @@ const VerificationEnvironment = () => {
       Verification Environment
       {/* Scoreboard and Functional Coverage */}
       <ScoreboardAndFunctionalCoverage />
-      <button className="mt-9 bg-gray-200 text-center p-2 w-28 mx-auto rounded ">
+      <button className="mt-9 bg-gray-200 text-center p-2 w-28 mx-au,to rounded ">
         CFG
       </button>
     </div>

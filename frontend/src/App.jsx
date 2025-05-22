@@ -22,7 +22,8 @@ import Dashboard from "./components/Dashboard";
 import DemoRequestPage from "./components/DemoRequestPage";
 import WaveInput from "./inputField/WaveInput.jsx";
 
-import ProtectedRoute from "./routes/protectedRoute.jsx"; // ✅ Import here
+import ProtectedRoute from "./routes/protectedRoute.jsx"; 
+import IntrapediaHomePage from "./intrapedia/IntrapediaHomePage.jsx";
 
 function App() {
   const dispatch = useDispatch();
@@ -89,7 +90,8 @@ function App() {
         >
           <Route path="dashboard" element={<Dashboard />} />
           <Route path="profile" element={<Profile />} />
-          <Route path="verificationLayout" element={<VerificationLayout />} />
+          <Route path="intrapediaHome" element={<IntrapediaHomePage />} />
+          {/* <Route path="verificationLayout" element={<VerificationLayout />} /> */}
           <Route path="uvm-reg-block" element={<UvmRegBlock />} />
           <Route path="input-field" element={<InputField />} />
           <Route path="wave-input" element={<WaveInput />} />

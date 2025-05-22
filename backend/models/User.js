@@ -17,13 +17,14 @@ const userSchema = new mongoose.Schema({
     validate: {
       validator: function (value) {
         // Regex updated to include at least one special character
-        return /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/.test(value);
+        return /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/.test(
+          value
+        );
       },
       message:
         "Password must be at least 8 characters long and include at least one uppercase letter, one lowercase letter, one number, and one special character.",
     },
   },
-  
 
   companyName: { type: String }, // Optional field
   dateCreated: { type: Date, default: Date.now },

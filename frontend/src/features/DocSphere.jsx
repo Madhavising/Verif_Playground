@@ -32,6 +32,7 @@ function DocSphere(props) {
     try {
       setLoading(true);
       const response = await axios.post(
+        // "http://localhost:3000/waveform/upload",
         `${baseUrl}/waveform/upload`,
         formData,
         {
@@ -40,7 +41,9 @@ function DocSphere(props) {
       );
 
       const outputUrl = response.data.output;
-      const fullOutputUrl = `${baseUrl}/${outputUrl}`;
+      const fullOutputUrl = `${baseUrl}${outputUrl}`;
+      // const fullOutputUrl = `http://localhost:3000${outputUrl}`;
+
       setGeneratedHtml(fullOutputUrl);
       setShowOutputModal(true);
       setShowModal(false);
@@ -64,24 +67,24 @@ function DocSphere(props) {
     setShowOutputModal(false);
   };
 
-  const callBlockDiagramApi = async () => {
-    try {
-      const response = await fetch("https://picsum.photos/400/300");
-      if (response.ok) {
-        const imageUrl = response.url;
-        if (editorRef.current) {
-          editorRef.current.insertContent(
-            `<div style="border: 2px solid black; padding: 10px;"><img src="${imageUrl}" alt="Block Diagram" style="max-width: 100%; height: auto;" /></div>`
-          );
-        }
-      } else {
-        alert("Failed to load block diagram.");
-      }
-    } catch (error) {
-      console.error("Error:", error);
-      alert("Block diagram API failed.");
-    }
-  };
+  // const callBlockDiagramApi = async () => {
+  //   try {
+  //     const response = await fetch("https://picsum.photos/400/300");
+  //     if (response.ok) {
+  //       const imageUrl = response.url;
+  //       if (editorRef.current) {
+  //         editorRef.current.insertContent(
+  //           `<div style="border: 2px solid black; padding: 10px;"><img src="${imageUrl}" alt="Block Diagram" style="max-width: 100%; height: auto;" /></div>`
+  //         );
+  //       }
+  //     } else {
+  //       alert("Failed to load block diagram.");
+  //     }
+  //   } catch (error) {
+  //     console.error("Error:", error);
+  //     alert("Block diagram API failed.");
+  //   }
+  // };
 
   const config = props.config || {};
   const editorId = config.id || "default-editor-id";
