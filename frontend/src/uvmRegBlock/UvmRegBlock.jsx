@@ -1,11 +1,11 @@
 import axios from "axios";
-import  { useState } from "react";
-import {  useSelector } from "react-redux";
+import { useState } from "react";
+import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 
 import { baseUrl_1 } from "../api";
 
-function UVMRegBlock() {
+function UVMRegBlock({ onClose }) {
   const [loading, setLoading] = useState(false);
   const [fileName, setFileName] = useState("");
   const [result, setResult] = useState("");
@@ -57,7 +57,7 @@ function UVMRegBlock() {
         let formData = {
           userId: user.userData._id,
           file: apiResult.file,
-          fileName : file.name,
+          fileName: file.name,
           name: user.userData.firstName + " " + user.userData.lastName,
           organization: user.userData.companyName,
         };
@@ -115,85 +115,94 @@ function UVMRegBlock() {
     navigate("/dashboard");
   };
 
-  return (
-    <div className="  bg-gray-100 flex flex-col items-center mx-auto py-16">
-      <main className="w-full max-w-5xl bg-white shadow-lg rounded-lg p-8 mt-8">
-        <h2 className="text-xl font-semibold text-center mb-6">
-          Automate Your UVM Register Block Generation
-        </h2>
+ return (
+  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 px-4">
+    <div className="relative bg-white w-full max-w-3xl rounded-2xl shadow-2xl p-8">
+      {/* Close Button */}
+      <button
+        className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 text-2xl"
+        onClick={onClose}
+      >
+        &times;
+      </button>
 
-        {/* Center Column: File Upload & Controls */}
-        <div className="space-y-6">
-          <div className="bg-gray-50 p-6 rounded-lg shadow-sm">
-            <h3 className="font-bold text-center text-gray-700 mb-4">
-              Upload Excel File
-            </h3>
-            <div className="flex items-center justify-between">
-              <input
-                type="file"
-                className="border border-gray-300 rounded px-2 py-1 w-full"
-                onChange={handleFileChange}
-              />
-              <button
-                onClick={handleInputField}
-                className="ml-4 bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600"
-              >
-                Enter Data Manually
-              </button>
-            </div>
-            {fileName && (
-              <p className="text-sm text-gray-500 mt-2">
-                File Selected: {fileName}
-              </p>
-            )}
-          </div>
+      {/* Heading */}
+      <h2 className="text-3xl font-bold text-center text-gray-800 mb-8">
+        Automate UVM Register Block
+      </h2>
 
-          <div className="bg-gray-50 p-6 rounded-lg shadow-sm">
-            <div className="flex items-center justify-between">
-              <span>Run Script</span>
-              <input
-                type="checkbox"
-                className="toggle toggle-blue"
-                checked={isScriptRunning}
-                onChange={handleSwitchChange}
-              />
-            </div>
-            {loading && (
-              <div className="text-center mt-4">
-                <span className="text-blue-500">Processing...</span>
-              </div>
-            )}
-          </div>
-
-          <div className="bg-gray-50 flex flex-col justify-center items-center md:flex-row gap-4 p-6 rounded-lg shadow-sm">
-            <button
-              onClick={downloadScript}
-              className="w-full md:w-auto bg-green-500 text-white py-2 px-6 rounded-lg hover:bg-green-600 transition "
-              disabled={!result}
-            >
-              Download Script
-            </button>
-
-            <button
-              onClick={handleSave}
-              className="w-full md:w-auto bg-blue-500 text-white py-2 px-6 rounded-lg hover:bg-blue-600 transition duration-300"
-            >
-              Save
-            </button>
-          </div>
-        </div>
-
-        {result && (
-          <div className="mt-8 bg-gray-50 p-6 rounded-lg shadow-sm">
-            <h3 className="font-bold text-gray-700">Output:</h3>
-            <pre className="bg-gray-100 p-4 rounded mt-2 text-sm overflow-auto">
-              {result}
-            </pre>
-          </div>
+      {/* Upload Section */}
+      <section className="bg-gray-50 p-6 rounded-xl border border-dashed border-gray-300 mb-6 text-center">
+        <h3 className="text-lg font-semibold text-gray-700 mb-4">Upload Excel File</h3>
+        <label
+          htmlFor="file-upload"
+          className="inline-block cursor-pointer bg-blue-600 hover:bg-blue-700 text-white font-medium px-5 py-2 rounded-md shadow transition"
+        >
+          Choose File
+        </label>
+        <input
+          id="file-upload"
+          type="file"
+          className="hidden"
+          onChange={handleFileChange}
+        />
+        {fileName && (
+          <p className="text-sm text-gray-600 mt-3">
+            File Selected: <span className="font-medium">{fileName}</span>
+          </p>
         )}
-      </main>
+      </section>
+
+      {/* Script Toggle */}
+      <section className="flex items-center justify-between bg-gray-50 p-5 rounded-xl border border-gray-200 mb-6">
+        <span className="text-gray-700 font-medium text-base">Run Script</span>
+        <input
+          type="checkbox"
+          className="form-checkbox h-6 w-6 text-blue-600"
+          checked={isScriptRunning}
+          onChange={handleSwitchChange}
+        />
+      </section>
+
+      {/* Loading Message */}
+      {loading && (
+        <p className="text-center text-blue-600 font-semibold mb-5">
+          Processing your script...
+        </p>
+      )}
+
+      {/* Action Buttons */}
+      <div className="flex flex-col md:flex-row items-center justify-center gap-4 mt-6">
+        <button
+          onClick={downloadScript}
+          disabled={!result}
+          className={`w-full md:w-auto px-6 py-2 rounded-lg text-white font-semibold transition ${
+            result
+              ? 'bg-green-500 hover:bg-green-600'
+              : 'bg-green-300 cursor-not-allowed'
+          }`}
+        >
+          Download Script
+        </button>
+        <button
+          onClick={handleSave}
+          className="w-full md:w-auto px-6 py-2 rounded-lg bg-blue-500 hover:bg-blue-600 text-white font-semibold transition"
+        >
+          Save
+        </button>
+      </div>
+
+      {/* Output Script */}
+      {result && (
+        <div className="mt-8 bg-gray-100 p-5 rounded-xl shadow-inner overflow-auto max-h-64">
+          <h4 className="font-bold text-gray-700 mb-3">Generated Script:</h4>
+          <pre className="text-sm text-gray-800 whitespace-pre-wrap">{result}</pre>
+        </div>
+      )}
     </div>
-  );
+  </div>
+);
+
 }
 
 export default UVMRegBlock;

@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { Menu } from "lucide-react";
 import { FaRegUser } from "react-icons/fa6";
 import { useSelector } from "react-redux";
+import { Bell } from "lucide-react";
 
 const Navbar = ({ toggleSidebar }) => {
   const navigate = useNavigate();
@@ -54,7 +55,7 @@ const Navbar = ({ toggleSidebar }) => {
         <div className="flex items-center gap-4 relative">
           {/* Upload and Create Buttons (Desktop only) */}
           <div className="hidden sm:flex gap-2">
-            <button
+            {/* <button
               onClick={handleUVMRegBlock}
               className="px-4 py-2 bg-white text-black rounded-md hover:bg-gray-200 transition"
             >
@@ -62,9 +63,12 @@ const Navbar = ({ toggleSidebar }) => {
             </button>
             <button className="px-4 py-2 bg-white text-black rounded-md hover:bg-gray-200 transition">
               Create File
-            </button>
+            </button> */}
           </div>
-
+          <button className="relative w-10 h-10 flex items-center justify-center rounded-full bg-white text-black hover:scale-105 hover:shadow-lg transition-transform">
+            <Bell className="w-5 h-5" />
+            <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full"></span>
+          </button>
           {/* User Initials Button */}
           <button
             onClick={handleToggleDropdown}

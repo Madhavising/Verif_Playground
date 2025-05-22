@@ -18,7 +18,7 @@ import {
 const navItems = [
   // { to: "/verificationLayout", label: "Home", icon: Home },
   { to: "/intrapediaHome", label: "Home", icon: Home },
-  { to: "/uvm-reg-block", label: "UVM REG", icon: Box },
+  { to: "/input-field", label: "Create Register Map", icon: Box },
   { to: "/docSphere", label: "DocSphere", icon: FileText },
   { to: "/demo-request-page", label: "Request", icon: Send },
   { to: "/autoVerify", label: "AutoVerify", icon: CheckCircle2 },
