@@ -6,6 +6,9 @@ export default {
   content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"],
   theme: {
     extend: {
+       fontFamily: {
+        satoshi: ['Satoshi', 'sans-serif'],
+      },
       keyframes: {
         slideIn: {
           "0%": { opacity: 0, transform: "translateY(-20px)" },

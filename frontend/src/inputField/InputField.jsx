@@ -140,7 +140,7 @@ const InputField = ({ onSubmit }) => {
   };
 
   return (
-    <div className="max-w-7xl mx-auto p-8  bg-white shadow-xl rounded-xl border border-gray-200">
+    <div className="max-w-7xl mx-auto p-8  font-normal bg-white shadow-xl rounded-xl border border-gray-200">
       {/* Top Bar */}
       <div className="flex flex-wrap gap-3 justify-start items-center mb-3 bg-gray-100 p-2 rounded-md shadow text-white">
         {/* File Dropdown */}
@@ -176,7 +176,7 @@ const InputField = ({ onSubmit }) => {
                 "Fields",
                 "Default value",
                 "Reset value",
-                " Field",
+                "Field",
                 "Description",
                 "Action",
               ].map((header) => (

@@ -65,7 +65,7 @@ function App() {
   }
 
   return (
-    <div className="bg-red-200 min-h-screen">
+    <div className="bg-red-200 font-satoshi min-h-screen">
       <Routes>
         {/* Public route */}
         <Route

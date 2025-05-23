@@ -65,8 +65,8 @@ const Navbar = ({ toggleSidebar }) => {
               Create File
             </button> */}
           </div>
-          <button className="relative w-10 h-10 flex items-center justify-center rounded-full bg-white text-black hover:scale-105 hover:shadow-lg transition-transform">
-            <Bell className="w-5 h-5" />
+          <button className="relative w-10 h-10 flex items-center justify-center rounded-full  text-black hover:scale-105 hover:shadow-lg transition-transform">
+            <Bell className="w-7 h-7" />
             <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full"></span>
           </button>
           {/* User Initials Button */}

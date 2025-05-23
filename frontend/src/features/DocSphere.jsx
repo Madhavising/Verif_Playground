@@ -180,9 +180,98 @@ function DocSphere(props) {
             "help",
           ],
           toolbar:
-            "undo redo | bold italic forecolor | fontsize | bullist numlist outdent indent | alignleft aligncenter alignright alignjustify | table | wave blockdiagram",
+            "undo redo | savefile | bold italic forecolor | fontsize | bullist numlist outdent indent | alignleft aligncenter alignright alignjustify | table | wave blockdiagram shapeMenu",
           menubar: "file edit insert view format tools table",
           setup: (editor) => {
+            editor.ui.registry.addButton("savefile", {
+              text: "Save",
+              onAction: () => {
+                const content = editor.getContent();
+                const blob = new Blob([content], { type: "text/html" });
+                const url = URL.createObjectURL(blob);
+
+                const link = document.createElement("a");
+                link.href = url;
+                link.download = "document.html";
+                link.click();
+
+                URL.revokeObjectURL(url);
+              },
+            });
+
+            editor.ui.registry.addButton("shapeMenu", {
+              text: "Shapes",
+              onAction: () => {
+                editor.windowManager.open({
+                  title: "Insert Shape",
+                  body: {
+                    type: "panel",
+                    items: [
+                      {
+                        type: "htmlpanel",
+                        html: `
+              <div style="display: flex; flex-wrap: wrap; gap: 10px; justify-content: center;">
+                <button class="tinymce-shape-btn" data-shape="rectangle" style="width:60px;height:60px;border:2px solid black;">⬛</button>
+                <button class="tinymce-shape-btn" data-shape="circle" style="width:60px;height:60px;border:2px solid black;border-radius:50%;">⚪</button>
+                <button class="tinymce-shape-btn" data-shape="line" style="width:60px;height:60px;">▬</button>
+                <button class="tinymce-shape-btn" data-shape="arrow" style="width:60px;height:60px;">→</button>
+              </div>
+            `,
+                      },
+                    ],
+                  },
+                  buttons: [
+                    {
+                      type: "cancel",
+                      text: "Close",
+                    },
+                  ],
+                  onClose: () => {
+                    document
+                      .querySelectorAll(".tinymce-shape-btn")
+                      .forEach((btn) =>
+                        btn.removeEventListener("click", insertShape)
+                      );
+                  },
+                });
+
+                function insertShape(e) {
+                  const shape = e.target.getAttribute("data-shape");
+                  let content = "";
+
+                  switch (shape) {
+                    case "rectangle":
+                      content =
+                        '<div style="width:150px;height:100px;border:2px solid black;"></div>';
+                      break;
+                    case "circle":
+                      content =
+                        '<div style="width:100px;height:100px;border-radius:50%;border:2px solid black;"></div>';
+                      break;
+                    case "line":
+                      content = '<hr style="border: 1px solid black;" />';
+                      break;
+                    case "arrow":
+                      content = '<div style="font-size: 24px;">→</div>';
+                      break;
+                    default:
+                      return;
+                  }
+
+                  editor.insertContent(content);
+                  editor.windowManager.close();
+                }
+
+                setTimeout(() => {
+                  document
+                    .querySelectorAll(".tinymce-shape-btn")
+                    .forEach((btn) =>
+                      btn.addEventListener("click", insertShape)
+                    );
+                }, 100); // Delay to ensure DOM is rendered
+              },
+            });
+
             editor.ui.registry.addButton("wave", {
               text: "Wave",
               onAction: () => {
