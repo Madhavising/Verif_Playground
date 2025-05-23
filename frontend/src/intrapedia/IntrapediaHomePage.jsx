@@ -12,8 +12,7 @@ const IntrapediaHomePage = () => {
     { name: "Tracker", path: "/regressionTracker" },
     { name: "Request", path: "/demo-request-page" },
     { name: "DataHub", path: "/dataHub" },
-     { name: "RAL", path: "/uvm-reg-block" },
-   
+    { name: "RAL", path: "/uvm-reg-block" },
 
     // { name: "Tools", path: "/tools" },
   ];
@@ -32,7 +31,6 @@ const IntrapediaHomePage = () => {
         <h1 className="text-4xl font-serif font-bold text-blue-900">
           Andgate Intrapedia.
         </h1>
-        <p className="text-lg text-gray-600 mt-2">The Free Encyclopedia</p>
       </div>
 
       {/* Main Content */}
