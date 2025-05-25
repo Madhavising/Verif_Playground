@@ -3,7 +3,7 @@ import { useState } from "react";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 
-import { baseUrl_1 } from "../api";
+import { baseUrl_1 , baseUrl} from "../api";
 
 function UVMRegBlock({ onClose }) {
   const [loading, setLoading] = useState(false);
@@ -62,7 +62,7 @@ function UVMRegBlock({ onClose }) {
           organization: user.userData.companyName,
         };
 
-        await axios.post(`${baseUrl_1}/api/createScript`, formData);
+        await axios.post(`${baseUrl}/api/createScript`, formData);
         const decodedText = atob(apiResult.file);
         setResult(decodedText);
       } else {
