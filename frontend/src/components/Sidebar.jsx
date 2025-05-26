@@ -1,5 +1,3 @@
-
-
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import {
@@ -16,7 +14,6 @@ import {
 } from "lucide-react";
 
 const navItems = [
-  // { to: "/verificationLayout", label: "Home", icon: Home },
   { to: "/intrapediaHome", label: "Home", icon: Home },
   { to: "/input-field", label: "Create Register Map", icon: Box },
   { to: "/docSphere", label: "DocSphere", icon: FileText },
@@ -31,55 +28,48 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
 
   return (
     <div
-      className={`h-screen bg-gray-900 text-white shadow-xl transition-all duration-300 ease-in-out ${
-        isOpen ? "w-64" : "w-20"
-      } fixed lg:relative z-50`}
+      className={`h-screen bg-[#1e1e2f] text-gray-300 transition-all duration-300 ease-in-out 
+      ${isOpen ? "w-64" : "w-16"} fixed z-50 border-r border-gray-700`}
     >
       <div className="flex flex-col h-full justify-between">
-        {/* Top: Logo + Toggle */}
-        <div className="flex items-center justify-between px-4 py-5">
-          <Link to="/dashboard" className="text-white flex items-center gap-2">
-            <LayoutDashboard size={24} />
-            {isOpen && <span className="text-lg font-semibold">Dashboard</span>}
+        {/* Top Logo + Toggle */}
+        <div className="flex items-center justify-between px-4 py-4 border-b border-gray-700">
+          <Link to="/dashboard" className="flex items-center gap-2">
+            <LayoutDashboard size={22} />
+            {isOpen && (
+              <span className="text-sm font-semibold text-white tracking-wide">
+                Dashboard
+              </span>
+            )}
           </Link>
-          <button
-            onClick={toggleSidebar}
-            className="lg:inline-block hidden text-white"
-          >
-            {isOpen ? <ChevronLeft size={20} /> : <ChevronRight size={20} />}
+          <button onClick={toggleSidebar} className="hidden lg:inline-block text-gray-400 hover:text-white">
+            {isOpen ? <ChevronLeft size={18} /> : <ChevronRight size={18} />}
           </button>
         </div>
 
         {/* Nav Links */}
-        <nav className="flex-1 px-2 space-y-1">
+        <nav className="flex-1 px-2 py-4 space-y-1 overflow-y-auto">
           {navItems.map(({ to, label, icon: Icon }, index) => {
             const isActive = location.pathname === to;
+
             return (
               <Link
                 key={index}
                 to={to}
-                className={`group relative flex items-center gap-4 px-4 py-3 rounded-lg transition-all duration-200 ease-in-out
-                  ${
-                    isActive
-                      ? "bg-blue-600 text-white shadow-md font-semibold"
-                      : "text-gray-300 hover:text-white hover:bg-gray-800"
-                  }
+                className={`group relative flex items-center px-3 py-2 rounded-md transition-colors duration-200 text-sm
+                ${isActive ? "bg-blue-600 text-white" : "hover:bg-gray-700 hover:text-white"}
                 `}
               >
                 <Icon
-                  size={22}
-                  className={`transition-transform duration-300 group-hover:scale-110 ${
-                    isActive ? "text-white" : ""
+                  size={20}
+                  className={`min-w-[20px] transition-transform duration-300 ${
+                    isActive ? "text-white" : "text-gray-400 group-hover:text-white"
                   }`}
                 />
-                {isOpen && (
-                  <span className="transition-opacity duration-300">
-                    {label}
-                  </span>
-                )}
+                {isOpen && <span className="ml-3">{label}</span>}
 
                 {!isOpen && (
-                  <span className="absolute left-20 top-1/2 -translate-y-1/2 whitespace-nowrap bg-black text-white text-xs rounded px-2 py-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-50">
+                  <span className="absolute left-16 top-1/2 -translate-y-1/2 bg-black text-white text-xs px-2 py-1 rounded z-50 opacity-0 group-hover:opacity-100 whitespace-nowrap transition-opacity">
                     {label}
                   </span>
                 )}
@@ -88,11 +78,11 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
           })}
         </nav>
 
-        {/* Bottom: Toggle Button */}
-        <div className="px-4 py-4 border-t border-gray-800 flex justify-center">
+        {/* Bottom Toggle */}
+        <div className="px-4 py-4 border-t border-gray-700 flex justify-center">
           <button
             onClick={toggleSidebar}
-            className="bg-gray-800 hover:bg-gray-700 text-white rounded-full p-2 transition-all"
+            className="text-gray-400 hover:text-white"
           >
             {isOpen ? <ChevronLeft size={20} /> : <ChevronRight size={20} />}
           </button>

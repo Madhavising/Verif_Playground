@@ -3,9 +3,12 @@ import { FaTrashAlt, FaPlus } from "react-icons/fa";
 import * as XLSX from "xlsx";
 import FileMenu from "./FileMenu";
 import UVMRegBlock from "../uvmRegBlock/UvmRegBlock";
+import { useNavigate } from "react-router-dom";
 
 const InputField = ({ onSubmit }) => {
-  const [showModal, setShowModal] = useState(false);
+  const navigate = useNavigate();
+  const [ipName, setIpName] = useState("Register_IP");
+
   const [rows, setRows] = useState([
     {
       registerName: "",
@@ -140,28 +143,46 @@ const InputField = ({ onSubmit }) => {
   };
 
   return (
-    <div className="max-w-7xl mx-auto p-8  font-normal bg-white shadow-xl rounded-xl border border-gray-200">
+    <div className="max-w-screen p-2  font-normal bg-white shadow-xl rounded-xl border border-gray-200">
       {/* Top Bar */}
-      <div className="flex flex-wrap gap-3 justify-start items-center mb-3 bg-gray-100 p-2 rounded-md shadow text-white">
-        {/* File Dropdown */}
-        <FileMenu onAction={handleDropdownAction} />
+      <div className="flex justify-start gap-2 items-center bg-white border border-gray-300 shadow-sm rounded-t-md px-2 py-2">
+        {/* Left: File Menu */}
+        <div className="flex items-center gap-4">
+          <FileMenu onAction={handleDropdownAction} />
+        </div>
 
-        {/* Action Buttons */}
-        <div className="flex gap-3">
-          <button className="bg-gray-700 hover:bg-gray-600 px-4 py-2 rounded-md text-sm font-medium">
-            <button onClick={() => setShowModal(true)} className=" text-white">
-              RAL
-            </button>
-
-            {showModal && <UVMRegBlock onClose={() => setShowModal(false)} />}
+        {/* Right: Tool Actions */}
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => navigate("/uvm-reg-block")}
+            className="tool-button"
+            title="Register Abstraction Layer"
+          >
+            RAL
           </button>
-          <button className="bg-gray-700 hover:bg-gray-600 px-4 py-2 rounded-md text-sm font-medium">
+
+          <button className="tool-button" title="Design View">
             Design
           </button>
-          <button className="bg-gray-700 hover:bg-gray-600 px-4 py-2 rounded-md text-sm font-medium">
+
+          <button className="tool-button" title="C Header View">
             C Define
           </button>
         </div>
+      </div>
+      {/* IP name */}
+      <div className="mb-2 mt-2 flex items-center gap-2">
+        <label htmlFor="ipName" className="text-lg font-semibold">
+          IP Name:
+        </label>
+        <input
+          id="ipName"
+          type="text"
+          value={ipName}
+          onChange={(e) => setIpName(e.target.value)}
+          placeholder="Enter IP Name"
+          className="border rounded px-3 py-1 focus:outline-none focus:ring-2 focus:ring-blue-600"
+        />
       </div>
 
       {/* Table Section */}
@@ -285,7 +306,7 @@ const InputField = ({ onSubmit }) => {
       <div className="flex justify-start mt-6 gap-4">
         <button
           onClick={handleAddRow}
-          className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-md font-semibold shadow"
+          className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md font-semibold shadow"
           title="Add Row"
         >
           <FaPlus />
