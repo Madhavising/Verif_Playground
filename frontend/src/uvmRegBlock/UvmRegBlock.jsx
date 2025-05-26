@@ -200,7 +200,7 @@ import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { baseUrl_1, baseUrl } from "../api";
 import axios from "axios";
-import Editor from "@monaco-editor/react";
+import { ArrowLeft } from "lucide-react"; // Optional icon (install lucide-react if not already)
 
 function UVMRegBlock() {
   const [step, setStep] = useState(1);
@@ -208,10 +208,14 @@ function UVMRegBlock() {
   const [file, setFile] = useState(null);
   const [result, setResult] = useState("");
   const [loading, setLoading] = useState(false);
-  const [status, setStatus] = useState("Idle"); // Idle | Processing | Success | Error
+  const [status, setStatus] = useState("Idle");
 
   const user = useSelector((state) => state.user);
   const navigate = useNavigate();
+
+  const handleBack = () => {
+    navigate(-1);
+  };
 
   const onDrop = useCallback((acceptedFiles) => {
     const uploadedFile = acceptedFiles[0];
@@ -296,10 +300,21 @@ function UVMRegBlock() {
   };
 
   return (
-    <div className="h-full bg-gray-50 px-2 py-2 font-sans">
-      <h2 className="text-3xl font-bold text-center  mb-5">
-        Automate UVM Register Block
-      </h2>
+    <div className="h-full bg-gray-50 px-4 py-4 font-sans">
+      {/* Back Button + Title */}
+      <div className="flex items-center justify-between mb-5">
+        <button
+          onClick={handleBack}
+          className="flex items-center gap-2 text-blue-600 hover:text-blue-800 bg-white border border-blue-100 px-4 py-2 rounded-lg shadow-sm transition"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          Back
+        </button>
+        <h2 className="text-3xl font-bold text-center w-full -ml-8">
+          Automate UVM Register Block
+        </h2>
+      </div>
+
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* LEFT SECTION */}
         <div className="space-y-6">
@@ -393,9 +408,9 @@ function UVMRegBlock() {
 
         {/* RIGHT SECTION */}
         <div className="relative bg-white border rounded-xl p-4 h-[626px] flex flex-col">
-          {/* Top bar: Status left, buttons right */}
+          {/* Top bar */}
           <div className="flex justify-between items-center mb-4">
-            {/* Status Display */}
+            {/* Status */}
             <div className="flex items-center gap-2 bg-gray-100 px-3 py-1 rounded-full shadow-sm w-max">
               <div
                 className={`w-3 h-3 rounded-full ${
@@ -411,13 +426,12 @@ function UVMRegBlock() {
               <p className="text-sm font-medium text-gray-700">{status}</p>
             </div>
 
-            {/* Buttons */}
+            {/* Action Buttons */}
             <div className="flex gap-3">
               <button
                 onClick={downloadScript}
                 disabled={!result}
                 className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded disabled:opacity-50 transition"
-                title="Download script"
               >
                 Download
               </button>
@@ -425,14 +439,13 @@ function UVMRegBlock() {
                 onClick={saveScript}
                 disabled={!result}
                 className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded disabled:opacity-50 transition"
-                title="Save script"
               >
                 Save
               </button>
             </div>
           </div>
 
-          {/* Script display */}
+          {/* Code Viewer */}
           <div className="flex-grow border rounded p-4 bg-gray-50 overflow-auto whitespace-pre-wrap text-sm font-mono text-gray-800">
             {result ? (
               result
@@ -449,3 +462,4 @@ function UVMRegBlock() {
 }
 
 export default UVMRegBlock;
+
