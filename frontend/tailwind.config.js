@@ -9,6 +9,9 @@ export default {
        fontFamily: {
         satoshi: ['Satoshi', 'sans-serif'],
       },
+      fontFamily: {
+      ibm: ['"IBM Plex Sans"', 'sans-serif'],
+    },
       keyframes: {
         slideIn: {
           "0%": { opacity: 0, transform: "translateY(-20px)" },

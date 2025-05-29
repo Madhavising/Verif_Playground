@@ -7,7 +7,7 @@ import { useNavigate } from "react-router-dom";
 
 const InputField = ({ onSubmit }) => {
   const navigate = useNavigate();
-  const [ipName, setIpName] = useState("Register_IP");
+  const [ipName, setIpName] = useState("");
 
   const [rows, setRows] = useState([
     {
@@ -143,7 +143,7 @@ const InputField = ({ onSubmit }) => {
   };
 
   return (
-    <div className="max-w-screen p-2  font-normal bg-white shadow-xl rounded-xl border border-gray-200">
+    <div className="max-w-screen p-2 font-ibm font-normal bg-white shadow-xl rounded-xl border border-gray-200">
       {/* Top Bar */}
       <div className="flex justify-start gap-2 items-center bg-white border border-gray-300 shadow-sm rounded-t-md px-2 py-2">
         {/* Left: File Menu */}
@@ -181,7 +181,7 @@ const InputField = ({ onSubmit }) => {
           value={ipName}
           onChange={(e) => setIpName(e.target.value)}
           placeholder="Enter IP Name"
-          className="border rounded px-3 py-1 focus:outline-none focus:ring-2 focus:ring-blue-600"
+          className="border font-mono w-36 text-center rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-600"
         />
       </div>
 

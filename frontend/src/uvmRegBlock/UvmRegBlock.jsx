@@ -194,6 +194,7 @@
 
 // export default UVMRegBlock;
 
+
 import { useState, useCallback } from "react";
 import { useDropzone } from "react-dropzone";
 import { useSelector } from "react-redux";
@@ -222,6 +223,7 @@ function UVMRegBlock() {
     if (uploadedFile) {
       setFileName(uploadedFile.name);
       setFile(uploadedFile);
+      setStep(1);
     }
   }, []);
 
@@ -232,6 +234,7 @@ function UVMRegBlock() {
       alert("Please upload a file first.");
       return;
     }
+    setStep(2);
     setStatus("Processing");
     setLoading(true);
     sendCSVToServer(file);
@@ -281,6 +284,7 @@ function UVMRegBlock() {
     a.download = "uvm_script.sv";
     a.click();
     URL.revokeObjectURL(url);
+     setStep(3);
   };
 
   const saveScript = () => {
@@ -300,7 +304,7 @@ function UVMRegBlock() {
   };
 
   return (
-    <div className="h-full bg-gray-50 px-4 py-4 font-sans">
+    <div className="h-full bg-gray-50 px-1 py-1 font-sans">
       {/* Back Button + Title */}
       <div className="flex items-center justify-between mb-5">
         <button
@@ -311,7 +315,7 @@ function UVMRegBlock() {
           Back
         </button>
         <h2 className="text-3xl font-bold text-center w-full -ml-8">
-          Automate UVM Register Block
+        UVM Register Block
         </h2>
       </div>
 

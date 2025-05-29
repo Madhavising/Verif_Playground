@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Editor } from "@tinymce/tinymce-react";
 import axios from "axios";
 import "../App.css";
@@ -11,6 +11,32 @@ function DocSphere(props) {
   const [loading, setLoading] = useState(false);
   const [generatedHtml, setGeneratedHtml] = useState("");
   const [showOutputModal, setShowOutputModal] = useState(false);
+  const [editorContent, setEditorContent] = useState("");
+  const [saveStatus, setSaveStatus] = useState("Not Saved");
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      handleSave();
+    }, 10000); // Auto-save every 10 seconds
+
+    return () => clearInterval(interval); // Cleanup on unmount
+  }, []);
+
+  const handleSave = async () => {
+    if (editorRef.current) {
+      const content = editorRef.current.getContent();
+      setEditorContent(content);
+
+      try {
+        setSaveStatus("Saving...");
+        await axios.post(`${baseUrl}/save-doc`, { html: content });
+        setSaveStatus("Saved");
+      } catch (error) {
+        console.error("Auto-save failed:", error);
+        setSaveStatus("Save Failed");
+      }
+    }
+  };
 
   const handleEditorInit = (evt, editor) => {
     editorRef.current = editor;
@@ -180,9 +206,23 @@ function DocSphere(props) {
             "help",
           ],
           toolbar:
-            "undo redo | savefile | bold italic forecolor | fontsize | bullist numlist outdent indent | alignleft aligncenter alignright alignjustify | table | wave blockdiagram shapeMenu",
+            "undo redo | savefile | bold italic forecolor | fontsize | bullist numlist outdent indent | alignleft aligncenter alignright alignjustify | table | wave blockdiagram ",
           menubar: "file edit insert view format tools table",
+          menu: {
+            file: {
+              title: "File",
+              items: "newdocument savefilemenu restoredraft | preview print",
+            },
+          },
           setup: (editor) => {
+
+            editor.ui.registry.addMenuItem("savefilemenu", {
+              text: "Save",
+              onAction: () => {
+                handleSave();
+              },
+            });
+
             editor.ui.registry.addButton("savefile", {
               text: "Save",
               onAction: () => {
@@ -196,79 +236,6 @@ function DocSphere(props) {
                 link.click();
 
                 URL.revokeObjectURL(url);
-              },
-            });
-
-            editor.ui.registry.addButton("shapeMenu", {
-              text: "Shapes",
-              onAction: () => {
-                editor.windowManager.open({
-                  title: "Insert Shape",
-                  body: {
-                    type: "panel",
-                    items: [
-                      {
-                        type: "htmlpanel",
-                        html: `
-              <div style="display: flex; flex-wrap: wrap; gap: 10px; justify-content: center;">
-                <button class="tinymce-shape-btn" data-shape="rectangle" style="width:60px;height:60px;border:2px solid black;">⬛</button>
-                <button class="tinymce-shape-btn" data-shape="circle" style="width:60px;height:60px;border:2px solid black;border-radius:50%;">⚪</button>
-                <button class="tinymce-shape-btn" data-shape="line" style="width:60px;height:60px;">▬</button>
-                <button class="tinymce-shape-btn" data-shape="arrow" style="width:60px;height:60px;">→</button>
-              </div>
-            `,
-                      },
-                    ],
-                  },
-                  buttons: [
-                    {
-                      type: "cancel",
-                      text: "Close",
-                    },
-                  ],
-                  onClose: () => {
-                    document
-                      .querySelectorAll(".tinymce-shape-btn")
-                      .forEach((btn) =>
-                        btn.removeEventListener("click", insertShape)
-                      );
-                  },
-                });
-
-                function insertShape(e) {
-                  const shape = e.target.getAttribute("data-shape");
-                  let content = "";
-
-                  switch (shape) {
-                    case "rectangle":
-                      content =
-                        '<div style="width:150px;height:100px;border:2px solid black;"></div>';
-                      break;
-                    case "circle":
-                      content =
-                        '<div style="width:100px;height:100px;border-radius:50%;border:2px solid black;"></div>';
-                      break;
-                    case "line":
-                      content = '<hr style="border: 1px solid black;" />';
-                      break;
-                    case "arrow":
-                      content = '<div style="font-size: 24px;">→</div>';
-                      break;
-                    default:
-                      return;
-                  }
-
-                  editor.insertContent(content);
-                  editor.windowManager.close();
-                }
-
-                setTimeout(() => {
-                  document
-                    .querySelectorAll(".tinymce-shape-btn")
-                    .forEach((btn) =>
-                      btn.addEventListener("click", insertShape)
-                    );
-                }, 100); // Delay to ensure DOM is rendered
               },
             });
 
@@ -293,6 +260,20 @@ function DocSphere(props) {
             "body { font-family:Helvetica,Arial,sans-serif; font-size:14px; margin: 0; }",
         }}
       />
+       <p className="mt-3 text-sm">
+        Auto-Save Status:{" "}
+        <span
+          className={
+            saveStatus === "Saved"
+              ? "text-green-600"
+              : saveStatus === "Saving..."
+              ? "text-yellow-600"
+              : "text-red-600"
+          }
+        >
+          {saveStatus}
+        </span>
+      </p>
     </div>
   );
 }
