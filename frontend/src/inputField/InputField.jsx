@@ -7,7 +7,7 @@ import { useNavigate } from "react-router-dom";
 
 const InputField = ({ onSubmit }) => {
   const navigate = useNavigate();
-  const [ipName, setIpName] = useState("Register_IP");
+  const [ipName, setIpName] = useState("");
 
   const [rows, setRows] = useState([
     {
@@ -181,7 +181,7 @@ const InputField = ({ onSubmit }) => {
           value={ipName}
           onChange={(e) => setIpName(e.target.value)}
           placeholder="Enter IP Name"
-          className="border rounded px-3 py-1 focus:outline-none focus:ring-2 focus:ring-blue-600"
+          className="border rounded w-32 px-3 py-1 focus:outline-none focus:ring-2 focus:ring-blue-600"
         />
       </div>
 
