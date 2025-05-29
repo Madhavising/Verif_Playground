@@ -10,21 +10,31 @@ export default function Dashboard() {
   const [isOpen, setIsOpen] = useState(false);
   const [isShareOpen, setIsShareOpen] = useState(false);
   const [script, setScript] = useState("");
+  const [pageFiles, setPageFiles] = useState(1);
+  const [pageActivity, setPageActivity] = useState(1);
+  const [limit, setLimit] = useState(3);
+  const [totalPagesScript, setTotalPagesScript] = useState(0);
+  const [totalPagesActivity, setTotalPagesActivity] = useState(0);
 
-  const [isLoadingFiles, setIsLoadingFiles] = useState(true);
-  const [isLoadingActivity, setIsLoadingActivity] = useState(true);
+  const [isLoadingFiles, setIsLoadingFiles] = useState(false);
+  const [isLoadingActivity, setIsLoadingActivity] = useState(false);
 
   const getAllRecentFiles = async () => {
     try {
       setIsLoadingFiles(true);
-      let { data } = await axios.get(`${baseUrl}/api/getAllScript`, {
-        headers: {
-          "Authorization": `Bearer ${localStorage.getItem("token")}`
+      let { data } = await axios.get(
+        `${baseUrl}/api/getAllScript?page=${pageFiles}&limit=${limit}`,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
         }
-      });
+      );
+
       const decodedText = atob(data.data[0]?.file || "");
       setScript(decodedText);
       setRecentFiles(data.data);
+      setTotalPagesScript(data.totalPages);
     } catch (error) {
       console.log("get recentFiles error:", error.message);
     } finally {
@@ -35,12 +45,16 @@ export default function Dashboard() {
   const getAllActivity = async () => {
     try {
       setIsLoadingActivity(true);
-      let { data } = await axios.get(`${baseUrl}/api/getAllActivity`, {
-        headers: {
-          "Authorization": `Bearer ${localStorage.getItem("token")}`
+      let { data } = await axios.get(
+        `${baseUrl}/api/getAllActivity?page=${pageActivity}&limit=${limit}`,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
         }
-      });
+      );
       setRecentActivity(data.data);
+      setTotalPagesActivity(data.totalPages);
     } catch (error) {
       console.log("get recentActivity error:", error.message);
     } finally {
@@ -59,8 +73,11 @@ export default function Dashboard() {
 
   useEffect(() => {
     getAllRecentFiles();
+  }, [pageFiles, limit]);
+
+  useEffect(() => {
     getAllActivity();
-  }, []);
+  }, [pageActivity, limit]);
 
   return (
     <div className="flex">
@@ -71,7 +88,27 @@ export default function Dashboard() {
 
         {/* Recent Files */}
         <section className="bg-white p-6 rounded-xl shadow-sm">
-          <h2 className="text-lg font-semibold mb-4">Recent Files</h2>
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-lg font-semibold mb-4">Recent Files</h2>
+            <div>
+              <button
+                onClick={() => setPageFiles((prev) => Math.max(prev - 1, 1))}
+                disabled={pageFiles === 1}
+                className="px-3 py-1 border rounded disabled:opacity-50"
+              >
+                Previous
+              </button>
+              <button
+                onClick={() =>
+                  setPageFiles((prev) => Math.min(prev + 1, totalPagesScript))
+                }
+                disabled={pageFiles === totalPagesScript}
+                className="px-3 py-1 border rounded disabled:opacity-50"
+              >
+                Next
+              </button>
+            </div>
+          </div>
           <div className="overflow-auto">
             <table className="min-w-full text-sm text-left">
               <thead className="text-gray-500 border-b">
@@ -85,56 +122,56 @@ export default function Dashboard() {
               </thead>
               <tbody>
                 {isLoadingFiles
-                  ? Array(4)
-                    .fill(0)
-                    .map((_, i) => (
-                      <tr key={i} className="animate-pulse border-b">
-                        <td className="py-2">
-                          <div className="h-4 w-24 bg-gray-300 rounded skeleton" />
-                        </td>
-                        <td className="py-2">
-                          <div className="h-4 w-20 bg-gray-300 rounded skeleton" />
-                        </td>
-                        <td className="py-2">
-                          <div className="h-4 w-20 bg-gray-300 rounded skeleton" />
-                        </td>
-                        <td className="py-2">
-                          <div className="h-4 w-28 bg-gray-300 rounded skeleton" />
+                  ? Array(3)
+                      .fill(0)
+                      .map((_, i) => (
+                        <tr key={i} className="animate-pulse border-b">
+                          <td className="py-2">
+                            <div className="h-4 w-24 bg-gray-300 rounded skeleton" />
+                          </td>
+                          <td className="py-2">
+                            <div className="h-4 w-20 bg-gray-300 rounded skeleton" />
+                          </td>
+                          <td className="py-2">
+                            <div className="h-4 w-20 bg-gray-300 rounded skeleton" />
+                          </td>
+                          <td className="py-2">
+                            <div className="h-4 w-28 bg-gray-300 rounded skeleton" />
+                          </td>
+                          <td className="py-2 space-x-2">
+                            <div className="h-4 w-16 bg-gray-300 rounded skeleton" />
+                          </td>
+                        </tr>
+                      ))
+                  : recentFiles.map((file, idx) => (
+                      <tr key={idx} className="hover:bg-gray-100 border-b">
+                        <td className="py-2">{file.fileName}</td>
+                        <td className="py-2">{file.name}</td>
+                        <td className="py-2">{file.organization}</td>
+                        <td className="py-2 text-xs text-gray-500">
+                          {moment(file.createdAt).format(
+                            "dddd, YYYY-MM-DD HH:mm"
+                          )}
                         </td>
                         <td className="py-2 space-x-2">
-                          <div className="h-4 w-16 bg-gray-300 rounded skeleton" />
+                          <button onClick={() => setIsOpen(true)} title="View">
+                            <Eye className="w-4 h-4" />
+                          </button>
+                          <button
+                            onClick={() => setIsShareOpen(true)}
+                            title="Share"
+                          >
+                            <Share2 className="w-4 h-4" />
+                          </button>
+                          <button
+                            onClick={() => deleteScript(file._id)}
+                            title="Delete"
+                          >
+                            <Trash2 className="w-4 h-4 text-red-500" />
+                          </button>
                         </td>
                       </tr>
-                    ))
-                  : recentFiles.map((file, idx) => (
-                    <tr key={idx} className="hover:bg-gray-100 border-b">
-                      <td className="py-2">{file.fileName}</td>
-                      <td className="py-2">{file.name}</td>
-                      <td className="py-2">{file.organization}</td>
-                      <td className="py-2 text-xs text-gray-500">
-                        {moment(file.createdAt).format(
-                          "dddd, YYYY-MM-DD HH:mm"
-                        )}
-                      </td>
-                      <td className="py-2 space-x-2">
-                        <button onClick={() => setIsOpen(true)} title="View">
-                          <Eye className="w-4 h-4" />
-                        </button>
-                        <button
-                          onClick={() => setIsShareOpen(true)}
-                          title="Share"
-                        >
-                          <Share2 className="w-4 h-4" />
-                        </button>
-                        <button
-                          onClick={() => deleteScript(file._id)}
-                          title="Delete"
-                        >
-                          <Trash2 className="w-4 h-4 text-red-500" />
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
+                    ))}
               </tbody>
             </table>
           </div>
@@ -247,32 +284,54 @@ export default function Dashboard() {
 
         {/* Activity */}
         <section className="bg-white p-6 rounded-xl shadow-sm">
-          <h2 className="text-lg font-semibold mb-4">Recent Activity</h2>
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-lg font-semibold mb-4">Recent Files</h2>
+            <div>
+              <button
+                onClick={() => setPageActivity((prev) => Math.max(prev - 1, 1))}
+                disabled={pageActivity === 1}
+                className="px-3 py-1 border rounded disabled:opacity-50"
+              >
+                Previous
+              </button>
+              <button
+                onClick={() =>
+                  setPageActivity((prev) =>
+                    Math.min(prev + 1, totalPagesActivity)
+                  )
+                }
+                disabled={pageActivity === totalPagesActivity}
+                className="px-3 py-1 border rounded disabled:opacity-50"
+              >
+                Next
+              </button>
+            </div>
+          </div>
           <ul className="space-y-4">
             {isLoadingActivity
-              ? Array(4)
-                .fill(0)
-                .map((_, i) => (
-                  <li
-                    key={i}
-                    className="flex items-center space-x-3 animate-pulse"
-                  >
-                    <div className="w-8 h-8 rounded-full bg-gray-300 skeleton" />
-                    <div className="h-4 w-48 bg-gray-300 rounded skeleton" />
-                  </li>
-                ))
+              ? Array(3)
+                  .fill(0)
+                  .map((_, i) => (
+                    <li
+                      key={i}
+                      className="flex items-center space-x-3 animate-pulse"
+                    >
+                      <div className="w-8 h-8 rounded-full bg-gray-300 skeleton" />
+                      <div className="h-4 w-48 bg-gray-300 rounded skeleton" />
+                    </li>
+                  ))
               : recentActivity.map((activity, idx) => (
-                <li key={idx} className="flex items-center space-x-3">
-                  <div className="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center text-sm font-medium">
-                    {activity.name[0]}
-                  </div>
-                  <div className="text-sm">
-                    <span className="font-semibold">{activity.name}</span>{" "}
-                    uploaded{" "}
-                    <span className="text-gray-500">{activity.fileName}</span>
-                  </div>
-                </li>
-              ))}
+                  <li key={idx} className="flex items-center space-x-3">
+                    <div className="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center text-sm font-medium">
+                      {activity.name[0]}
+                    </div>
+                    <div className="text-sm">
+                      <span className="font-semibold">{activity.name}</span>{" "}
+                      uploaded{" "}
+                      <span className="text-gray-500">{activity.fileName}</span>
+                    </div>
+                  </li>
+                ))}
           </ul>
         </section>
       </main>
