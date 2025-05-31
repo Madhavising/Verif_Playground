@@ -34,7 +34,7 @@ const IntrapediaHomePage = () => {
       </div>
 
       {/* Main Content */}
-      <div className="relative w-[700px] h-[400px] mb-14">
+      <div className="relative w-[700px] h-[400px] mb-10">
         {/* Central Logo */}
         <div className="absolute top-1/2 left-1/2 w-[250px] h-[250px] -translate-x-1/2 -translate-y-1/2 bg-white   rounded-full flex items-center justify-center ">
           <img

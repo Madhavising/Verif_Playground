@@ -4,3 +4,17 @@
 
 @import '@skeletonlabs/tw-plugin/themes/skeleton-light.css'; /* or skeleton-dark.css */
 
+.scrollbar-hidden::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-hidden {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.tool-button {
+  @apply bg-gray-100 hover:bg-blue-100 text-gray-800 hover:text-blue-700 
+         font-medium px-4 py-1.5 rounded-md border border-gray-300 
+         transition duration-150 ease-in-out shadow-sm text-sm;
+}
+
