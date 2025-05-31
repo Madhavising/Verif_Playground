@@ -3,6 +3,8 @@ import { FaTrashAlt, FaPlus } from "react-icons/fa";
 import * as XLSX from "xlsx";
 import FileMenu from "./FileMenu";
 import UVMRegBlock from "../uvmRegBlock/UvmRegBlock";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
 
 const InputField = ({ onSubmit }) => {
   const [showModal, setShowModal] = useState(false);
@@ -129,7 +131,7 @@ const InputField = ({ onSubmit }) => {
         handleDownload();
         break;
       case "downloadPDF":
-        alert("Download PDF functionality is not implemented yet.");
+        downloadPDF();
         break;
       case "uploadRegisterPDF":
         alert("Upload Register PDF functionality is not implemented yet.");
@@ -138,6 +140,48 @@ const InputField = ({ onSubmit }) => {
         break;
     }
   };
+
+  const downloadPDF = () => {
+    const doc = new jsPDF();
+    doc.text("Registers Data", 14, 15);
+
+    // Table header (column names)
+    const head = [
+      [
+        "Register Name",
+        "Offset",
+        "Read/Write",
+        "Fields",
+        "Default Value",
+        "Reset Value",
+        "Description"
+      ]
+    ];
+
+    // Table body (rows)
+    const body = rows.map(item => [
+      item.registerName,
+      item.offset,
+      item.readWrite,
+      item.fields.join(", "),
+      item.defaultValue.join(", "),
+      item.resetValue.join(", "),
+      item.description
+    ]);
+
+    autoTable(doc, {
+      startY: 20,
+      head: head,
+      body: body,
+      theme: "grid",
+      styles: { fontSize: 10, cellPadding: 2 },
+      headStyles: { fillColor: [22, 160, 133] },
+    });
+
+    doc.save("registers.pdf");
+  };
+
+
 
   return (
     <div className="max-w-7xl mx-auto p-8  font-normal bg-white shadow-xl rounded-xl border border-gray-200">
