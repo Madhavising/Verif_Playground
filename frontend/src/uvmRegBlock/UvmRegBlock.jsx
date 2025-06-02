@@ -248,10 +248,10 @@ function UVMRegBlock() {
         setResult(decodedText);
 
         await axios.post(`${baseUrl}/api/createScript`, {
-          userId: user.userData._id,
-          file: apiResult.file,
+          fileType: "base64",
+          base64: apiResult.file,
           fileName: file.name,
-          name: user.userData.firstName + " " + user.userData.lastName,
+          userId: user.userData._id,
           organization: user.userData.companyName,
         });
 
