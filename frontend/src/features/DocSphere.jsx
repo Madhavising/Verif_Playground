@@ -3,6 +3,9 @@ import { Editor } from "@tinymce/tinymce-react";
 import axios from "axios";
 import "../App.css";
 import { baseUrl } from "../api";
+import html2pdf from "html2pdf.js";
+import { useSelector } from "react-redux";
+
 
 function DocSphere(props) {
   const editorRef = useRef(null);
@@ -11,6 +14,18 @@ function DocSphere(props) {
   const [loading, setLoading] = useState(false);
   const [generatedHtml, setGeneratedHtml] = useState("");
   const [showOutputModal, setShowOutputModal] = useState(false);
+  const { user } = useSelector((state) => state);
+  if (!user) {
+    return (
+      <div className="flex justify-center items-center min-h-screen bg-gray-100">
+        <div className="text-lg font-semibold text-gray-600 animate-pulse">
+          Loading Profile...
+        </div>
+      </div>
+    );
+  }
+
+  const { _id, companyName } = user.userData;
 
   const handleEditorInit = (evt, editor) => {
     editorRef.current = editor;
@@ -88,6 +103,61 @@ function DocSphere(props) {
 
   const config = props.config || {};
   const editorId = config.id || "default-editor-id";
+
+const saveContentAsPdf = async () => {
+  const content = editorRef.current.getContent();
+  saveContentToDatabase(content); 
+
+  const container = document.createElement("div");
+  container.innerHTML = content;
+
+const pdfFile = await html2pdf()
+    .set({
+      margin: 10,
+      filename: "document.pdf",
+      image: { type: "jpeg", quality: 0.98 },
+      html2canvas: { scale: 2 },
+      jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
+    })
+    .from(container)
+    .save();
+console.log("PDF File Generated", pdfFile)
+};
+
+const saveContentToDatabase = async (content) => {
+  console.log("Content Received",content)
+  console.log("User data: ", user);
+  console.log("UserID", _id)
+  try {
+    await axios.post(`${baseUrl}/api/createScript`, {
+      htmlData: content,
+      fileType: "html",
+      fileName: "document.html",
+      userId: _id,
+      organization: companyName,
+    });
+    console.log("Document saved successfully");
+  } catch (err) {
+    console.error("Save to DB failed:", err);
+  }
+};
+
+
+
+const saveContentAsHtml = (htmlContent) => {
+  const blob = new Blob([htmlContent], { type: "text/html" });
+  const url = URL.createObjectURL(blob);
+
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "document.html";
+  a.click();
+
+  URL.revokeObjectURL(url);
+};
+
+
+
 
   return (
     <div className="p-4 bg-gray-50 shadow-lg w-full" style={{ height: "83vh" }}>
@@ -180,15 +250,36 @@ function DocSphere(props) {
             "help",
           ],
           toolbar:
-            "undo redo | bold italic forecolor | fontsize | bullist numlist outdent indent | alignleft aligncenter alignright alignjustify | table | wave blockdiagram ",
+            "undo redo | savePdf | saveHtml | bold italic forecolor | fontsize | bullist numlist outdent indent | table | alignleft aligncenter alignright alignjustify | wave blockdiagram ",
           menubar: "file edit insert view format tools table",
           setup: (editor) => {
+            editor.ui.registry.addButton("savePdf", {
+      text: "PDF",
+      icon: "save",
+      tooltip: "Save document as PDF",
+      onAction: () => {
+        const content = editor.getContent();
+        saveContentAsPdf(content);
+      },
+    });
+
             editor.ui.registry.addButton("wave", {
               text: "Wave",
               onAction: () => {
                 if (!showModal && !showOutputModal) setShowModal(true);
               },
             });
+
+             editor.ui.registry.addButton("saveHtml", {
+    text: "HTML",
+    icon: "save", // tinyMCE built-in icon for code/sample
+    tooltip: "Save document as HTML",
+    onAction: () => {
+      const content = editor.getContent();
+      saveContentAsHtml(content);
+    },
+  });
+
 
             editor.ui.registry.addButton("blockdiagram", {
               text: "Block Diagram",
@@ -204,6 +295,7 @@ function DocSphere(props) {
             "body { font-family:Helvetica,Arial,sans-serif; font-size:14px; margin: 0; }",
         }}
       />
+
     </div>
   );
 }

@@ -5,6 +5,7 @@ const scriptSchema = new mongoose.Schema({
     fileType: { type: String, enum: ["pdf", "xlsx", "doc", "docx", "base64","html"], required: true },
     base64: { type: String },
     fileData: { type: String },
+    htmlData: { type: String },
     userId: { type: mongoose.Schema.Types.ObjectId, ref: "user", required: true },
     organization: { type: String, required: true },
 }, {

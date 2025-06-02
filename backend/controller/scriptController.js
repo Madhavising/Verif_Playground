@@ -2,7 +2,7 @@ const Script = require("../models/script");
 
 const createScript = async (req, res) => {
     try {
-        const { fileName, fileType, base64, userId, organization } = req.body;
+        const { fileName, fileType, base64, userId, organization, htmlData } = req.body;
         const file = req.file;
 
 
@@ -22,7 +22,11 @@ const createScript = async (req, res) => {
             scriptData.base64 = base64;
         }
 
-        if (file && file.path && !["pdf", "xlsx", "doc", "docx"].includes(fileType)) {
+        if (htmlData && fileType == "html"){
+            scriptData.htmlData = htmlData;
+        }
+
+        if (file && file.path && !["pdf", "xlsx", "doc", "docx", "html"].includes(fileType)) {
             scriptData.fileData = file.path;
         }
 

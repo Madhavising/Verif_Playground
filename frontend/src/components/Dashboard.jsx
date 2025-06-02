@@ -19,48 +19,48 @@ export default function Dashboard() {
   const [isLoadingFiles, setIsLoadingFiles] = useState(false);
   const [isLoadingActivity, setIsLoadingActivity] = useState(false);
 
-  const getAllRecentFiles = async () => {
-    try {
-      setIsLoadingFiles(true);
-      let { data } = await axios.get(
-        `${baseUrl}/api/getAllScript?page=${pageFiles}&limit=${limit}`,
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-        }
-      );
+  // const getAllRecentFiles = async () => {
+  //   try {
+  //     setIsLoadingFiles(true);
+  //     let { data } = await axios.get(
+  //       `${baseUrl}/api/getAllScript?page=${pageFiles}&limit=${limit}`,
+  //       {
+  //         headers: {
+  //           Authorization: `Bearer ${localStorage.getItem("token")}`,
+  //         },
+  //       }
+  //     );
 
-      const decodedText = atob(data.data[0]?.file || "");
-      setScript(decodedText);
-      setRecentFiles(data.data);
-      setTotalPagesScript(data.totalPages);
-    } catch (error) {
-      console.log("get recentFiles error:", error.message);
-    } finally {
-      setIsLoadingFiles(false);
-    }
-  };
+  //     const decodedText = atob(data.data[0]?.file || "");
+  //     setScript(decodedText);
+  //     setRecentFiles(data.data);
+  //     setTotalPagesScript(data.totalPages);
+  //   } catch (error) {
+  //     console.log("get recentFiles error:", error.message);
+  //   } finally {
+  //     setIsLoadingFiles(false);
+  //   }
+  // };
 
-  const getAllActivity = async () => {
-    try {
-      setIsLoadingActivity(true);
-      let { data } = await axios.get(
-        `${baseUrl}/api/getAllActivity?page=${pageActivity}&limit=${limit}`,
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-        }
-      );
-      setRecentActivity(data.data);
-      setTotalPagesActivity(data.totalPages);
-    } catch (error) {
-      console.log("get recentActivity error:", error.message);
-    } finally {
-      setIsLoadingActivity(false);
-    }
-  };
+  // const getAllActivity = async () => {
+  //   try {
+  //     setIsLoadingActivity(true);
+  //     let { data } = await axios.get(
+  //       `${baseUrl}/api/getAllActivity?page=${pageActivity}&limit=${limit}`,
+  //       {
+  //         headers: {
+  //           Authorization: `Bearer ${localStorage.getItem("token")}`,
+  //         },
+  //       }
+  //     );
+  //     setRecentActivity(data.data);
+  //     setTotalPagesActivity(data.totalPages);
+  //   } catch (error) {
+  //     console.log("get recentActivity error:", error.message);
+  //   } finally {
+  //     setIsLoadingActivity(false);
+  //   }
+  // };
 
   const deleteScript = async (id) => {
     try {
@@ -71,13 +71,13 @@ export default function Dashboard() {
     }
   };
 
-  useEffect(() => {
-    getAllRecentFiles();
-  }, [pageFiles, limit]);
+  // useEffect(() => {
+  //   getAllRecentFiles();
+  // }, [pageFiles, limit]);
 
-  useEffect(() => {
-    getAllActivity();
-  }, [pageActivity, limit]);
+  // useEffect(() => {
+  //   getAllActivity();
+  // }, [pageActivity, limit]);
 
   return (
     <div className="flex">
