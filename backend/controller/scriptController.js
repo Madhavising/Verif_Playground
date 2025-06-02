@@ -2,22 +2,40 @@ const Script = require("../models/script");
 
 const createScript = async (req, res) => {
     try {
-        const { file, name, userId, organization, fileName } = req.body;
+        const { fileName, fileType, base64, userId, organization } = req.body;
+        const file = req.file;
 
-        const script = await Script.create({
-            file,
-            name,
+
+
+        if (!fileName || !fileType || !userId || !organization) {
+            return res.status(400).json({ message: "Missing required fields" });
+        }
+
+        const scriptData = {
             fileName,
+            fileType,
             userId,
-            organization
-        });
+            organization,
+        };
+
+        if (base64 && fileType === "base64") {
+            scriptData.base64 = base64;
+        }
+
+        if (file && file.path && !["pdf", "xlsx", "doc", "docx"].includes(fileType)) {
+            scriptData.fileData = file.path;
+        }
+
+
+        const script = await Script.create(scriptData);
 
         res.status(201).json({ data: script });
     } catch (error) {
         console.error("Script Error:", error.message);
-        return res.status(500).json({ message: "Error creating script" });
+        res.status(500).json({ message: "Error creating script" });
     }
 };
+
 
 const getAllScript = async (req, res) => {
     const page = parseInt(req.query.page) || 1;

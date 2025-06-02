@@ -1,11 +1,12 @@
 const mongoose = require("mongoose");
 
 const scriptSchema = new mongoose.Schema({
-    name: { type: String },
-    file: { type: String },
-    fileName: { type: String },
-    userId: { type: mongoose.Schema.Types.ObjectId, ref: "user" },
-    organization: String
+    fileName: { type: String, required: true },
+    fileType: { type: String, enum: ["pdf", "xlsx", "doc", "docx", "base64","html"], required: true },
+    base64: { type: String },
+    fileData: { type: String },
+    userId: { type: mongoose.Schema.Types.ObjectId, ref: "user", required: true },
+    organization: { type: String, required: true },
 }, {
     versionKey: false,
     timestamps: true
