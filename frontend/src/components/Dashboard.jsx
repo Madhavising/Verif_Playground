@@ -19,48 +19,47 @@ export default function Dashboard() {
   const [isLoadingFiles, setIsLoadingFiles] = useState(false);
   const [isLoadingActivity, setIsLoadingActivity] = useState(false);
 
-  // const getAllRecentFiles = async () => {
-  //   try {
-  //     setIsLoadingFiles(true);
-  //     let { data } = await axios.get(
-  //       `${baseUrl}/api/getAllScript?page=${pageFiles}&limit=${limit}`,
-  //       {
-  //         headers: {
-  //           Authorization: `Bearer ${localStorage.getItem("token")}`,
-  //         },
-  //       }
-  //     );
+  const getAllRecentFiles = async () => {
 
-  //     const decodedText = atob(data.data[0]?.file || "");
-  //     setScript(decodedText);
-  //     setRecentFiles(data.data);
-  //     setTotalPagesScript(data.totalPages);
-  //   } catch (error) {
-  //     console.log("get recentFiles error:", error.message);
-  //   } finally {
-  //     setIsLoadingFiles(false);
-  //   }
-  // };
+    try {
+      setIsLoadingFiles(true);
+      let { data } = await axios.get(
+        `${baseUrl}/api/getAllScript?page=${pageFiles}&limit=${limit}`,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
 
-  // const getAllActivity = async () => {
-  //   try {
-  //     setIsLoadingActivity(true);
-  //     let { data } = await axios.get(
-  //       `${baseUrl}/api/getAllActivity?page=${pageActivity}&limit=${limit}`,
-  //       {
-  //         headers: {
-  //           Authorization: `Bearer ${localStorage.getItem("token")}`,
-  //         },
-  //       }
-  //     );
-  //     setRecentActivity(data.data);
-  //     setTotalPagesActivity(data.totalPages);
-  //   } catch (error) {
-  //     console.log("get recentActivity error:", error.message);
-  //   } finally {
-  //     setIsLoadingActivity(false);
-  //   }
-  // };
+      setRecentFiles(data.data);
+      setTotalPagesScript(data.totalPages);
+    } catch (error) {
+      console.log("get recentFiles error:", error.message);
+    } finally {
+      setIsLoadingFiles(false);
+    }
+  };
+
+  const getAllActivity = async () => {
+    try {
+      setIsLoadingActivity(true);
+      let { data } = await axios.get(
+        `${baseUrl}/api/getAllActivity?page=${pageActivity}&limit=${limit}`,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
+      setRecentActivity(data.data);
+      setTotalPagesActivity(data.totalPages);
+    } catch (error) {
+      console.log("get recentActivity error:", error.message);
+    } finally {
+      setIsLoadingActivity(false);
+    }
+  };
 
   const deleteScript = async (id) => {
     try {
@@ -71,13 +70,13 @@ export default function Dashboard() {
     }
   };
 
-  // useEffect(() => {
-  //   getAllRecentFiles();
-  // }, [pageFiles, limit]);
+  useEffect(() => {
+    getAllRecentFiles();
+  }, [pageFiles, limit]);
 
-  // useEffect(() => {
-  //   getAllActivity();
-  // }, [pageActivity, limit]);
+  useEffect(() => {
+    getAllActivity();
+  }, [pageActivity, limit]);
 
   return (
     <div className="flex">
@@ -93,16 +92,18 @@ export default function Dashboard() {
             <div>
               <button
                 onClick={() => setPageFiles((prev) => Math.max(prev - 1, 1))}
-                disabled={pageFiles === 1}
+                disabled={pageActivity === 1}
                 className="px-3 py-1 border rounded disabled:opacity-50"
               >
                 Previous
               </button>
               <button
                 onClick={() =>
-                  setPageFiles((prev) => Math.min(prev + 1, totalPagesScript))
+                  setPageFiles((prev) =>
+                    Math.min(prev + 1, totalPagesScript)
+                  )
                 }
-                disabled={pageFiles === totalPagesScript}
+                disabled={pageActivity === totalPagesScript}
                 className="px-3 py-1 border rounded disabled:opacity-50"
               >
                 Next
@@ -123,55 +124,55 @@ export default function Dashboard() {
               <tbody>
                 {isLoadingFiles
                   ? Array(3)
-                      .fill(0)
-                      .map((_, i) => (
-                        <tr key={i} className="animate-pulse border-b">
-                          <td className="py-2">
-                            <div className="h-4 w-24 bg-gray-300 rounded skeleton" />
-                          </td>
-                          <td className="py-2">
-                            <div className="h-4 w-20 bg-gray-300 rounded skeleton" />
-                          </td>
-                          <td className="py-2">
-                            <div className="h-4 w-20 bg-gray-300 rounded skeleton" />
-                          </td>
-                          <td className="py-2">
-                            <div className="h-4 w-28 bg-gray-300 rounded skeleton" />
-                          </td>
-                          <td className="py-2 space-x-2">
-                            <div className="h-4 w-16 bg-gray-300 rounded skeleton" />
-                          </td>
-                        </tr>
-                      ))
-                  : recentFiles.map((file, idx) => (
-                      <tr key={idx} className="hover:bg-gray-100 border-b">
-                        <td className="py-2">{file.fileName}</td>
-                        <td className="py-2">{file.name}</td>
-                        <td className="py-2">{file.organization}</td>
-                        <td className="py-2 text-xs text-gray-500">
-                          {moment(file.createdAt).format(
-                            "dddd, YYYY-MM-DD HH:mm"
-                          )}
+                    .fill(0)
+                    .map((_, i) => (
+                      <tr key={i} className="animate-pulse border-b">
+                        <td className="py-2">
+                          <div className="h-4 w-24 bg-gray-300 rounded skeleton" />
+                        </td>
+                        <td className="py-2">
+                          <div className="h-4 w-20 bg-gray-300 rounded skeleton" />
+                        </td>
+                        <td className="py-2">
+                          <div className="h-4 w-20 bg-gray-300 rounded skeleton" />
+                        </td>
+                        <td className="py-2">
+                          <div className="h-4 w-28 bg-gray-300 rounded skeleton" />
                         </td>
                         <td className="py-2 space-x-2">
-                          <button onClick={() => setIsOpen(true)} title="View">
-                            <Eye className="w-4 h-4" />
-                          </button>
-                          <button
-                            onClick={() => setIsShareOpen(true)}
-                            title="Share"
-                          >
-                            <Share2 className="w-4 h-4" />
-                          </button>
-                          <button
-                            onClick={() => deleteScript(file._id)}
-                            title="Delete"
-                          >
-                            <Trash2 className="w-4 h-4 text-red-500" />
-                          </button>
+                          <div className="h-4 w-16 bg-gray-300 rounded skeleton" />
                         </td>
                       </tr>
-                    ))}
+                    ))
+                  : recentFiles.map((file, idx) => (
+                    <tr key={idx} className="hover:bg-gray-100 border-b">
+                      <td className="py-2">{file.fileName}</td>
+                      <td className="py-2">{`${file.username}`}</td>
+                      <td className="py-2">{file.organization}</td>
+                      <td className="py-2 text-xs text-gray-500">
+                        {moment(file.createdAt).format(
+                          "dddd, YYYY-MM-DD HH:mm"
+                        )}
+                      </td>
+                      <td className="py-2 space-x-2">
+                        <button onClick={() => setIsOpen(true)} title="View">
+                          <Eye className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={() => setIsShareOpen(true)}
+                          title="Share"
+                        >
+                          <Share2 className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={() => deleteScript(file._id)}
+                          title="Delete"
+                        >
+                          <Trash2 className="w-4 h-4 text-red-500" />
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
               </tbody>
             </table>
           </div>
@@ -308,30 +309,35 @@ export default function Dashboard() {
             </div>
           </div>
           <ul className="space-y-4">
-            {isLoadingActivity
-              ? Array(3)
-                  .fill(0)
-                  .map((_, i) => (
-                    <li
-                      key={i}
-                      className="flex items-center space-x-3 animate-pulse"
-                    >
-                      <div className="w-8 h-8 rounded-full bg-gray-300 skeleton" />
-                      <div className="h-4 w-48 bg-gray-300 rounded skeleton" />
-                    </li>
-                  ))
-              : recentActivity.map((activity, idx) => (
+            {isLoadingActivity ? (
+              Array(3)
+                .fill(0)
+                .map((_, i) => (
+                  <li key={i} className="flex items-center space-x-3 animate-pulse">
+                    <div className="w-8 h-8 rounded-full bg-gray-300 skeleton" />
+                    <div className="h-4 w-48 bg-gray-300 rounded skeleton" />
+                  </li>
+                ))
+            ) : (
+              recentActivity.map((activity, idx) => {
+                const name = activity.username || "Unknown User";
+                const fileName = activity.fileName || "a file";
+
+                return (
                   <li key={idx} className="flex items-center space-x-3">
                     <div className="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center text-sm font-medium">
-                      {activity.name[0]}
+                      {name.charAt(0).toUpperCase()}
                     </div>
                     <div className="text-sm">
-                      <span className="font-semibold">{activity.name}</span>{" "}
+                      <span className="font-semibold">{name}</span>{" "}
                       uploaded{" "}
-                      <span className="text-gray-500">{activity.fileName}</span>
+                      <span className="text-gray-500">{fileName}</span>
                     </div>
                   </li>
-                ))}
+                );
+              })
+            )}
+
           </ul>
         </section>
       </main>
