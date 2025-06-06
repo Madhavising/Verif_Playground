@@ -182,6 +182,7 @@ function DocSphere(props) {
           toolbar:
             "undo redo | bold italic forecolor | fontsize | bullist numlist outdent indent | alignleft aligncenter alignright alignjustify | table | wave blockdiagram ",
           menubar: "file edit insert view format tools table",
+          
           setup: (editor) => {
             editor.ui.registry.addButton("wave", {
               text: "Wave",
