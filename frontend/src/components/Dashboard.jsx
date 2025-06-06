@@ -3,6 +3,8 @@ import { Eye, Share2, Trash2 } from "lucide-react";
 import { baseUrl } from "../api";
 import axios from "axios";
 import moment from "moment/moment";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
 
 export default function Dashboard() {
   const [recentFiles, setRecentFiles] = useState([]);
@@ -15,9 +17,9 @@ export default function Dashboard() {
   const [limit, setLimit] = useState(3);
   const [totalPagesScript, setTotalPagesScript] = useState(0);
   const [totalPagesActivity, setTotalPagesActivity] = useState(0);
-
   const [isLoadingFiles, setIsLoadingFiles] = useState(false);
   const [isLoadingActivity, setIsLoadingActivity] = useState(false);
+  const [fileType, setFileType] = useState("");
 
   const getAllRecentFiles = async () => {
 
@@ -70,6 +72,106 @@ export default function Dashboard() {
     }
   };
 
+  const getSingleFile = async (id) => {
+    try {
+      const token = localStorage.getItem("token");
+
+      const { data } = await axios.get(`${baseUrl}/api/getScript/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const fileData = data?.data;
+
+      if (!fileData || !fileData.fileType) {
+        setScript("Invalid file data.");
+        setFileType("unsupported");
+        setIsOpen(true);
+        return;
+      }
+
+      const { fileType } = fileData;
+
+      switch (fileType) {
+        case "base64": {
+          setScript(atob(fileData.base64 || ""));
+          setFileType("base64");
+          break;
+        }
+
+        case "html": {
+          setScript(fileData.htmlData || "");
+          setFileType("html");
+          break;
+        }
+
+        case "xlsx": {
+          const rows = fileData?.formData?.data || [];
+          const pdfBlob = generatePdf(rows);
+          const blobUrl = URL.createObjectURL(pdfBlob);
+          setScript(blobUrl);
+          setFileType("xlsx");
+          break;
+        }
+
+        default: {
+          setScript("Unsupported file type.");
+          setFileType("unsupported");
+          break;
+        }
+      }
+
+      setIsOpen(true);
+    } catch (error) {
+      console.error("getSingleFile error:", error.message);
+      setScript("An error occurred while loading the file.");
+      setFileType("error");
+      setIsOpen(true);
+    }
+  };
+
+
+  const generatePdf = (rows) => {
+    const doc = new jsPDF();
+    doc.text("Registers Data", 14, 15);
+
+    const head = [
+      [
+        "Register Name",
+        "Offset",
+        "Read/Write",
+        "Fields",
+        "Default Value",
+        "Reset Value",
+        "Description"
+      ]
+    ];
+
+    const body = rows.map(item => [
+      item.registerName,
+      item.offset,
+      item.readWrite,
+      item.fields.join(", "),
+      item.defaultValue.join(", "),
+      item.resetValue.join(", "),
+      item.description
+    ]);
+
+    autoTable(doc, {
+      startY: 20,
+      head: head,
+      body: body,
+      theme: "grid",
+      styles: { fontSize: 10, cellPadding: 2 },
+      headStyles: { fillColor: [22, 160, 133] },
+    });
+
+    // Generate a blob and return a blob URL
+    return doc.output("blob");
+  };
+
+
   useEffect(() => {
     getAllRecentFiles();
   }, [pageFiles, limit]);
@@ -92,7 +194,7 @@ export default function Dashboard() {
             <div>
               <button
                 onClick={() => setPageFiles((prev) => Math.max(prev - 1, 1))}
-                disabled={pageActivity === 1}
+                disabled={pageFiles === 1}
                 className="px-3 py-1 border rounded disabled:opacity-50"
               >
                 Previous
@@ -103,7 +205,7 @@ export default function Dashboard() {
                     Math.min(prev + 1, totalPagesScript)
                   )
                 }
-                disabled={pageActivity === totalPagesScript}
+                disabled={pageFiles === totalPagesScript}
                 className="px-3 py-1 border rounded disabled:opacity-50"
               >
                 Next
@@ -155,7 +257,7 @@ export default function Dashboard() {
                         )}
                       </td>
                       <td className="py-2 space-x-2">
-                        <button onClick={() => setIsOpen(true)} title="View">
+                        <button onClick={() => getSingleFile(file._id)} title="View">
                           <Eye className="w-4 h-4" />
                         </button>
                         <button
@@ -190,9 +292,34 @@ export default function Dashboard() {
                 &times;
               </button>
               <h3 className="font-bold text-gray-700 mb-2">Output:</h3>
+
               <pre className="bg-gray-100 p-4 rounded text-sm overflow-auto max-h-[70vh]">
-                {script}
+                {fileType === "base64" && (
+                  <div>
+                    {script}
+                  </div>
+                )}
+
+                {fileType === "html" && (
+                  <div dangerouslySetInnerHTML={{ __html: script }} />
+                )}
+
+
+                {fileType === "xlsx" && script && (
+                  <iframe
+                    src={script}
+                    title="Generated PDF"
+                    className="w-full h-[70vh] border rounded"
+                  />
+                )}
+
+                {!(["base64", "html", "pdf", "doc", "docx", "xlsx"].includes(fileType)) && (
+                  <div>
+                    <p>Unsupported file type.</p>
+                  </div>
+                )}
               </pre>
+
             </div>
           </div>
         )}
