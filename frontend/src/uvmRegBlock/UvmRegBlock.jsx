@@ -55,10 +55,10 @@ function UVMRegBlock() {
         setResult(decodedText);
 
         await axios.post(`${baseUrl}/api/createScript`, {
+          fileType: "base64",
+          base64: apiResult.file,
+          fileName: file.name.split(".")[0] + "." + "uvm_script",
           userId: user.userData._id,
-          file: apiResult.file,
-          fileName: file.name,
-          name: user.userData.firstName + " " + user.userData.lastName,
           organization: user.userData.companyName,
         });
 
@@ -129,9 +129,8 @@ function UVMRegBlock() {
             <ol className="relative border-l border-gray-300 space-y-4 ml-2">
               <li className="ml-4">
                 <div
-                  className={`w-3 h-3 rounded-full ${
-                    step >= 1 ? "bg-blue-600" : "bg-gray-400"
-                  } absolute -left-1.5 top-1.5`}
+                  className={`w-3 h-3 rounded-full ${step >= 1 ? "bg-blue-600" : "bg-gray-400"
+                    } absolute -left-1.5 top-1.5`}
                 ></div>
                 <h4 className="font-medium">Upload File</h4>
                 <p className="text-xs text-gray-500">
@@ -140,9 +139,8 @@ function UVMRegBlock() {
               </li>
               <li className="ml-4">
                 <div
-                  className={`w-3 h-3 rounded-full ${
-                    step >= 2 ? "bg-blue-600" : "bg-gray-400"
-                  } absolute -left-1.5 top-1.5`}
+                  className={`w-3 h-3 rounded-full ${step >= 2 ? "bg-blue-600" : "bg-gray-400"
+                    } absolute -left-1.5 top-1.5`}
                 ></div>
                 <h4 className="font-medium">Generate Script</h4>
                 <p className="text-xs text-gray-500">
@@ -151,9 +149,8 @@ function UVMRegBlock() {
               </li>
               <li className="ml-4">
                 <div
-                  className={`w-3 h-3 rounded-full ${
-                    step === 3 ? "bg-blue-600" : "bg-gray-400"
-                  } absolute -left-1.5 top-1.5`}
+                  className={`w-3 h-3 rounded-full ${step === 3 ? "bg-blue-600" : "bg-gray-400"
+                    } absolute -left-1.5 top-1.5`}
                 ></div>
                 <h4 className="font-medium">Save or Download</h4>
                 <p className="text-xs text-gray-500">
@@ -216,15 +213,14 @@ function UVMRegBlock() {
             {/* Status Display */}
             <div className="flex items-center gap-2 bg-gray-100 px-3 py-1 rounded-full shadow-sm w-max">
               <div
-                className={`w-3 h-3 rounded-full ${
-                  status === "Idle"
+                className={`w-3 h-3 rounded-full ${status === "Idle"
                     ? "bg-gray-400"
                     : status === "Processing"
-                    ? "bg-yellow-500 animate-pulse"
-                    : status === "Success"
-                    ? "bg-green-500"
-                    : "bg-red-500"
-                }`}
+                      ? "bg-yellow-500 animate-pulse"
+                      : status === "Success"
+                        ? "bg-green-500"
+                        : "bg-red-500"
+                  }`}
               ></div>
               <p className="text-sm font-medium text-gray-700">{status}</p>
             </div>

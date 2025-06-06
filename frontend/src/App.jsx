@@ -1,4 +1,4 @@
-import  { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 
@@ -22,7 +22,7 @@ import Dashboard from "./components/Dashboard";
 import DemoRequestPage from "./components/DemoRequestPage";
 import WaveInput from "./inputField/WaveInput.jsx";
 
-import ProtectedRoute from "./routes/protectedRoute.jsx"; 
+import ProtectedRoute from "./routes/protectedRoute.jsx";
 import IntrapediaHomePage from "./intrapedia/IntrapediaHomePage.jsx";
 
 function App() {
@@ -34,8 +34,14 @@ function App() {
   const fetchUserDetails = async (token) => {
     try {
       const user = await getUserDetails(token);
+      if (!user) {
+        setIsAuthenticated(false);
+        setLoading(false);
+        return;
+      }
       dispatch(setUser({ ...user, token }));
       setIsAuthenticated(true);
+
     } catch (err) {
       console.error("Error fetching user details:", err);
       setError(err.message || "Failed to fetch user details.");

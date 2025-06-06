@@ -3,6 +3,8 @@ import { Eye, Share2, Trash2 } from "lucide-react";
 import { baseUrl } from "../api";
 import axios from "axios";
 import moment from "moment/moment";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
 
 export default function Dashboard() {
   const [recentFiles, setRecentFiles] = useState([]);
@@ -15,11 +17,12 @@ export default function Dashboard() {
   const [limit, setLimit] = useState(3);
   const [totalPagesScript, setTotalPagesScript] = useState(0);
   const [totalPagesActivity, setTotalPagesActivity] = useState(0);
-
   const [isLoadingFiles, setIsLoadingFiles] = useState(false);
   const [isLoadingActivity, setIsLoadingActivity] = useState(false);
+  const [fileType, setFileType] = useState("");
 
   const getAllRecentFiles = async () => {
+
     try {
       setIsLoadingFiles(true);
       let { data } = await axios.get(
@@ -31,8 +34,6 @@ export default function Dashboard() {
         }
       );
 
-      const decodedText = atob(data.data[0]?.file || "");
-      setScript(decodedText);
       setRecentFiles(data.data);
       setTotalPagesScript(data.totalPages);
     } catch (error) {
@@ -71,6 +72,106 @@ export default function Dashboard() {
     }
   };
 
+  const getSingleFile = async (id) => {
+    try {
+      const token = localStorage.getItem("token");
+
+      const { data } = await axios.get(`${baseUrl}/api/getScript/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const fileData = data?.data;
+
+      if (!fileData || !fileData.fileType) {
+        setScript("Invalid file data.");
+        setFileType("unsupported");
+        setIsOpen(true);
+        return;
+      }
+
+      const { fileType } = fileData;
+
+      switch (fileType) {
+        case "base64": {
+          setScript(atob(fileData.base64 || ""));
+          setFileType("base64");
+          break;
+        }
+
+        case "html": {
+          setScript(fileData.htmlData || "");
+          setFileType("html");
+          break;
+        }
+
+        case "xlsx": {
+          const rows = fileData?.formData?.data || [];
+          const pdfBlob = generatePdf(rows);
+          const blobUrl = URL.createObjectURL(pdfBlob);
+          setScript(blobUrl);
+          setFileType("xlsx");
+          break;
+        }
+
+        default: {
+          setScript("Unsupported file type.");
+          setFileType("unsupported");
+          break;
+        }
+      }
+
+      setIsOpen(true);
+    } catch (error) {
+      console.error("getSingleFile error:", error.message);
+      setScript("An error occurred while loading the file.");
+      setFileType("error");
+      setIsOpen(true);
+    }
+  };
+
+
+  const generatePdf = (rows) => {
+    const doc = new jsPDF();
+    doc.text("Registers Data", 14, 15);
+
+    const head = [
+      [
+        "Register Name",
+        "Offset",
+        "Read/Write",
+        "Fields",
+        "Default Value",
+        "Reset Value",
+        "Description"
+      ]
+    ];
+
+    const body = rows.map(item => [
+      item.registerName,
+      item.offset,
+      item.readWrite,
+      item.fields.join(", "),
+      item.defaultValue.join(", "),
+      item.resetValue.join(", "),
+      item.description
+    ]);
+
+    autoTable(doc, {
+      startY: 20,
+      head: head,
+      body: body,
+      theme: "grid",
+      styles: { fontSize: 10, cellPadding: 2 },
+      headStyles: { fillColor: [22, 160, 133] },
+    });
+
+    // Generate a blob and return a blob URL
+    return doc.output("blob");
+  };
+
+
   useEffect(() => {
     getAllRecentFiles();
   }, [pageFiles, limit]);
@@ -100,7 +201,9 @@ export default function Dashboard() {
               </button>
               <button
                 onClick={() =>
-                  setPageFiles((prev) => Math.min(prev + 1, totalPagesScript))
+                  setPageFiles((prev) =>
+                    Math.min(prev + 1, totalPagesScript)
+                  )
                 }
                 disabled={pageFiles === totalPagesScript}
                 className="px-3 py-1 border rounded disabled:opacity-50"
@@ -123,55 +226,55 @@ export default function Dashboard() {
               <tbody>
                 {isLoadingFiles
                   ? Array(3)
-                      .fill(0)
-                      .map((_, i) => (
-                        <tr key={i} className="animate-pulse border-b">
-                          <td className="py-2">
-                            <div className="h-4 w-24 bg-gray-300 rounded skeleton" />
-                          </td>
-                          <td className="py-2">
-                            <div className="h-4 w-20 bg-gray-300 rounded skeleton" />
-                          </td>
-                          <td className="py-2">
-                            <div className="h-4 w-20 bg-gray-300 rounded skeleton" />
-                          </td>
-                          <td className="py-2">
-                            <div className="h-4 w-28 bg-gray-300 rounded skeleton" />
-                          </td>
-                          <td className="py-2 space-x-2">
-                            <div className="h-4 w-16 bg-gray-300 rounded skeleton" />
-                          </td>
-                        </tr>
-                      ))
-                  : recentFiles.map((file, idx) => (
-                      <tr key={idx} className="hover:bg-gray-100 border-b">
-                        <td className="py-2">{file.fileName}</td>
-                        <td className="py-2">{file.name}</td>
-                        <td className="py-2">{file.organization}</td>
-                        <td className="py-2 text-xs text-gray-500">
-                          {moment(file.createdAt).format(
-                            "dddd, YYYY-MM-DD HH:mm"
-                          )}
+                    .fill(0)
+                    .map((_, i) => (
+                      <tr key={i} className="animate-pulse border-b">
+                        <td className="py-2">
+                          <div className="h-4 w-24 bg-gray-300 rounded skeleton" />
+                        </td>
+                        <td className="py-2">
+                          <div className="h-4 w-20 bg-gray-300 rounded skeleton" />
+                        </td>
+                        <td className="py-2">
+                          <div className="h-4 w-20 bg-gray-300 rounded skeleton" />
+                        </td>
+                        <td className="py-2">
+                          <div className="h-4 w-28 bg-gray-300 rounded skeleton" />
                         </td>
                         <td className="py-2 space-x-2">
-                          <button onClick={() => setIsOpen(true)} title="View">
-                            <Eye className="w-4 h-4" />
-                          </button>
-                          <button
-                            onClick={() => setIsShareOpen(true)}
-                            title="Share"
-                          >
-                            <Share2 className="w-4 h-4" />
-                          </button>
-                          <button
-                            onClick={() => deleteScript(file._id)}
-                            title="Delete"
-                          >
-                            <Trash2 className="w-4 h-4 text-red-500" />
-                          </button>
+                          <div className="h-4 w-16 bg-gray-300 rounded skeleton" />
                         </td>
                       </tr>
-                    ))}
+                    ))
+                  : recentFiles.map((file, idx) => (
+                    <tr key={idx} className="hover:bg-gray-100 border-b">
+                      <td className="py-2">{file.fileName}</td>
+                      <td className="py-2">{`${file.username}`}</td>
+                      <td className="py-2">{file.organization}</td>
+                      <td className="py-2 text-xs text-gray-500">
+                        {moment(file.createdAt).format(
+                          "dddd, YYYY-MM-DD HH:mm"
+                        )}
+                      </td>
+                      <td className="py-2 space-x-2">
+                        <button onClick={() => getSingleFile(file._id)} title="View">
+                          <Eye className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={() => setIsShareOpen(true)}
+                          title="Share"
+                        >
+                          <Share2 className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={() => deleteScript(file._id)}
+                          title="Delete"
+                        >
+                          <Trash2 className="w-4 h-4 text-red-500" />
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
               </tbody>
             </table>
           </div>
@@ -189,9 +292,34 @@ export default function Dashboard() {
                 &times;
               </button>
               <h3 className="font-bold text-gray-700 mb-2">Output:</h3>
+
               <pre className="bg-gray-100 p-4 rounded text-sm overflow-auto max-h-[70vh]">
-                {script}
+                {fileType === "base64" && (
+                  <div>
+                    {script}
+                  </div>
+                )}
+
+                {fileType === "html" && (
+                  <div dangerouslySetInnerHTML={{ __html: script }} />
+                )}
+
+
+                {fileType === "xlsx" && script && (
+                  <iframe
+                    src={script}
+                    title="Generated PDF"
+                    className="w-full h-[70vh] border rounded"
+                  />
+                )}
+
+                {!(["base64", "html", "pdf", "doc", "docx", "xlsx"].includes(fileType)) && (
+                  <div>
+                    <p>Unsupported file type.</p>
+                  </div>
+                )}
               </pre>
+
             </div>
           </div>
         )}
@@ -308,30 +436,35 @@ export default function Dashboard() {
             </div>
           </div>
           <ul className="space-y-4">
-            {isLoadingActivity
-              ? Array(3)
-                  .fill(0)
-                  .map((_, i) => (
-                    <li
-                      key={i}
-                      className="flex items-center space-x-3 animate-pulse"
-                    >
-                      <div className="w-8 h-8 rounded-full bg-gray-300 skeleton" />
-                      <div className="h-4 w-48 bg-gray-300 rounded skeleton" />
-                    </li>
-                  ))
-              : recentActivity.map((activity, idx) => (
+            {isLoadingActivity ? (
+              Array(3)
+                .fill(0)
+                .map((_, i) => (
+                  <li key={i} className="flex items-center space-x-3 animate-pulse">
+                    <div className="w-8 h-8 rounded-full bg-gray-300 skeleton" />
+                    <div className="h-4 w-48 bg-gray-300 rounded skeleton" />
+                  </li>
+                ))
+            ) : (
+              recentActivity.map((activity, idx) => {
+                const name = activity.username || "Unknown User";
+                const fileName = activity.fileName || "a file";
+
+                return (
                   <li key={idx} className="flex items-center space-x-3">
                     <div className="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center text-sm font-medium">
-                      {activity.name[0]}
+                      {name.charAt(0).toUpperCase()}
                     </div>
                     <div className="text-sm">
-                      <span className="font-semibold">{activity.name}</span>{" "}
+                      <span className="font-semibold">{name}</span>{" "}
                       uploaded{" "}
-                      <span className="text-gray-500">{activity.fileName}</span>
+                      <span className="text-gray-500">{fileName}</span>
                     </div>
                   </li>
-                ))}
+                );
+              })
+            )}
+
           </ul>
         </section>
       </main>
