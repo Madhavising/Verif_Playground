@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Eye, Share2, Trash2 } from "lucide-react";
+import { ChevronLeft, ChevronRight, Eye, Share2, Trash2 } from "lucide-react";
 import { baseUrl } from "../api";
 import axios from "axios";
 import moment from "moment/moment";
@@ -22,7 +22,6 @@ export default function Dashboard() {
   const [fileType, setFileType] = useState("");
 
   const getAllRecentFiles = async () => {
-
     try {
       setIsLoadingFiles(true);
       let { data } = await axios.get(
@@ -131,7 +130,6 @@ export default function Dashboard() {
     }
   };
 
-
   const generatePdf = (rows) => {
     const doc = new jsPDF();
     doc.text("Registers Data", 14, 15);
@@ -144,18 +142,18 @@ export default function Dashboard() {
         "Fields",
         "Default Value",
         "Reset Value",
-        "Description"
-      ]
+        "Description",
+      ],
     ];
 
-    const body = rows.map(item => [
+    const body = rows.map((item) => [
       item.registerName,
       item.offset,
       item.readWrite,
       item.fields.join(", "),
       item.defaultValue.join(", "),
       item.resetValue.join(", "),
-      item.description
+      item.description,
     ]);
 
     autoTable(doc, {
@@ -170,7 +168,6 @@ export default function Dashboard() {
     // Generate a blob and return a blob URL
     return doc.output("blob");
   };
-
 
   useEffect(() => {
     getAllRecentFiles();
@@ -197,18 +194,16 @@ export default function Dashboard() {
                 disabled={pageFiles === 1}
                 className="px-3 py-1 border rounded disabled:opacity-50"
               >
-                Previous
+                <ChevronLeft size={16} />
               </button>
               <button
                 onClick={() =>
-                  setPageFiles((prev) =>
-                    Math.min(prev + 1, totalPagesScript)
-                  )
+                  setPageFiles((prev) => Math.min(prev + 1, totalPagesScript))
                 }
                 disabled={pageFiles === totalPagesScript}
                 className="px-3 py-1 border rounded disabled:opacity-50"
               >
-                Next
+                <ChevronRight size={16} />
               </button>
             </div>
           </div>
@@ -226,58 +221,64 @@ export default function Dashboard() {
               <tbody>
                 {isLoadingFiles
                   ? Array(3)
-                    .fill(0)
-                    .map((_, i) => (
-                      <tr key={i} className="animate-pulse border-b">
-                        <td className="py-2">
-                          <div className="h-4 w-24 bg-gray-300 rounded skeleton" />
-                        </td>
-                        <td className="py-2">
-                          <div className="h-4 w-20 bg-gray-300 rounded skeleton" />
-                        </td>
-                        <td className="py-2">
-                          <div className="h-4 w-20 bg-gray-300 rounded skeleton" />
-                        </td>
-                        <td className="py-2">
-                          <div className="h-4 w-28 bg-gray-300 rounded skeleton" />
+                      .fill(0)
+                      .map((_, i) => (
+                        <tr key={i} className="animate-pulse border-b">
+                          <td className="py-2">
+                            <div className="h-4 w-24 bg-gray-300 rounded skeleton" />
+                          </td>
+                          <td className="py-2">
+                            <div className="h-4 w-20 bg-gray-300 rounded skeleton" />
+                          </td>
+                          <td className="py-2">
+                            <div className="h-4 w-20 bg-gray-300 rounded skeleton" />
+                          </td>
+                          <td className="py-2">
+                            <div className="h-4 w-28 bg-gray-300 rounded skeleton" />
+                          </td>
+                          <td className="py-2 space-x-2">
+                            <div className="h-4 w-16 bg-gray-300 rounded skeleton" />
+                          </td>
+                        </tr>
+                      ))
+                  : recentFiles.map((file, idx) => (
+                      <tr key={idx} className="hover:bg-gray-100 border-b">
+                        <td className="py-2">{file.fileName}</td>
+                        <td className="py-2">{`${file.username}`}</td>
+                        <td className="py-2">{file.organization}</td>
+                        <td className="py-2 text-xs text-gray-500">
+                          {moment(file.createdAt).format(
+                            "dddd, YYYY-MM-DD HH:mm"
+                          )}
                         </td>
                         <td className="py-2 space-x-2">
-                          <div className="h-4 w-16 bg-gray-300 rounded skeleton" />
+                          <button
+                            onClick={() => getSingleFile(file._id)}
+                            title="View"
+                          >
+                            <Eye className="w-4 h-4" />
+                          </button>
+                          <button
+                            onClick={() => setIsShareOpen(true)}
+                            title="Share"
+                          >
+                            <Share2 className="w-4 h-4" />
+                          </button>
+                          <button
+                            onClick={() => deleteScript(file._id)}
+                            title="Delete"
+                          >
+                            <Trash2 className="w-4 h-4 text-red-500" />
+                          </button>
                         </td>
                       </tr>
-                    ))
-                  : recentFiles.map((file, idx) => (
-                    <tr key={idx} className="hover:bg-gray-100 border-b">
-                      <td className="py-2">{file.fileName}</td>
-                      <td className="py-2">{`${file.username}`}</td>
-                      <td className="py-2">{file.organization}</td>
-                      <td className="py-2 text-xs text-gray-500">
-                        {moment(file.createdAt).format(
-                          "dddd, YYYY-MM-DD HH:mm"
-                        )}
-                      </td>
-                      <td className="py-2 space-x-2">
-                        <button onClick={() => getSingleFile(file._id)} title="View">
-                          <Eye className="w-4 h-4" />
-                        </button>
-                        <button
-                          onClick={() => setIsShareOpen(true)}
-                          title="Share"
-                        >
-                          <Share2 className="w-4 h-4" />
-                        </button>
-                        <button
-                          onClick={() => deleteScript(file._id)}
-                          title="Delete"
-                        >
-                          <Trash2 className="w-4 h-4 text-red-500" />
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
+                    ))}
               </tbody>
             </table>
           </div>
+          <p className="mt-2 text-sm text-gray-500 text-right">
+            Page {pageFiles} of {totalPagesScript}
+          </p>
         </section>
 
         {/* View Pop-up */}
@@ -294,16 +295,11 @@ export default function Dashboard() {
               <h3 className="font-bold text-gray-700 mb-2">Output:</h3>
 
               <pre className="bg-gray-100 p-4 rounded text-sm overflow-auto max-h-[70vh]">
-                {fileType === "base64" && (
-                  <div>
-                    {script}
-                  </div>
-                )}
+                {fileType === "base64" && <div>{script}</div>}
 
                 {fileType === "html" && (
                   <div dangerouslySetInnerHTML={{ __html: script }} />
                 )}
-
 
                 {fileType === "xlsx" && script && (
                   <iframe
@@ -313,13 +309,14 @@ export default function Dashboard() {
                   />
                 )}
 
-                {!(["base64", "html", "pdf", "doc", "docx", "xlsx"].includes(fileType)) && (
+                {!["base64", "html", "pdf", "doc", "docx", "xlsx"].includes(
+                  fileType
+                ) && (
                   <div>
                     <p>Unsupported file type.</p>
                   </div>
                 )}
               </pre>
-
             </div>
           </div>
         )}
@@ -420,7 +417,7 @@ export default function Dashboard() {
                 disabled={pageActivity === 1}
                 className="px-3 py-1 border rounded disabled:opacity-50"
               >
-                Previous
+                <ChevronLeft size={16} />
               </button>
               <button
                 onClick={() =>
@@ -431,41 +428,43 @@ export default function Dashboard() {
                 disabled={pageActivity === totalPagesActivity}
                 className="px-3 py-1 border rounded disabled:opacity-50"
               >
-                Next
+                <ChevronRight size={16} />
               </button>
             </div>
           </div>
           <ul className="space-y-4">
-            {isLoadingActivity ? (
-              Array(3)
-                .fill(0)
-                .map((_, i) => (
-                  <li key={i} className="flex items-center space-x-3 animate-pulse">
-                    <div className="w-8 h-8 rounded-full bg-gray-300 skeleton" />
-                    <div className="h-4 w-48 bg-gray-300 rounded skeleton" />
-                  </li>
-                ))
-            ) : (
-              recentActivity.map((activity, idx) => {
-                const name = activity.username || "Unknown User";
-                const fileName = activity.fileName || "a file";
+            {isLoadingActivity
+              ? Array(3)
+                  .fill(0)
+                  .map((_, i) => (
+                    <li
+                      key={i}
+                      className="flex items-center space-x-3 animate-pulse"
+                    >
+                      <div className="w-8 h-8 rounded-full bg-gray-300 skeleton" />
+                      <div className="h-4 w-48 bg-gray-300 rounded skeleton" />
+                    </li>
+                  ))
+              : recentActivity.map((activity, idx) => {
+                  const name = activity.username || "Unknown User";
+                  const fileName = activity.fileName || "a file";
 
-                return (
-                  <li key={idx} className="flex items-center space-x-3">
-                    <div className="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center text-sm font-medium">
-                      {name.charAt(0).toUpperCase()}
-                    </div>
-                    <div className="text-sm">
-                      <span className="font-semibold">{name}</span>{" "}
-                      uploaded{" "}
-                      <span className="text-gray-500">{fileName}</span>
-                    </div>
-                  </li>
-                );
-              })
-            )}
-
+                  return (
+                    <li key={idx} className="flex items-center space-x-3">
+                      <div className="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center text-sm font-medium">
+                        {name.charAt(0).toUpperCase()}
+                      </div>
+                      <div className="text-sm">
+                        <span className="font-semibold">{name}</span> uploaded{" "}
+                        <span className="text-gray-500">{fileName}</span>
+                      </div>
+                    </li>
+                  );
+                })}
           </ul>
+          <p className="mt-2 text-sm text-gray-500 text-right">
+            Page {pageActivity} of {totalPagesActivity}
+          </p>
         </section>
       </main>
     </div>

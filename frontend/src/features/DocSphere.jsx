@@ -104,89 +104,55 @@ function DocSphere(props) {
  //   }
  // };
 
- const config = props.config || {};
- const editorId = config.id || "default-editor-id";
+  const saveContentAsPdf = async () => {
+    const content = editorRef.current.getContent();
+    saveContentToDatabase(content);
 
-const handleSaveDocument = async () => {
- const content = editorRef.current?.getContent();
- const fileName = fileNameInput.trim() || "document";
+    const container = document.createElement("div");
+    container.innerHTML = content;
 
- if (!content) {
-   alert("Editor content is empty");
-   return;
- }
+    const pdfFile = await html2pdf()
+      .set({
+        margin: 10,
+        filename: "document.pdf",
+        image: { type: "jpeg", quality: 0.98 },
+        html2canvas: { scale: 2 },
+        jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
+      })
+      .from(container)
+      .save();
+    console.log("PDF File Generated", pdfFile);
+  };
 
- try {
-   await saveContentToDatabase(content, `${fileName}.html`);
+  const saveContentToDatabase = async (content) => {
+    console.log("Content Received", content);
+    console.log("User data: ", user);
+    console.log("UserID", _id);
+    try {
+      await axios.post(`${baseUrl}/api/createScript`, {
+        htmlData: content,
+        fileType: "html",
+        fileName: "document.html",
+        userId: _id,
+        organization: companyName,
+      });
+      console.log("Document saved successfully");
+    } catch (err) {
+      console.error("Save to DB failed:", err);
+    }
+  };
 
-   const container = document.createElement("div");
-   container.innerHTML = content;
+  const saveContentAsHtml = (htmlContent) => {
+    const blob = new Blob([htmlContent], { type: "text/html" });
+    const url = URL.createObjectURL(blob);
 
-   await html2pdf()
-     .set({
-       margin: 10,
-       filename: `${fileName}.pdf`,
-       image: { type: "jpeg", quality: 0.98 },
-       html2canvas: { scale: 2 },
-       jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
-     })
-     .from(container)
-     .save();
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "document.html";
+    a.click();
 
-   console.log("PDF generated and downloaded");
-
-   setShowSaveModal(false);
-   setFileNameInput("");
- } catch (err) {
-   console.error("Error saving document:", err);
-   alert("Something went wrong while saving.");
- }
-};
-
-
- const saveContentToDatabase = async (content, fileName) => {
-   try {
-     await axios.post(`${baseUrl}/api/createScript`, {
-       htmlData: content,
-       fileType: "html",
-       fileName: fileName,
-       userId: _id,
-       organization: companyName,
-     });
-     console.log("Document saved successfully");
-   } catch (err) {
-     console.error("Save to DB failed:", err);
-   }
- };
-
- const saveContentAsHtml = (htmlContent) => {
-   const content = editorRef.current.getContent();
-   const fileName = fileNameInput.trim();
-
- if (!content || !fileName) {
-   alert("Please enter a valid file name.");
-   return;
- }
-   try {
-   saveContentToDatabase(content, `${fileName}.html`);
-
-   const blob = new Blob([content], { type: "text/html" });
-   const url = URL.createObjectURL(blob);
-
-   const a = document.createElement("a");
-   a.href = url;
-   a.download = `${fileName}.html`;
-   a.click();
-
-   URL.revokeObjectURL(url);
-
-   console.log("HTML file saved and downloaded.");
-   setShowSaveModal(false);
-   setFileNameInput("");
- } catch (err) {
-   console.error("Error saving HTML:", err);
- }
- };
+    URL.revokeObjectURL(url);
+  };
 
  return (
    <div className="p-4 bg-gray-50 shadow-lg w-full" style={{ height: "83vh" }}>
@@ -259,30 +225,70 @@ const handleSaveDocument = async () => {
        </div>
      )}
 
-     {/* Output Modal */}
-     {showOutputModal && (
-       <div className="fixed inset-0 bg-black bg-opacity-30 backdrop-blur-sm flex justify-center items-center z-50">
-         <div className="bg-white p-4 rounded shadow-lg max-w-4xl w-full relative flex flex-col items-center">
-           <button
-             onClick={() => setShowOutputModal(false)}
-             className="absolute top-2 right-2 px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600"
-           >
-             Close
-           </button>
-           <img
-             src={generatedHtml}
-             alt="Generated Waveform"
-             className="w-full h-auto max-h-[80vh] object-contain border"
-           />
-           <button
-             onClick={handleInsertToEditor}
-             className="mt-4 px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
-           >
-             Insert to Editor
-           </button>
-         </div>
-       </div>
-     )}
+      {/* TinyMCE Editor */}
+      <Editor
+        onInit={handleEditorInit}
+        id={editorId}
+        tinymceScriptSrc={
+          import.meta.env.BASE_URL + "tinymce/js/tinymce/tinymce.min.js"
+        }
+        initialValue={config.html || ""}
+        init={{
+          height: "100%",
+          width: "100%",
+          menubar: true,
+          branding: false,
+          plugins: [
+            "advlist",
+            "autolink",
+            "lists",
+            "link",
+            "image",
+            "charmap",
+            "anchor",
+            "searchreplace",
+            "visualblocks",
+            "code",
+            "fullscreen",
+            "insertdatetime",
+            "media",
+            "table",
+            "preview",
+            "help",
+          ],
+          toolbar:
+            "undo redo | savePdf | saveHtml | bold italic forecolor | fontsize | bullist numlist outdent indent | table | alignleft aligncenter alignright alignjustify | wave blockdiagram ",
+          menubar: "file edit insert view format tools table",
+          menu: {
+            file: {
+              title: "File",
+              items: "newdocument openfilemenu restoredraft | preview print",
+            },
+          },
+
+          setup: (editor) => {
+            editor.ui.registry.addMenuItem("openfilemenu", {
+              text: "Open",
+              icon: "browse", // Use "browse" or a custom icon
+              onAction: () => {
+                const savedContent = localStorage.getItem("editorContent");
+                if (savedContent) {
+                  editor.setContent(savedContent); // Load the content into the editor
+                  alert("Document opened from local storage.");
+                } else {
+                  alert("No saved document found.");
+                }
+              },
+            });
+            editor.ui.registry.addButton("savePdf", {
+              text: "PDF",
+              icon: "save",
+              tooltip: "Save document as PDF",
+              onAction: () => {
+                const content = editor.getContent();
+                saveContentAsPdf(content);
+              },
+            });
 
      {/* TinyMCE Editor */}
      <Editor
@@ -328,40 +334,32 @@ const handleSaveDocument = async () => {
              },
            });
 
-           editor.ui.registry.addButton("wave", {
-             text: "Wave",
-             icon: "adjustments",
-             onAction: () => {
-               if (!showModal && !showOutputModal) setShowModal(true);
-             },
-           });
+            editor.ui.registry.addButton("saveHtml", {
+              text: "HTML",
+              icon: "save", // tinyMCE built-in icon for code/sample
+              tooltip: "Save document as HTML",
+              onAction: () => {
+                const content = editor.getContent();
+                saveContentAsHtml(content);
+              },
+            });
 
-           editor.ui.registry.addButton("saveHtml", {
-             text: "HTML",
-             icon: "new-document", // tinyMCE built-in icon for code/sample
-             tooltip: "Save document as HTML",
-             onAction: () => {
-               setSaveType("html");
-               setShowSaveModal(true);
-             },
-           });
-
-           editor.ui.registry.addButton("blockdiagram", {
-             text: "Block Diagram",
-             onAction: () => {
-               if (!showModal && !showOutputModal) callBlockDiagramApi();
-             },
-           });
-         },
-         extended_valid_elements:
-           "iframe[src|width|height|style|sandbox|allowfullscreen|frameborder]",
-         valid_elements: "*[*]",
-         content_style:
-           "body { font-family:Helvetica,Arial,sans-serif; font-size:14px; margin: 0; }",
-       }}
-     />
-   </div>
- );
+            editor.ui.registry.addButton("blockdiagram", {
+              text: "Block Diagram",
+              onAction: () => {
+                if (!showModal && !showOutputModal) callBlockDiagramApi();
+              },
+            });
+          },
+          extended_valid_elements:
+            "iframe[src|width|height|style|sandbox|allowfullscreen|frameborder]",
+          valid_elements: "*[*]",
+          content_style:
+            "body { font-family:Helvetica,Arial,sans-serif; font-size:14px; margin: 0; }",
+        }}
+      />
+    </div>
+  );
 }
 
 export default DocSphere;
