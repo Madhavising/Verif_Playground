@@ -216,6 +216,21 @@ const getScriptById = async (req, res) => {
     }
 };
 
+const getAllHtmlFiles = async (req, res) => {
+    try {
+        const files = await Script.find({ fileType: 'html' }).sort({ createdAt: -1 });
+        return res.status(200).json({
+            success: true,
+            data: files
+        });
+    } catch (error) {
+        console.error("Get Script Error:", error.message);
+        return res.status(500).json({ message: "Error getting scripts" });
+
+    }
+}
+
+
 
 
 module.exports = {
@@ -224,5 +239,6 @@ module.exports = {
     getAllActivity,
     deleteScript,
     getAllXlsxByUser,
-    getScriptById
+    getScriptById,
+    getAllHtmlFiles
 }
