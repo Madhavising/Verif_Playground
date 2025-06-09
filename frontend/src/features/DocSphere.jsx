@@ -249,7 +249,7 @@ function DocSphere(props) {
           menu: {
             file: {
               title: "File",
-              items: "newdocument openfilemenu restoredraft | preview print",
+              items: "newdocument openfilemenu savePdf saveHtml restoredraft | preview print",
             },
           },
 
@@ -267,7 +267,7 @@ function DocSphere(props) {
                 }
               },
             });
-            editor.ui.registry.addButton("savePdf", {
+            editor.ui.registry.addMenuItem("savePdf", {
               text: "PDF",
               icon: "save",
               tooltip: "Save document as PDF",
@@ -279,13 +279,13 @@ function DocSphere(props) {
 
             editor.ui.registry.addButton("wave", {
               text: "Wave",
-              icon: "auto-image-enhancement",
+              icon: "embed-page",
               onAction: () => {
                 if (!showModal && !showOutputModal) setShowModal(true);
               },
             });
 
-            editor.ui.registry.addButton("saveHtml", {
+            editor.ui.registry.addMenuItem("saveHtml", {
               text: "HTML",
               icon: "save", // tinyMCE built-in icon for code/sample
               tooltip: "Save document as HTML",
