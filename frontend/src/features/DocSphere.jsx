@@ -330,7 +330,7 @@ const handleSaveDocument = async () => {
 
            editor.ui.registry.addButton("wave", {
              text: "Wave",
-             icon: "adjustments̀",
+             icon: "adjustments",
              onAction: () => {
                if (!showModal && !showOutputModal) setShowModal(true);
              },
