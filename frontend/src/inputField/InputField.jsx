@@ -1,15 +1,20 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { FaTrashAlt, FaPlus } from "react-icons/fa";
 import * as XLSX from "xlsx";
 import FileMenu from "./FileMenu";
-import UVMRegBlock from "../uvmRegBlock/UvmRegBlock";
 import { useNavigate } from "react-router-dom";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
+import axios from "axios";
+import { baseUrl } from "../api";
+import { useSelector } from "react-redux";
+import UserPopupModal from "../components/ScriptPopUpModel";
 
-const InputField = ({ onSubmit }) => {
+const InputField = () => {
   const navigate = useNavigate();
   const [ipName, setIpName] = useState("");
+  const user = useSelector((state) => state.user);
+  const [isOpen, setIsOpen] = useState(false);
 
   const [rows, setRows] = useState([
     {
@@ -109,6 +114,40 @@ const InputField = ({ onSubmit }) => {
     XLSX.writeFile(wb, "register_definitions.xlsx");
   };
 
+  const handleSaveToDatabase = async () => {
+    if (!ipName) {
+      alert("Please enter an IP Name before saving.");
+      return;
+    }
+
+
+    const userId = user?.userData?._id || "";
+    const organization = user?.userData?.companyName || "";
+
+    const filePayload = {
+      fileName: `${ipName}_register_definitions.xlsx`,
+      fileType: 'xlsx',
+      formData: {
+        ipName: ipName,
+        data: rows
+      },
+      userId: userId,
+      organization: organization
+    };
+
+    try {
+      const res = await axios.post(`${baseUrl}/api/createScript`, filePayload);
+      if (res.status === 201) {
+        alert('File saved successfully!');
+      } else {
+        alert(`Failed to save file: ${res.statusText}`);
+      }
+    } catch (error) {
+      console.error('Error saving file:', error.message);
+      alert('An error occurred while saving the file.');
+    }
+  };
+
   const handleDropdownAction = (action) => {
     switch (action) {
       case "new":
@@ -125,10 +164,10 @@ const InputField = ({ onSubmit }) => {
         ]);
         break;
       case "open":
-        alert("Open File functionality is not implemented yet.");
+        setIsOpen(true);
         break;
       case "save":
-        alert("Save File functionality is not implemented yet.");
+        handleSaveToDatabase();
         break;
       case "downloadXLS":
         handleDownload();
@@ -345,6 +384,8 @@ const InputField = ({ onSubmit }) => {
           </tbody>
         </table>
       </div>
+
+      <UserPopupModal isOpen={isOpen} onClose={() => setIsOpen(false)} setRows={setRows} />
 
       {/* Bottom Actions */}
       <div className="flex justify-start mt-6 gap-4">

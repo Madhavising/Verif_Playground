@@ -1,8 +1,9 @@
 const Script = require("../models/script");
+const UserCollection = require("../models/User");
 
 const createScript = async (req, res) => {
     try {
-        const { fileName, fileType, base64, userId, organization, htmlData } = req.body;
+        const { fileName, fileType, base64, userId, organization, htmlData, formData } = req.body;
         const file = req.file;
 
 
@@ -22,8 +23,12 @@ const createScript = async (req, res) => {
             scriptData.base64 = base64;
         }
 
-        if (htmlData && fileType == "html"){
+        if (htmlData && fileType == "html") {
             scriptData.htmlData = htmlData;
+        }
+
+        if (formData && Array.isArray(formData.data)) {
+            scriptData.formData = formData;
         }
 
         if (file && file.path && !["pdf", "xlsx", "doc", "docx", "html"].includes(fileType)) {
@@ -45,25 +50,68 @@ const getAllScript = async (req, res) => {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
     const user = req.user;
-    try {
 
+    try {
         const skip = (page - 1) * limit;
 
-        const scripts = await Script.find({ organization: user.companyName }).skip(skip).limit(limit);
-        const total = await Script.countDocuments({ organization: user.companyName });
+        // Fetch scripts with pagination and organization match
+        const scripts = await Script.aggregate([
+            {
+                $match: {
+                    organization: user.companyName
+                }
+            },
+            {
+                $sort: {
+                    createdAt: -1
+                }
+            },
+            {
+                $skip: skip
+            },
+            {
+                $limit: limit
+            }
+        ]);
+
+        // Attach username from UserCollection
+        const updatedScripts = await Promise.all(
+            scripts.map(async (script) => {
+                const scriptUser = await UserCollection.findById(script.userId).lean();
+                const username = scriptUser
+                    ? `${scriptUser.firstName} ${scriptUser.lastName}`
+                    : "Unknown User";
+
+                return {
+                    ...script,
+                    username
+                };
+            })
+        );
+
+        // Count total for pagination
+        const total = await Script.countDocuments({
+            organization: user.companyName
+        });
+
         const totalPages = Math.ceil(total / limit);
+
         return res.status(200).json({
             success: true,
             total,
             page,
             totalPages,
-            data: scripts
+            data: updatedScripts
         });
     } catch (error) {
-        console.error("Get Script Error:", error.message);
-        return res.status(500).json({ message: "Error getting scripts" });
+        console.error("Get Script Error:", error);
+        return res.status(500).json({
+            success: false,
+            message: "Error getting scripts"
+        });
     }
 };
+
 
 const getAllActivity = async (req, res) => {
     const page = parseInt(req.query.page) || 1;
@@ -72,7 +120,36 @@ const getAllActivity = async (req, res) => {
     try {
         const skip = (page - 1) * limit;
 
-        const scripts = await Script.find({ organization: user.companyName }).sort("-1").skip(skip).limit(limit);
+        const scripts = await Script.aggregate([
+            {
+                '$match': {
+                    'organization': user.companyName
+                }
+            }, {
+                '$sort': {
+                    'createdAt': -1
+                }
+            }, {
+                '$skip': skip
+            }, {
+                '$limit': limit
+            }
+        ])
+
+        // Attach username from UserCollection
+        const updatedScripts = await Promise.all(
+            scripts.map(async (script) => {
+                const scriptUser = await UserCollection.findById(script.userId).lean();
+                const username = scriptUser
+                    ? `${scriptUser.firstName} ${scriptUser.lastName}`
+                    : "Unknown User";
+
+                return {
+                    ...script,
+                    username
+                };
+            })
+        );
         const total = await Script.countDocuments({ organization: user.companyName });
         const totalPages = Math.ceil(total / limit);
         return res.status(200).json({
@@ -80,7 +157,7 @@ const getAllActivity = async (req, res) => {
             total,
             page,
             totalPages,
-            data: scripts
+            data: updatedScripts
         });
     } catch (error) {
         console.error("Get Script Error:", error.message);
@@ -99,11 +176,53 @@ const deleteScript = async (req, res) => {
     }
 };
 
+const getAllXlsxByUser = async (req, res) => {
+    const user = req.user;
+    try {
+        const scripts = await Script.aggregate([
+            {
+                '$match': {
+                    'organization': user.companyName,
+                    'userId': user._id,
+                    'fileType': 'xlsx'
+                }
+            }, {
+                '$sort': {
+                    'createdAt': -1
+                }
+            }
+        ])
+        return res.status(200).json({
+            success: true,
+            data: scripts
+        });
+    } catch (error) {
+        console.error("Get Script Error:", error.message);
+        return res.status(500).json({ message: "Error getting scripts" });
+    }
+};
+const getScriptById = async (req, res) => {
+    const { id } = req.params;
+    const user = req.user;
+    try {
+        const scripts = await Script.findOne({ _id: id });
+        return res.status(200).json({
+            success: true,
+            data: scripts
+        });
+    } catch (error) {
+        console.error("Get Script Error:", error.message);
+        return res.status(500).json({ message: "Error getting scripts" });
+    }
+};
+
 
 
 module.exports = {
     createScript,
     getAllScript,
     getAllActivity,
-    deleteScript
+    deleteScript,
+    getAllXlsxByUser,
+    getScriptById
 }
