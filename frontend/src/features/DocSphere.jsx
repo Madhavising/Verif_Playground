@@ -14,6 +14,10 @@ function DocSphere(props) {
   const [generatedHtml, setGeneratedHtml] = useState("");
   const [showOutputModal, setShowOutputModal] = useState(false);
   const { user } = useSelector((state) => state);
+  const [showSaveModal, setShowSaveModal] = useState(false);
+const [fileNameInput, setFileNameInput] = useState("");
+const [saveType, setSaveType] = useState("pdf"); // 'pdf' or 'html'
+
   if (!user) {
     return (
       <div className="flex justify-center items-center min-h-screen bg-gray-100">
@@ -103,55 +107,95 @@ function DocSphere(props) {
   const config = props.config || {};
   const editorId = config.id || "default-editor-id";
 
-  const saveContentAsPdf = async () => {
-    const content = editorRef.current.getContent();
-    saveContentToDatabase(content);
+const handleSaveDocument = async () => {
+  const content = editorRef.current?.getContent();
+  const fileName = fileNameInput.trim();
 
+  if (!content || !fileName) {
+    alert("Can't save! Your document is empty");
+    return;
+  }
+
+  try {
+    // Save content to DB using user's input file name
+    await saveContentToDatabase(content, `${fileName}.html`);
+
+    // Generate and save PDF using the same file name
     const container = document.createElement("div");
     container.innerHTML = content;
 
-    const pdfFile = await html2pdf()
+    await html2pdf()
       .set({
         margin: 10,
-        filename: "document.pdf",
+        filename: `${fileName}.pdf`,
         image: { type: "jpeg", quality: 0.98 },
         html2canvas: { scale: 2 },
         jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
       })
       .from(container)
       .save();
-    console.log("PDF File Generated", pdfFile);
-  };
 
-  const saveContentToDatabase = async (content) => {
-    console.log("Content Received", content);
-    console.log("User data: ", user);
-    console.log("UserID", _id);
-    try {
-      await axios.post(`${baseUrl}/api/createScript`, {
-        htmlData: content,
-        fileType: "html",
-        fileName: "document.html",
-        userId: _id,
-        organization: companyName,
-      });
-      console.log("Document saved successfully");
-    } catch (err) {
-      console.error("Save to DB failed:", err);
-    }
-  };
+    console.log("Document saved and PDF downloaded");
 
-  const saveContentAsHtml = (htmlContent) => {
-    const blob = new Blob([htmlContent], { type: "text/html" });
+    // Close modal and reset filename input
+    setShowSaveModal(false);
+    setFileNameInput("");
+  } catch (err) {
+    console.error("Error saving document:", err);
+    alert("Something went wrong while saving.");
+  }
+};
+
+
+const saveContentToDatabase = async (content, fileName) => {
+  try {
+    await axios.post(`${baseUrl}/api/createScript`, {
+      htmlData: content,
+      fileType: "html",
+      fileName: fileName,
+      userId: _id,
+      organization: companyName,
+    });
+    console.log("Document saved to DB successfully");
+  } catch (err) {
+    console.error("Save to DB failed:", err);
+  }
+};
+
+
+const saveContentAsHtml = async () => {
+  const content = editorRef.current?.getContent();
+  const fileName = fileNameInput.trim();
+
+  if (!content || !fileName) {
+    alert("Can't save! Your document is empty");
+    return;
+  }
+
+  try {
+    // Save to MongoDB
+    await saveContentToDatabase(content, `${fileName}.html`);
+
+    // Download HTML locally
+    const blob = new Blob([content], { type: "text/html" });
     const url = URL.createObjectURL(blob);
 
     const a = document.createElement("a");
     a.href = url;
-    a.download = "document.html";
+    a.download = `${fileName}.html`;
     a.click();
 
     URL.revokeObjectURL(url);
-  };
+
+    console.log("HTML file saved and downloaded.");
+    setShowSaveModal(false);
+    setFileNameInput("");
+  } catch (err) {
+    console.error("Error saving HTML:", err);
+    alert("Something went wrong while saving HTML.");
+  }
+};
+
 
   return (
     <div className="p-4 bg-gray-50 shadow-lg w-full" style={{ height: "83vh" }}>
@@ -186,6 +230,45 @@ function DocSphere(props) {
           </div>
         </div>
       )}
+
+{showSaveModal && (
+  <div className="fixed inset-0 bg-black bg-opacity-30 backdrop-blur-sm flex justify-center items-center z-50">
+    <div className="bg-white p-6 rounded shadow-lg w-96">
+      <h2 className="text-lg font-semibold mb-4 text-center">
+        Save Document as {saveType === "pdf" ? "PDF" : "HTML"}
+      </h2>
+      <input
+        type="text"
+        value={fileNameInput}
+        onChange={(e) => setFileNameInput(e.target.value)}
+        placeholder="Enter file name"
+        className="w-full px-3 py-2 border rounded mb-4"
+      />
+      <div className="flex justify-end gap-2">
+        <button
+          onClick={() => setShowSaveModal(false)}
+          className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
+        >
+          Cancel
+        </button>
+        <button
+          onClick={() => {
+            if (saveType === "pdf") {
+              handleSaveDocument(); // existing function
+            } else {
+              saveContentAsHtml(); // use new function
+            }
+          }}
+          className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+        >
+          Save Document
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+
+
 
       {/* Output Modal */}
       {showOutputModal && (
@@ -244,7 +327,7 @@ function DocSphere(props) {
             "help",
           ],
           toolbar:
-            "undo redo | savePdf | saveHtml | wave | bold italic forecolor | fontsize | bullist numlist outdent indent | table | alignleft aligncenter alignright alignjustify | blockdiagram ",
+            "undo redo | bold italic forecolor | fontsize | bullist numlist outdent indent | table | alignleft aligncenter alignright alignjustify wave | blockdiagram ",
           menubar: "file edit insert view format tools table",
           menu: {
             file: {
@@ -269,17 +352,15 @@ function DocSphere(props) {
             });
             editor.ui.registry.addMenuItem("savePdf", {
               text: "PDF",
-              icon: "save",
+              icon: "export-pdf",
               tooltip: "Save document as PDF",
               onAction: () => {
-                const content = editor.getContent();
-                saveContentAsPdf(content);
-              },
+      setShowSaveModal(true);
+    },
             });
 
             editor.ui.registry.addButton("wave", {
               text: "Wave",
-              icon: "embed-page",
               onAction: () => {
                 if (!showModal && !showOutputModal) setShowModal(true);
               },
@@ -287,11 +368,11 @@ function DocSphere(props) {
 
             editor.ui.registry.addMenuItem("saveHtml", {
               text: "HTML",
-              icon: "save", // tinyMCE built-in icon for code/sample
+              icon: "new-document", // tinyMCE built-in icon for code/sample
               tooltip: "Save document as HTML",
               onAction: () => {
-                const content = editor.getContent();
-                saveContentAsHtml(content);
+                setSaveType("html");
+    setShowSaveModal(true);
               },
             });
 
