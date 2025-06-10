@@ -104,6 +104,11 @@ export default function Dashboard() {
           setFileType("html");
           break;
         }
+        case "pdf": {
+          setScript(fileData.htmlData || "");
+          setFileType("pdf");
+          break;
+        }
 
         case "xlsx": {
           const rows = fileData?.formData?.data || [];
@@ -188,7 +193,7 @@ export default function Dashboard() {
         <section className="bg-white p-6 rounded-xl shadow-sm">
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-lg font-semibold mb-4">Recent Files</h2>
-            <div>
+            <div className="flex gap-1">
               <button
                 onClick={() => setPageFiles((prev) => Math.max(prev - 1, 1))}
                 disabled={pageFiles === 1}
@@ -298,6 +303,9 @@ export default function Dashboard() {
                 {fileType === "base64" && <div>{script}</div>}
 
                 {fileType === "html" && (
+                  <div dangerouslySetInnerHTML={{ __html: script }} />
+                )}
+                {fileType === "pdf" && (
                   <div dangerouslySetInnerHTML={{ __html: script }} />
                 )}
 
@@ -410,8 +418,8 @@ export default function Dashboard() {
         {/* Activity */}
         <section className="bg-white p-6 rounded-xl shadow-sm">
           <div className="flex justify-between items-center mb-4">
-            <h2 className="text-lg font-semibold mb-4">Recent Files</h2>
-            <div>
+            <h2 className="text-lg font-semibold mb-4">Recent Activities</h2>
+            <div className="flex gap-1">
               <button
                 onClick={() => setPageActivity((prev) => Math.max(prev - 1, 1))}
                 disabled={pageActivity === 1}

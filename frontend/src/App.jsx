@@ -24,6 +24,7 @@ import WaveInput from "./inputField/WaveInput.jsx";
 
 import ProtectedRoute from "./routes/protectedRoute.jsx";
 import IntrapediaHomePage from "./intrapedia/IntrapediaHomePage.jsx";
+import CircuitDiagram from "./circuitDiagram/CircuitDiagram.jsx";
 
 function App() {
   const dispatch = useDispatch();
@@ -41,7 +42,6 @@ function App() {
       }
       dispatch(setUser({ ...user, token }));
       setIsAuthenticated(true);
-
     } catch (err) {
       console.error("Error fetching user details:", err);
       setError(err.message || "Failed to fetch user details.");
@@ -107,6 +107,7 @@ function App() {
           <Route path="dataHub" element={<DataHub />} />
           <Route path="asicverify" element={<ASICVerification />} />
           <Route path="demo-request-page" element={<DemoRequestPage />} />
+          <Route path="circuit-diagram" element={<CircuitDiagram />} />
         </Route>
 
         {/* Fallback route */}

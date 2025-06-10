@@ -1,10 +1,11 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import { Editor } from "@tinymce/tinymce-react";
 import axios from "axios";
 import "../App.css";
 import { baseUrl } from "../api";
 import html2pdf from "html2pdf.js";
 import { useSelector } from "react-redux";
+import HtmlPopModel from "../components/htmlPopUpModel";
 
 function DocSphere(props) {
   const editorRef = useRef(null);
@@ -13,10 +14,11 @@ function DocSphere(props) {
   const [loading, setLoading] = useState(false);
   const [generatedHtml, setGeneratedHtml] = useState("");
   const [showOutputModal, setShowOutputModal] = useState(false);
-  const { user } = useSelector((state) => state);
   const [showSaveModal, setShowSaveModal] = useState(false);
-const [fileNameInput, setFileNameInput] = useState("");
-const [saveType, setSaveType] = useState("pdf"); // 'pdf' or 'html'
+  const [fileNameInput, setFileNameInput] = useState("");
+  const [saveType, setSaveType] = useState("pdf");
+  const [showOpenModal, setShowOpenModal] = useState(false);
+  const { user } = useSelector((state) => state);
 
   if (!user) {
     return (
@@ -50,7 +52,6 @@ const [saveType, setSaveType] = useState("pdf"); // 'pdf' or 'html'
     try {
       setLoading(true);
       const response = await axios.post(
-        // "http://localhost:3000/waveform/upload",
         `${baseUrl}/waveform/upload`,
         formData,
         {
@@ -60,7 +61,6 @@ const [saveType, setSaveType] = useState("pdf"); // 'pdf' or 'html'
 
       const outputUrl = response.data.output;
       const fullOutputUrl = `${baseUrl}${outputUrl}`;
-      // const fullOutputUrl = `http://localhost:3000${outputUrl}`;
 
       setGeneratedHtml(fullOutputUrl);
       setShowOutputModal(true);
@@ -77,128 +77,102 @@ const [saveType, setSaveType] = useState("pdf"); // 'pdf' or 'html'
   const handleInsertToEditor = () => {
     if (editorRef.current && generatedHtml) {
       editorRef.current.insertContent(`
-      <div style="width: 100%; text-align: center; margin: 10px 0;">
-        <img src="${generatedHtml}" alt="Waveform" style="width: 80%; height: 90%; display: block; max-width: 90%;" />
-      </div>
-    `);
+        <div style="width: 100%; text-align: center; margin: 10px 0;">
+          <img src="${generatedHtml}" alt="Waveform" style="width: 80%; max-width: 90%;" />
+        </div>
+      `);
     }
     setShowOutputModal(false);
   };
 
-  // const callBlockDiagramApi = async () => {
-  //   try {
-  //     const response = await fetch("https://picsum.photos/400/300");
-  //     if (response.ok) {
-  //       const imageUrl = response.url;
-  //       if (editorRef.current) {
-  //         editorRef.current.insertContent(
-  //           `<div style="border: 2px solid black; padding: 10px;"><img src="${imageUrl}" alt="Block Diagram" style="max-width: 100%; height: auto;" /></div>`
-  //         );
-  //       }
-  //     } else {
-  //       alert("Failed to load block diagram.");
-  //     }
-  //   } catch (error) {
-  //     console.error("Error:", error);
-  //     alert("Block diagram API failed.");
-  //   }
-  // };
+  const saveContentToDatabase = useCallback(
+    async (content, fileName) => {
+      try {
+        await axios.post(`${baseUrl}/api/createScript`, {
+          htmlData: content,
+          fileType: saveType,
+          fileName,
+          userId: _id,
+          organization: companyName,
+        });
+        console.log("Document saved to DB successfully");
+      } catch (err) {
+        console.error("Save to DB failed:", err);
+        alert("Database save failed.");
+      }
+    },
+    [_id, companyName, saveType]
+  );
+
+  const handleSaveDocument = async () => {
+    const content = editorRef.current?.getContent();
+    const fileName = fileNameInput.trim();
+
+    if (!content || !fileName) {
+      alert("Can't save! Your document is empty or filename missing.");
+      return;
+    }
+
+    try {
+      await saveContentToDatabase(content, `${fileName}.pdf`);
+
+      const container = document.createElement("div");
+      container.innerHTML = content;
+
+      await html2pdf()
+        .set({
+          margin: 10,
+          filename: `${fileName}.pdf`,
+          image: { type: "jpeg", quality: 0.98 },
+          html2canvas: { scale: 2 },
+          jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
+        })
+        .from(container)
+        .save();
+
+      setShowSaveModal(false);
+      setFileNameInput("");
+    } catch (err) {
+      console.error("Error saving document:", err);
+      alert("Failed to save as PDF.");
+    }
+  };
+
+  const saveContentAsHtml = async () => {
+    const content = editorRef.current?.getContent();
+    const fileName = fileNameInput.trim();
+
+    if (!content || !fileName) {
+      alert("Can't save! Your document is empty or filename missing.");
+      return;
+    }
+
+    try {
+      await saveContentToDatabase(content, `${fileName}.html`);
+
+      const blob = new Blob([content], { type: "text/html" });
+      const url = URL.createObjectURL(blob);
+
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `${fileName}.html`;
+      a.click();
+
+      URL.revokeObjectURL(url);
+
+      setShowSaveModal(false);
+      setFileNameInput("");
+    } catch (err) {
+      console.error("Error saving HTML:", err);
+      alert("Failed to save as HTML.");
+    }
+  };
 
   const config = props.config || {};
   const editorId = config.id || "default-editor-id";
 
-const handleSaveDocument = async () => {
-  const content = editorRef.current?.getContent();
-  const fileName = fileNameInput.trim();
-
-  if (!content || !fileName) {
-    alert("Can't save! Your document is empty");
-    return;
-  }
-
-  try {
-    // Save content to DB using user's input file name
-    await saveContentToDatabase(content, `${fileName}.html`);
-
-    // Generate and save PDF using the same file name
-    const container = document.createElement("div");
-    container.innerHTML = content;
-
-    await html2pdf()
-      .set({
-        margin: 10,
-        filename: `${fileName}.pdf`,
-        image: { type: "jpeg", quality: 0.98 },
-        html2canvas: { scale: 2 },
-        jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
-      })
-      .from(container)
-      .save();
-
-    console.log("Document saved and PDF downloaded");
-
-    // Close modal and reset filename input
-    setShowSaveModal(false);
-    setFileNameInput("");
-  } catch (err) {
-    console.error("Error saving document:", err);
-    alert("Something went wrong while saving.");
-  }
-};
-
-
-const saveContentToDatabase = async (content, fileName) => {
-  try {
-    await axios.post(`${baseUrl}/api/createScript`, {
-      htmlData: content,
-      fileType: "html",
-      fileName: fileName,
-      userId: _id,
-      organization: companyName,
-    });
-    console.log("Document saved to DB successfully");
-  } catch (err) {
-    console.error("Save to DB failed:", err);
-  }
-};
-
-
-const saveContentAsHtml = async () => {
-  const content = editorRef.current?.getContent();
-  const fileName = fileNameInput.trim();
-
-  if (!content || !fileName) {
-    alert("Can't save! Your document is empty");
-    return;
-  }
-
-  try {
-    // Save to MongoDB
-    await saveContentToDatabase(content, `${fileName}.html`);
-
-    // Download HTML locally
-    const blob = new Blob([content], { type: "text/html" });
-    const url = URL.createObjectURL(blob);
-
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `${fileName}.html`;
-    a.click();
-
-    URL.revokeObjectURL(url);
-
-    console.log("HTML file saved and downloaded.");
-    setShowSaveModal(false);
-    setFileNameInput("");
-  } catch (err) {
-    console.error("Error saving HTML:", err);
-    alert("Something went wrong while saving HTML.");
-  }
-};
-
-
   return (
-    <div className="p-4 bg-gray-50 shadow-lg w-full" style={{ height: "83vh" }}>
+    <div className="p-4 bg-gray-50 shadow-lg w-full h-full">
       {/* Upload Modal */}
       {showModal && (
         <div className="fixed inset-0 bg-black bg-opacity-30 backdrop-blur-sm flex justify-center items-center z-50">
@@ -231,44 +205,41 @@ const saveContentAsHtml = async () => {
         </div>
       )}
 
-{showSaveModal && (
-  <div className="fixed inset-0 bg-black bg-opacity-30 backdrop-blur-sm flex justify-center items-center z-50">
-    <div className="bg-white p-6 rounded shadow-lg w-96">
-      <h2 className="text-lg font-semibold mb-4 text-center">
-        Save Document as {saveType === "pdf" ? "PDF" : "HTML"}
-      </h2>
-      <input
-        type="text"
-        value={fileNameInput}
-        onChange={(e) => setFileNameInput(e.target.value)}
-        placeholder="Enter file name"
-        className="w-full px-3 py-2 border rounded mb-4"
-      />
-      <div className="flex justify-end gap-2">
-        <button
-          onClick={() => setShowSaveModal(false)}
-          className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
-        >
-          Cancel
-        </button>
-        <button
-          onClick={() => {
-            if (saveType === "pdf") {
-              handleSaveDocument(); // existing function
-            } else {
-              saveContentAsHtml(); // use new function
-            }
-          }}
-          className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-        >
-          Save Document
-        </button>
-      </div>
-    </div>
-  </div>
-)}
-
-
+      {/* Save Modal */}
+      {showSaveModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-30 backdrop-blur-sm flex justify-center items-center z-50">
+          <div className="bg-white p-6 rounded shadow-lg w-96">
+            <h2 className="text-lg font-semibold mb-4 text-center">
+              Save Document as {saveType === "pdf" ? "PDF" : "HTML"}
+            </h2>
+            <input
+              type="text"
+              value={fileNameInput}
+              onChange={(e) => setFileNameInput(e.target.value)}
+              placeholder="Enter file name"
+              className="w-full px-3 py-2 border rounded mb-4"
+            />
+            <div className="flex justify-end gap-2">
+              <button
+                onClick={() => setShowSaveModal(false)}
+                className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() =>
+                  saveType === "pdf"
+                    ? handleSaveDocument()
+                    : saveContentAsHtml()
+                }
+                className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+              >
+                Save Document
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Output Modal */}
       {showOutputModal && (
@@ -293,6 +264,19 @@ const saveContentAsHtml = async () => {
             </button>
           </div>
         </div>
+      )}
+
+      {/* HTML Pop Model */}
+      {showOpenModal && (
+        <HtmlPopModel
+          isOpen={showOpenModal}
+          onClose={() => setShowOpenModal(false)}
+          setData={(value) => {
+            if (editorRef.current && value) {
+              editorRef.current.setContent(value);
+            }
+          }}
+        />
       )}
 
       {/* TinyMCE Editor */}
@@ -327,59 +311,47 @@ const saveContentAsHtml = async () => {
             "help",
           ],
           toolbar:
-            "undo redo | bold italic forecolor | fontsize | bullist numlist outdent indent | table | alignleft aligncenter alignright alignjustify wave | blockdiagram ",
+            "undo redo | bold italic forecolor | fontsize | bullist numlist outdent indent | table | alignleft aligncenter alignright alignjustify  | wave blockdiagram",
           menubar: "file edit insert view format tools table",
           menu: {
             file: {
               title: "File",
-              items: "newdocument openfilemenu savePdf saveHtml restoredraft | preview print",
+              items:
+                "newdocument openfilemenu savePdf saveHtml restoredraft | preview print",
             },
           },
-
           setup: (editor) => {
             editor.ui.registry.addMenuItem("openfilemenu", {
               text: "Open",
-              icon: "browse", // Use "browse" or a custom icon
-              onAction: () => {
-                const savedContent = localStorage.getItem("editorContent");
-                if (savedContent) {
-                  editor.setContent(savedContent); // Load the content into the editor
-                  alert("Document opened from local storage.");
-                } else {
-                  alert("No saved document found.");
-                }
-              },
+              icon: "browse",
+              onAction: () => setShowOpenModal(true),
             });
             editor.ui.registry.addMenuItem("savePdf", {
-              text: "PDF",
+              text: "Save as PDF",
               icon: "export-pdf",
-              tooltip: "Save document as PDF",
               onAction: () => {
-      setShowSaveModal(true);
-    },
+                setSaveType("pdf");
+                setShowSaveModal(true);
+              },
             });
-
+            editor.ui.registry.addMenuItem("saveHtml", {
+              text: "Save as HTML",
+              icon: "new-document",
+              onAction: () => {
+                setSaveType("html");
+                setShowSaveModal(true);
+              },
+            });
             editor.ui.registry.addButton("wave", {
               text: "Wave",
               onAction: () => {
                 if (!showModal && !showOutputModal) setShowModal(true);
               },
             });
-
-            editor.ui.registry.addMenuItem("saveHtml", {
-              text: "HTML",
-              icon: "new-document", // tinyMCE built-in icon for code/sample
-              tooltip: "Save document as HTML",
-              onAction: () => {
-                setSaveType("html");
-    setShowSaveModal(true);
-              },
-            });
-
             editor.ui.registry.addButton("blockdiagram", {
               text: "Block Diagram",
               onAction: () => {
-                if (!showModal && !showOutputModal) callBlockDiagramApi();
+                alert("Block Diagram feature not implemented yet.");
               },
             });
           },
@@ -387,7 +359,7 @@ const saveContentAsHtml = async () => {
             "iframe[src|width|height|style|sandbox|allowfullscreen|frameborder]",
           valid_elements: "*[*]",
           content_style:
-            "body { font-family:Helvetica,Arial,sans-serif; font-size:14px; margin: 0; }",
+            "body { font-family:Helvetica,Arial,sans-serif; font-size:14px; margin: 0; padding: 12px;}",
         }}
       />
     </div>

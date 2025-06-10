@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { baseUrl } from "../api";
 import axios from "axios";
 
-const UserPopupModal = ({ isOpen, onClose, setRows }) => {
+const HtmlPopModel = ({ isOpen, onClose, setData }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [scriptData, setScriptData] = useState([]);
 
@@ -15,9 +15,9 @@ const UserPopupModal = ({ isOpen, onClose, setRows }) => {
         },
       });
 
-      console.log("data.data.formData.data", data.data.formData.data);
+      console.log("data.data.formData.data", data.data.htmlData);
 
-      setRows(data.data.formData.data);
+      setData(data.data.htmlData);
       onClose();
     } catch (error) {
       console.error("Error handling script click:", error.message);
@@ -29,7 +29,7 @@ const UserPopupModal = ({ isOpen, onClose, setRows }) => {
 
     const getAllXlsxByUser = async () => {
       try {
-        const { data } = await axios.get(`${baseUrl}/api/getAllXlsxByUser`, {
+        const { data } = await axios.get(`${baseUrl}/api/getAllHtmlFiles`, {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
           },
@@ -90,9 +90,9 @@ const UserPopupModal = ({ isOpen, onClose, setRows }) => {
   );
 };
 
-UserPopupModal.propTypes = {
+HtmlPopModel.propTypes = {
   isOpen: PropTypes.bool.isRequired,
   onClose: PropTypes.func.isRequired,
 };
 
-export default UserPopupModal;
+export default HtmlPopModel;

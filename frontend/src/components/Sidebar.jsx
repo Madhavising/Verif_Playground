@@ -11,12 +11,14 @@ import {
   Database,
   ChevronLeft,
   ChevronRight,
+  CircuitBoard,
 } from "lucide-react";
 
 const navItems = [
   { to: "/intrapediaHome", label: "Home", icon: Home },
   { to: "/input-field", label: "Create Register Map", icon: Box },
   { to: "/docSphere", label: "DocSphere", icon: FileText },
+    { to: "/circuit-diagram", label: "Circuit Daigram", icon: CircuitBoard },
   { to: "/demo-request-page", label: "Request", icon: Send },
   { to: "/autoVerify", label: "AutoVerify", icon: CheckCircle2 },
   { to: "/regressionTracker", label: "Tracker", icon: BarChart },
