@@ -1,6 +1,6 @@
 const express = require("express");
 const multer = require("multer");
-const { createScript, getAllScript, getAllActivity, deleteScript, getAllXlsxByUser, getScriptById, getAllHtmlFiles } = require("../controller/scriptController");
+const { createScript, getAllScript, getAllActivity, deleteScript, getAllXlsxByUser, getScriptById, getAllHtmlFiles, getScriptByRejex } = require("../controller/scriptController");
 const { authMiddleware } = require("../middleware/authMiddleware");
 
 const router = express.Router();
@@ -24,5 +24,6 @@ router.get("/getAllXlsxByUser", authMiddleware, getAllXlsxByUser);
 router.get("/getAllHtmlFiles", authMiddleware, getAllHtmlFiles);
 router.get("/getScript/:id", authMiddleware, getScriptById);
 router.delete("/deleteScript/:id", deleteScript);
+router.get("/getScriptByRejex", getScriptByRejex);
 
 module.exports = router;
