@@ -267,7 +267,7 @@ const getScriptByRejex = async (req, res) => {
     const escapedQuery = escapeRegex(query.trim());
     const regex = new RegExp(escapedQuery, "i");
 
-    const scripts = await Script.find({ fileName: { $regex: regex } });
+    const scripts = await Script.find({ fileName: { $regex: regex } }).sort({ createdAt: -1 });
 
     return res.status(200).json({ status: true, data: scripts });
   } catch (error) {

@@ -6,6 +6,7 @@ import { baseUrl } from "../api";
 import html2pdf from "html2pdf.js";
 import { useSelector } from "react-redux";
 import HtmlPopModel from "../components/htmlPopUpModel";
+import { useLocation } from "react-router-dom";
 
 function DocSphere(props) {
   const editorRef = useRef(null);
@@ -19,6 +20,28 @@ function DocSphere(props) {
   const [saveType, setSaveType] = useState("pdf");
   const [showOpenModal, setShowOpenModal] = useState(false);
   const { user } = useSelector((state) => state);
+  const location = useLocation();
+  const { id } = location.state || {};
+
+  useEffect(() => {
+    const fetchScript = async () => {
+      if (!id) return;
+
+      try {
+        const { data } = await axios.get(`${baseUrl}/api/getScript/${id}`, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        });
+
+        editorRef.current.setContent(data.data.htmlData);
+      } catch (error) {
+        console.error("Error fetching script:", error.message);
+      }
+    };
+
+    fetchScript();
+  }, [id]);
 
   if (!user) {
     return (
