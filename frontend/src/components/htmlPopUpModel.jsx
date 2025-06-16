@@ -15,8 +15,6 @@ const HtmlPopModel = ({ isOpen, onClose, setData }) => {
         },
       });
 
-      console.log("data.data.formData.data", data.data.htmlData);
-
       setData(data.data.htmlData);
       onClose();
     } catch (error) {

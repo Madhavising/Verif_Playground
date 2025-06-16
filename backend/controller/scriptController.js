@@ -256,6 +256,53 @@ const getAllHtmlFiles = async (req, res) => {
   }
 };
 
+const getScriptByRejex = async (req, res) => {
+  try {
+    const { query } = req.query;
+
+    if (!query) {
+      return res.status(400).json({ message: "Query parameter is required" });
+    }
+
+    const escapedQuery = escapeRegex(query.trim());
+    const regex = new RegExp(escapedQuery, "i");
+
+    const scripts = await Script.find({ fileName: { $regex: regex } }).sort({ createdAt: -1 }).limit(5)
+
+    return res.status(200).json({ status: true, data: scripts });
+  } catch (error) {
+    console.error("Get Script Error:", error.message);
+    return res.status(500).json({ status: false, message: "Error getting scripts" });
+  }
+};
+
+const getAllDocuments = async (req, res) => {
+  try {
+    const { query } = req.query;
+
+    if (!query) {
+      return res.status(400).json({ message: "Query parameter is required" });
+    }
+
+    const escapedQuery = escapeRegex(query.trim());
+    const regex = new RegExp(escapedQuery, "i");
+
+    const scripts = await Script.find({ fileName: { $regex: regex } }).sort({ createdAt: -1 })
+
+    return res.status(200).json({ status: true, data: scripts });
+  } catch (error) {
+    console.error("Get Script Error:", error.message);
+    return res.status(500).json({ status: false, message: "Error getting scripts" });
+  }
+};
+
+function escapeRegex(string) {
+  return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+
+
+
 module.exports = {
   createScript,
   getAllScript,
@@ -264,4 +311,6 @@ module.exports = {
   getAllXlsxByUser,
   getScriptById,
   getAllHtmlFiles,
+  getScriptByRejex,
+  getAllDocuments
 };
