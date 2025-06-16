@@ -45,7 +45,12 @@ const IntrapediaHomePage = () => {
 
       try {
         const response = await axios.get(
-          `${baseUrl}/api/getScriptByRejex?query=${value.toLowerCase()}`
+          `${baseUrl}/api/getScriptByRejex?query=${value.toLowerCase()}`, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token") || ""}`,
+            'Content-Type': 'application/json', // Ensure the content type is set
+          },
+        }
         );
 
         if (response.data.status && response.data.data.length > 0) {
@@ -86,6 +91,15 @@ const IntrapediaHomePage = () => {
     }
   };
 
+  const handleKeyDown = (event) => {
+    if (event.key === "Enter") {
+      const value = event.target.value;
+      navigate(`/searchList?query=${value}`);
+      setIsOpen(false);
+    }
+  };
+
+
   return (
     <div className="h-full flex flex-col items-center justify-center bg-white px-4 py-10">
       {/* Title */}
@@ -102,6 +116,7 @@ const IntrapediaHomePage = () => {
             type="text"
             placeholder="Search Andgate..."
             onChange={handleSearchChange}
+            onKeyDown={handleKeyDown}
             className="flex-grow px-5 py-3 text-gray-700 placeholder-gray-400 outline-none text-[15px]"
           />
           <div className="w-6 h-6 mx-4 flex items-center justify-center">
