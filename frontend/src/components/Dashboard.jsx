@@ -5,6 +5,7 @@ import axios from "axios";
 import moment from "moment/moment";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
+import ChatbotWidget from "../chatbotAI/ChatbotWidget";
 
 export default function Dashboard() {
   const [recentFiles, setRecentFiles] = useState([]);
@@ -474,6 +475,7 @@ export default function Dashboard() {
             Page {pageActivity} of {totalPagesActivity}
           </p>
         </section>
+        <ChatbotWidget />
       </main>
     </div>
   );
