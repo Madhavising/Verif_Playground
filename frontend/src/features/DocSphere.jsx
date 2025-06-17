@@ -74,6 +74,82 @@ function DocSphere(props) {
     }
   };
 
+  function openPdfUploadDialog(editor) {
+    const input = document.createElement("input");
+    input.type = "file";
+    input.accept = "application/pdf";
+
+    input.onchange = function () {
+      const file = input.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        const pdfData = e.target.result;
+
+        editor.windowManager.open({
+          title: "PDF Preview",
+          size: "large",
+          body: {
+            type: "panel",
+            items: [
+              {
+                type: "htmlpanel",
+                html: `
+                <style>
+                  html, body {
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+  }
+  .pdf-preview-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vw!important;
+    z-index: 9999;
+    background: #fff;
+    display: flex;
+    flex-direction: column;
+  }
+  .pdf-preview-container iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+    flex-grow: 1;
+                </style>
+                <div class="pdf-preview-container" id="pdfPreview">
+                  <iframe src="${pdfData}"></iframe>
+                </div>`,
+              },
+            ],
+          },
+          buttons: [
+            {
+              type: "cancel",
+              text: "Close",
+            },
+            {
+              type: "submit",
+              text: "Save",
+              primary: true,
+            },
+          ],
+          onSubmit: function (api) {
+            const linkHtml = `<a href="${pdfData}" target="_blank">Open PDF</a>`;
+            editor.insertContent(linkHtml);
+            api.close();
+          },
+        });
+      };
+
+      reader.readAsDataURL(file);
+    };
+
+    input.click();
+  }
+
   const handleInsertToEditor = () => {
     if (editorRef.current && generatedHtml) {
       editorRef.current.insertContent(`
@@ -292,12 +368,17 @@ function DocSphere(props) {
           width: "100%",
           menubar: true,
           branding: false,
+          selector: "textarea",
           plugins: [
             "advlist",
             "autolink",
+            "quickbars",
+            "emoticons",
+            "wordcount",
             "lists",
             "link",
             "image",
+            "imagetools",
             "charmap",
             "anchor",
             "searchreplace",
@@ -309,15 +390,18 @@ function DocSphere(props) {
             "table",
             "preview",
             "help",
+            "pagebreak",
+            "fullscreen",
+            "exportpdf",
           ],
-          toolbar:
-            "undo redo | bold italic forecolor | fontsize | bullist numlist outdent indent | table | alignleft aligncenter alignright alignjustify  | wave blockdiagram",
-          menubar: "file edit insert view format tools table",
+          toolbar1:
+            "undo redo exportpdf print quicklink | bold italic blockquote link | blocks | fontsize | fontfamily | fontsizeinput | fullscreen | lineheight forecolor | bullist numlist outdent indent | alignleft aligncenter alignright alignjustify | table | wave blockdiagram | emoticons wordcount searchreplace quickimage pagebreak",
+          quickbars_insert_toolbar: false,
           menu: {
             file: {
               title: "File",
               items:
-                "newdocument openfilemenu savePdf saveHtml restoredraft | preview print",
+                "newdocument openfilemenu insertpdf savePdf saveHtml restoredraft | preview print",
             },
           },
           setup: (editor) => {
@@ -332,6 +416,13 @@ function DocSphere(props) {
               onAction: () => {
                 setSaveType("pdf");
                 setShowSaveModal(true);
+              },
+            });
+            editor.ui.registry.addMenuItem("insertpdf", {
+              text: "Upload PDF",
+              icon: "upload",
+              onAction: function () {
+                openPdfUploadDialog(editor);
               },
             });
             editor.ui.registry.addMenuItem("saveHtml", {
