@@ -15,7 +15,6 @@ const UserPopupModal = ({ isOpen, onClose, setRows }) => {
         },
       });
 
-      console.log("data.data.formData.data", data.data.formData.data);
 
       setRows(data.data.formData.data);
       onClose();

@@ -1,7 +1,7 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { useDropzone } from "react-dropzone";
 import { useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { baseUrl_1, baseUrl } from "../api";
 import axios from "axios";
 import { ArrowLeft } from "lucide-react";
@@ -13,6 +13,32 @@ function UVMRegBlock() {
   const [result, setResult] = useState("");
   const [loading, setLoading] = useState(false);
   const [status, setStatus] = useState("Idle"); // Idle | Processing | Success | Error
+  const location = useLocation();
+  const { id } = location.state || {};
+
+
+  useEffect(() => {
+    const fetchScript = async () => {
+      if (!id) return;
+
+      try {
+        const { data } = await axios.get(`${baseUrl}/api/getScript/${id}`, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        });
+
+        const decodedText = atob(data.data.base64);
+        setResult(decodedText);
+
+      } catch (error) {
+        console.error("Error fetching script:", error.message);
+      }
+    };
+
+    fetchScript();
+  }, [id]);
+
 
   const user = useSelector((state) => state.user);
   const navigate = useNavigate();
@@ -214,12 +240,12 @@ function UVMRegBlock() {
             <div className="flex items-center gap-2 bg-gray-100 px-3 py-1 rounded-full shadow-sm w-max">
               <div
                 className={`w-3 h-3 rounded-full ${status === "Idle"
-                    ? "bg-gray-400"
-                    : status === "Processing"
-                      ? "bg-yellow-500 animate-pulse"
-                      : status === "Success"
-                        ? "bg-green-500"
-                        : "bg-red-500"
+                  ? "bg-gray-400"
+                  : status === "Processing"
+                    ? "bg-yellow-500 animate-pulse"
+                    : status === "Success"
+                      ? "bg-green-500"
+                      : "bg-red-500"
                   }`}
               ></div>
               <p className="text-sm font-medium text-gray-700">{status}</p>

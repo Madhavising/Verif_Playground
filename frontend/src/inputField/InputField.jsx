@@ -1,8 +1,8 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { FaTrashAlt, FaPlus } from "react-icons/fa";
 import * as XLSX from "xlsx";
 import FileMenu from "./FileMenu";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import axios from "axios";
@@ -15,6 +15,9 @@ const InputField = () => {
   const [ipName, setIpName] = useState("");
   const user = useSelector((state) => state.user);
   const [isOpen, setIsOpen] = useState(false);
+  const location = useLocation();
+  const { id } = location.state || {};
+
 
   const [rows, setRows] = useState([
     {
@@ -223,6 +226,25 @@ const InputField = () => {
     doc.save("registers.pdf");
   };
 
+  useEffect(() => {
+    const fetchScript = async () => {
+      if (!id) return;
+
+      try {
+        const { data } = await axios.get(`${baseUrl}/api/getScript/${id}`, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        });
+
+        setRows(data.data.formData.data);
+      } catch (error) {
+        console.error("Error fetching script:", error.message);
+      }
+    };
+
+    fetchScript();
+  }, [id]);
 
 
   return (
