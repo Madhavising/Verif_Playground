@@ -52,25 +52,22 @@ const SearchList = () => {
         return () => clearTimeout(timeout); // cleanup on re-render
     }, [query]);
 
-    const handleNavigation = (type, id) => {
+    const handleNavigation = (fileName, type, id) => {
         if (!id) {
             console.error("No ID provided for navigation");
             return;
         }
 
-        switch (type) {
-            case "base64":
-                navigate("/uvm-reg-block", { state: { id } });
-                break;
-            case "xlsx":
-                navigate("/input-field", { state: { id } });
-                break;
-            case "html":
-            case "pdf":
-                navigate("/docSphere", { state: { id } });
-                break;
-            default:
-                console.warn("Unsupported type:", type);
+        const fileFormat = fileName.split('.').pop().toLowerCase();
+
+        if (type === "base64" && fileFormat === "uvm_script") {
+            navigate("/uvm-reg-block", { state: { id } });
+        } else if (fileFormat === "xlsx") {
+            navigate("/input-field", { state: { id } });
+        } else if (fileFormat === "html" || fileFormat === "pdf") {
+            navigate("/docSphere", { state: { id } });
+        } else {
+            console.warn("Unsupported type or format:", type, fileFormat);
         }
     };
 
@@ -106,7 +103,7 @@ const SearchList = () => {
                                             href={item.url}
                                             target="_blank"
                                             rel="noopener noreferrer"
-                                            onClick={() => handleNavigation(item.fileType, item._id)}
+                                            onClick={() => handleNavigation(item.fileName, item.fileType, item._id)}
                                             className="text-blue-600 hover:underline cursor-pointer"
                                         >
                                             {item.fileName || "Untitled"}

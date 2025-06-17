@@ -17,7 +17,7 @@ function DocSphere(props) {
   const [showOutputModal, setShowOutputModal] = useState(false);
   const [showSaveModal, setShowSaveModal] = useState(false);
   const [fileNameInput, setFileNameInput] = useState("");
-  const [saveType, setSaveType] = useState("pdf");
+  const [saveType, setSaveType] = useState("base64");
   const [showOpenModal, setShowOpenModal] = useState(false);
   const { user } = useSelector((state) => state);
   const location = useLocation();
@@ -34,14 +34,37 @@ function DocSphere(props) {
           },
         });
 
-        editorRef.current.setContent(data.data.htmlData);
+        const fileName = data?.data?.fileName || "";
+        const fileFormat = fileName.split(".").pop().toLowerCase();
+
+        if (data?.data?.fileType === "base64" && fileFormat === "pdf") {
+          const base64Data = data.data.base64;
+
+          // Optional: validate base64 string
+          if (base64Data) {
+            const decodedPdf = atob(base64Data);
+            editorRef.current?.setContent(decodedPdf); // added optional chaining
+          } else {
+            console.warn("No base64 data found for PDF.");
+          }
+
+          return;
+        }
+
+        if (data?.data?.htmlData) {
+          editorRef.current?.setContent(data.data.htmlData);
+        } else {
+          console.warn("No HTML data found.");
+        }
+
       } catch (error) {
-        console.error("Error fetching script:", error.message);
+        console.error("Error fetching script:", error);
       }
     };
 
     fetchScript();
   }, [id]);
+
 
   if (!user) {
     return (
@@ -214,7 +237,12 @@ function DocSphere(props) {
     }
 
     try {
-      await saveContentToDatabase(content, `${fileName}.pdf`);
+      const base64Content = btoa(content); // Convert HTML content to Base64  
+
+      console.log("Base64 Content:", base64Content);
+      await saveContentToDatabase(base64Content, `${fileName}.pdf`);
+
+
 
       const container = document.createElement("div");
       container.innerHTML = content;
@@ -328,7 +356,7 @@ function DocSphere(props) {
               </button>
               <button
                 onClick={() =>
-                  saveType === "pdf"
+                  saveType === "base64"
                     ? handleSaveDocument()
                     : saveContentAsHtml()
                 }
@@ -438,7 +466,7 @@ function DocSphere(props) {
               text: "Save as PDF",
               icon: "export-pdf",
               onAction: () => {
-                setSaveType("pdf");
+                setSaveType("base64");
                 setShowSaveModal(true);
               },
             });
