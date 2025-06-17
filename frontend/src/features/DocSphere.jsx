@@ -109,6 +109,7 @@ function DocSphere(props) {
       const reader = new FileReader();
       reader.onload = function (e) {
         const pdfData = e.target.result;
+        console.log("PDF Data:", pdfData)
 
         editor.windowManager.open({
           title: "PDF Preview",
@@ -167,7 +168,7 @@ function DocSphere(props) {
         });
       };
 
-      reader.readAsDataURL(file);
+      reader.readAsDataURL(file); //Converting to Base64
     };
 
     input.click();
