@@ -19,6 +19,9 @@ function DocSphere(props) {
   const [fileNameInput, setFileNameInput] = useState("");
   const [saveType, setSaveType] = useState("base64");
   const [showOpenModal, setShowOpenModal] = useState(false);
+  const [pdfBase64, setPdfBase64] = useState(null);
+  const [pdfFileName, setPdfFileName] = useState("");
+  const [showPdfSaveModal, setShowPdfSaveModal] = useState(false);
   const { user } = useSelector((state) => state);
   const location = useLocation();
   const { id } = location.state || {};
@@ -56,7 +59,6 @@ function DocSphere(props) {
         } else {
           console.warn("No HTML data found.");
         }
-
       } catch (error) {
         console.error("Error fetching script:", error);
       }
@@ -64,7 +66,6 @@ function DocSphere(props) {
 
     fetchScript();
   }, [id]);
-
 
   if (!user) {
     return (
@@ -120,6 +121,35 @@ function DocSphere(props) {
     }
   };
 
+  const handlePdfSave = useCallback(async () => {
+    if (!pdfBase64 || !pdfFileName.trim()) {
+      alert("Missing PDF content or file name.");
+      return;
+    }
+
+    const payload = {
+      htmlData: pdfBase64,
+      fileType: "base64",
+      fileName: `${pdfFileName}.pdf`,
+      userId: _id,
+      organization: companyName,
+    };
+
+    console.log("Saving to DB:", payload);
+
+    try {
+      await axios.post(`${baseUrl}/api/createScript`, payload);
+
+      alert("PDF saved successfully!");
+      setShowPdfSaveModal(false);
+      setPdfFileName("");
+      setPdfBase64(null);
+    } catch (err) {
+      console.error("Save failed:", err);
+      alert("Failed to save PDF.");
+    }
+  }, [pdfBase64, pdfFileName, baseUrl, _id, companyName]);
+
   function openPdfUploadDialog(editor) {
     const input = document.createElement("input");
     input.type = "file";
@@ -131,8 +161,7 @@ function DocSphere(props) {
 
       const reader = new FileReader();
       reader.onload = function (e) {
-        const pdfData = e.target.result;
-        console.log("PDF Data:", pdfData)
+        const base64Data = e.target.result;
 
         editor.windowManager.open({
           title: "PDF Preview",
@@ -167,8 +196,9 @@ function DocSphere(props) {
     flex-grow: 1;
                 </style>
                 <div class="pdf-preview-container" id="pdfPreview">
-                  <iframe src="${pdfData}"></iframe>
-                </div>`,
+                  <iframe src="${base64Data}"></iframe>
+                </div>
+              `,
               },
             ],
           },
@@ -176,6 +206,10 @@ function DocSphere(props) {
             {
               type: "cancel",
               text: "Close",
+              onclick: function () {
+                document.getElementById("pdfPreview")?.remove();
+                editor.windowManager.close();
+              },
             },
             {
               type: "submit",
@@ -184,14 +218,14 @@ function DocSphere(props) {
             },
           ],
           onSubmit: function (api) {
-            const linkHtml = `<a href="${pdfData}" target="_blank">Open PDF</a>`;
-            editor.insertContent(linkHtml);
+            setPdfBase64(base64Data);
+            setShowPdfSaveModal(true); // Open your modal
             api.close();
           },
         });
       };
 
-      reader.readAsDataURL(file); //Converting to Base64
+      reader.readAsDataURL(file);
     };
 
     input.click();
@@ -237,12 +271,10 @@ function DocSphere(props) {
     }
 
     try {
-      const base64Content = btoa(content); // Convert HTML content to Base64  
+      const base64Content = btoa(content); // Convert HTML content to Base64
 
       console.log("Base64 Content:", base64Content);
       await saveContentToDatabase(base64Content, `${fileName}.pdf`);
-
-
 
       const container = document.createElement("div");
       container.innerHTML = content;
@@ -361,6 +393,38 @@ function DocSphere(props) {
                     : saveContentAsHtml()
                 }
                 className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+              >
+                Save Document
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showPdfSaveModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-30 backdrop-blur-sm flex justify-center items-center z-50">
+          <div className="bg-white p-6 rounded shadow-lg w-96">
+            <h2 className="text-lg font-semibold mb-4 text-center">
+              Save PDF Document
+            </h2>
+            <input
+              type="text"
+              value={pdfFileName}
+              onChange={(e) => setPdfFileName(e.target.value)}
+              placeholder="Enter file name"
+              className="w-full px-3 py-2 border rounded mb-4"
+            />
+            <div className="flex justify-end gap-2">
+              <button
+                onClick={() => setShowPdfSaveModal(false)}
+                className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handlePdfSave}
+                className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                disabled={!pdfFileName.trim()}
               >
                 Save Document
               </button>
