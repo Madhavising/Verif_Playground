@@ -27,58 +27,7 @@ const nodeTypes = {
 let id = 0;
 const getId = () => `node_${id++}`;
 
-// const gateComponents = [
-//   { type: "and", icon: "/nodes/gateIcons/and.png" },
-//   { type: "or", icon: "/nodes/gateIcons/or.png" },
-//   { type: "not", icon: "/nodes/gateIcons/not.png" },
-//   { type: "nand", icon: "/nodes/gateIcons/nand.png" },
-//   { type: "nor", icon: "/nodes/gateIcons/nor.png" },
-//   { type: "xor", icon: "/nodes/gateIcons/xor.png" },
-//   { type: "xnor", icon: "/nodes/gateIcons/xnor.png" },
-//   { type: "input", icon: "/nodes/gateIcons/input.svg" },
-//   { type: "output", icon: "/nodes/gateIcons/output.svg" },
-//   { type: "battery", icon: "/nodes/gateIcons/battery.svg" },
-//   { type: "wire", icon: "/nodes/gateIcons/wire.svg" },
-//   { type: "resistor", icon: "/nodes/gateIcons/resistor.svg" },
-//   { type: "led", icon: "/nodes/gateIcons/led.svg" },
-//    {
-//     type: "resistor",
-//     label: "Resistor",
-//     icon: "/nodes/gateIcons/resistor.png",
-//   },
 
-//   {
-//     type: "capacitor",
-//     label: "Capacitor",
-//     icon: "/nodes/gateIcons/capacitor.png",
-//   },
-//   {
-//     type: "capacitor_1",
-//     label: "Capacitor",
-//     icon: "/nodes/gateIcons/capacitor_1.png",
-//   },
-//   {
-//     type: "diode",
-//     label: "Diode",
-//     icon: "/nodes/gateIcons/diode.png",
-//   },
-//   {
-//     type: "zener-diode",
-//     label: "Zener Diode",
-//     icon: "/nodes/gateIcons/zener-diode.png",
-//   },
-
-//   {
-//     type: "electrical",
-//     label: "Electrical",
-//     icon: "/nodes/gateIcons/electrical.png",
-//   },
-//   {
-//     type: "capacitor_1",
-//     label: "Capacitor",
-//     icon: "/nodes/gateIcons/capacitor_1.png",
-//   },
-// ];
 
 const gateComponents = [
   // Logic Gates
@@ -322,67 +271,9 @@ export default function LogicCanvas() {
         }
       };
 
-      // Step 4: Simulate Flip-Flops
-      //   currentNodes.forEach((node) => {
-      //     const type = node.type;
-      //     let Q = node.data.Q ?? false;
-      //     let prevCLK = node.data.prevCLK ?? 0;
+      
 
-      //     if (
-      //       [
-      //         "d-flip-flop",
-      //         "sr-flip-flop",
-      //         "jk-flip-flop",
-      //         "t-flip-flop",
-      //       ].includes(type)
-      //     ) {
-      //       const CLK = getInputSignal(node, "CLK");
-
-      //       if (prevCLK === 0 && CLK === 1) {
-      //         switch (type) {
-      //           case "d-flip-flop": {
-      //             const D = getInputSignal(node, "D");
-      //             Q = D;
-      //             break;
-      //           }
-      //           case "sr-flip-flop": {
-      //             const S = getInputSignal(node, "S");
-      //             const R = getInputSignal(node, "R");
-      //             if (S && R) {
-      //               Q = null; // Invalid state
-      //             } else if (S) {
-      //               Q = true;
-      //             } else if (R) {
-      //               Q = false;
-      //             }
-      //             break;
-      //           }
-      //           case "jk-flip-flop": {
-      //             const J = getInputSignal(node, "J");
-      //             const K = getInputSignal(node, "K");
-      //             if (J && !K) Q = true;
-      //             else if (!J && K) Q = false;
-      //             else if (J && K) Q = !Q;
-      //             break;
-      //           }
-      //           case "t-flip-flop": {
-      //             const T = getInputSignal(node, "T");
-      //             if (T) Q = !Q;
-      //             break;
-      //           }
-      //         }
-      //       }
-
-      //       // Store Q in signalMap for propagation
-      //       signalMap[node.id] = Q;
-
-      //       // Update node state visually
-      //       node.data.Q = Q;
-      //       node.data.prevCLK = CLK;
-      //     }
-      //   });
-
-      // Step 5: Propagate through standard gates
+      // Step 4: Propagate through standard gates
       let changed = true;
       while (changed) {
         changed = false;

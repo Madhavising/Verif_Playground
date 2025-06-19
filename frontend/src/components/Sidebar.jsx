@@ -12,10 +12,11 @@ import {
   ChevronLeft,
   ChevronRight,
   CircuitBoard,
+  Globe2Icon,
 } from "lucide-react";
 
 const navItems = [
-  { to: "/intrapediaHome", label: "Home", icon: Home },
+  { to: "/intrapediaHome", label: "Intrapedia", icon: Globe2Icon },
   { to: "/input-field", label: "Create Register Map", icon: Box },
   { to: "/docSphere", label: "DocSphere", icon: FileText },
     { to: "/circuit-diagram", label: "Circuit Daigram", icon: CircuitBoard },
