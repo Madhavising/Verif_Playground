@@ -25,12 +25,19 @@ const createScript = async (req, res) => {
       organization,
     };
 
-    if (base64 && fileType === "base64") {
+    const fileFormat = scriptData.fileName.split(".").pop();
+
+
+    if (base64 && fileType === "base64" && fileFormat === "uvm_script") {
       scriptData.base64 = base64;
     }
 
-    if ((htmlData && fileType == "html") || fileType == "pdf") {
+    if (htmlData && fileType == "html") {
       scriptData.htmlData = htmlData;
+    }
+
+    if (htmlData && fileType === "base64" && fileFormat === "pdf") {
+      scriptData.base64 = htmlData;
     }
 
     if (formData && Array.isArray(formData.data)) {
@@ -234,16 +241,32 @@ const getAllHtmlFiles = async (req, res) => {
 
   try {
     const files = await Script.aggregate([
-
       {
-        $match: {
+        '$addFields': {
+          'extension': {
+            '$arrayElemAt': [
+              {
+                '$split': [
+                  '$fileName', '.'
+                ]
+              }, -1
+            ]
+          }
+        }
+      }, {
+        '$match': {
           userId: user._id,
-          fileType: { $in: ["html", "pdf"] },
-        },
-      },
-      {
-        $sort: { createdAt: -1 },
-      },
+          'extension': {
+            '$in': [
+              'html', 'pdf'
+            ]
+          }
+        }
+      }, {
+        '$sort': {
+          'createdAt': -1
+        }
+      }
     ]);
 
     return res.status(200).json({

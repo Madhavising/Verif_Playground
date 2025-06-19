@@ -17,8 +17,12 @@ function DocSphere(props) {
   const [showOutputModal, setShowOutputModal] = useState(false);
   const [showSaveModal, setShowSaveModal] = useState(false);
   const [fileNameInput, setFileNameInput] = useState("");
-  const [saveType, setSaveType] = useState("pdf");
+  const [saveType, setSaveType] = useState("base64");
   const [showOpenModal, setShowOpenModal] = useState(false);
+  const [pdfBase64, setPdfBase64] = useState(null);
+  const [pdfFileName, setPdfFileName] = useState("");
+  const [showPdfSaveModal, setShowPdfSaveModal] = useState(false);
+  const [pdfPopup, setPdfPopup] = useState(false);
   const { user } = useSelector((state) => state);
   const location = useLocation();
   const { id } = location.state || {};
@@ -34,9 +38,30 @@ function DocSphere(props) {
           },
         });
 
-        editorRef.current.setContent(data.data.htmlData);
+        const fileName = data?.data?.fileName || "";
+        const fileFormat = fileName.split(".").pop().toLowerCase();
+
+        if (data?.data?.fileType === "base64" && fileFormat === "pdf") {
+          const base64Data = data.data.base64;
+
+          // Optional: validate base64 string
+          if (base64Data) {
+            const decodedPdf = atob(base64Data);
+            editorRef.current?.setContent(decodedPdf); // added optional chaining
+          } else {
+            console.warn("No base64 data found for PDF.");
+          }
+
+          return;
+        }
+
+        if (data?.data?.htmlData) {
+          editorRef.current?.setContent(data.data.htmlData);
+        } else {
+          console.warn("No HTML data found.");
+        }
       } catch (error) {
-        console.error("Error fetching script:", error.message);
+        console.error("Error fetching script:", error);
       }
     };
 
@@ -97,6 +122,117 @@ function DocSphere(props) {
     }
   };
 
+  const handlePdfSave = useCallback(async () => {
+    if (!pdfBase64 || !pdfFileName.trim()) {
+      alert("Missing PDF content or file name.");
+      return;
+    }
+
+    const extractBase64Data = pdfBase64.split(",")[1] || pdfBase64;
+
+    const payload = {
+      htmlData: extractBase64Data,
+      fileType: "base64",
+      fileName: `${pdfFileName}.pdf`,
+      userId: _id,
+      organization: companyName,
+    };
+
+
+    try {
+      await axios.post(`${baseUrl}/api/createScript`, payload);
+
+      alert("PDF saved successfully!");
+      setShowPdfSaveModal(false);
+      setPdfFileName("");
+      setPdfBase64(null);
+    } catch (err) {
+      console.error("Save failed:", err);
+      alert("Failed to save PDF.");
+    }
+  }, [pdfBase64, pdfFileName, baseUrl, _id, companyName]);
+
+  function openPdfUploadDialog(editor) {
+    const input = document.createElement("input");
+    input.type = "file";
+    input.accept = "application/pdf";
+
+    input.onchange = function () {
+      const file = input.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        const base64Data = e.target.result;
+
+        editor.windowManager.open({
+          title: "PDF Preview",
+          size: "large",
+          body: {
+            type: "panel",
+            items: [
+              {
+                type: "htmlpanel",
+                html: `
+                <style>
+                  html, body {
+                  margin: 0;
+                  padding: 0;
+                  overflow: hidden;
+                }
+                .pdf-preview-container {
+                  position: fixed;
+                  top: 0;
+                  left: 0;
+                  width: 100vw;
+                  height: 100vw!important;
+                  z-index: 9999;
+                  background: #fff;
+                  display: flex;
+                  flex-direction: column;
+                }
+                .pdf-preview-container iframe {
+                  width: 100%;
+                  height: 100%;
+                  border: none;
+                  flex-grow: 1;
+                </style>
+                <div class="pdf-preview-container" id="pdfPreview">
+                  <iframe src="${base64Data}"></iframe>
+                </div>
+              `,
+              },
+            ],
+          },
+          buttons: [
+            {
+              type: "cancel",
+              text: "Close",
+              onclick: function () {
+                document.getElementById("pdfPreview")?.remove();
+                editor.windowManager.close();
+              },
+            },
+            {
+              type: "submit",
+              text: "Save",
+              primary: true,
+            },
+          ],
+          onSubmit: function (api) {
+            setPdfBase64(base64Data);
+            setShowPdfSaveModal(true); // Open your modal
+            api.close();
+          },
+        });
+      };
+
+      reader.readAsDataURL(file);
+    };
+
+    input.click();
+  }
+
   const handleInsertToEditor = () => {
     if (editorRef.current && generatedHtml) {
       editorRef.current.insertContent(`
@@ -137,7 +273,9 @@ function DocSphere(props) {
     }
 
     try {
-      await saveContentToDatabase(content, `${fileName}.pdf`);
+      const base64Content = btoa(content); // Convert HTML content to Base64
+
+      await saveContentToDatabase(base64Content, `${fileName}.pdf`);
 
       const container = document.createElement("div");
       container.innerHTML = content;
@@ -251,11 +389,43 @@ function DocSphere(props) {
               </button>
               <button
                 onClick={() =>
-                  saveType === "pdf"
+                  saveType === "base64"
                     ? handleSaveDocument()
                     : saveContentAsHtml()
                 }
                 className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+              >
+                Save Document
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showPdfSaveModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-30 backdrop-blur-sm flex justify-center items-center z-50">
+          <div className="bg-white p-6 rounded shadow-lg w-96">
+            <h2 className="text-lg font-semibold mb-4 text-center">
+              Save PDF Document
+            </h2>
+            <input
+              type="text"
+              value={pdfFileName}
+              onChange={(e) => setPdfFileName(e.target.value)}
+              placeholder="Enter file name"
+              className="w-full px-3 py-2 border rounded mb-4"
+            />
+            <div className="flex justify-end gap-2">
+              <button
+                onClick={() => setShowPdfSaveModal(false)}
+                className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handlePdfSave}
+                className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                disabled={!pdfFileName.trim()}
               >
                 Save Document
               </button>
@@ -295,7 +465,20 @@ function DocSphere(props) {
           isOpen={showOpenModal}
           onClose={() => setShowOpenModal(false)}
           setData={(value) => {
-            if (editorRef.current && value) {
+
+            if (value?.fileType === "pdf") {
+              console.log("value.src", value.src)
+              setPdfPopup(true);
+              setPdfBase64(value.src);
+              setShowOpenModal(false);
+              return;
+            }
+
+            // Otherwise treat as normal HTML
+            setPdfBase64(null); // clear PDF preview if switching back to HTML
+            setShowOpenModal(false);
+
+            if (editorRef.current && typeof value === "string") {
               editorRef.current.setContent(value);
             }
           }}
@@ -303,89 +486,119 @@ function DocSphere(props) {
       )}
 
       {/* TinyMCE Editor */}
-      <Editor
-        onInit={handleEditorInit}
-        id={editorId}
-        tinymceScriptSrc={
-          import.meta.env.BASE_URL + "tinymce/js/tinymce/tinymce.min.js"
-        }
-        initialValue={config.html || ""}
-        init={{
-          height: "100%",
-          width: "100%",
-          menubar: true,
-          branding: false,
-          plugins: [
-            "advlist",
-            "autolink",
-            "lists",
-            "link",
-            "image",
-            "charmap",
-            "anchor",
-            "searchreplace",
-            "visualblocks",
-            "code",
-            "fullscreen",
-            "insertdatetime",
-            "media",
-            "table",
-            "preview",
-            "help",
-          ],
-          toolbar:
-            "undo redo | bold italic forecolor | fontsize | bullist numlist outdent indent | table | alignleft aligncenter alignright alignjustify  | wave blockdiagram",
-          menubar: "file edit insert view format tools table",
-          menu: {
-            file: {
-              title: "File",
-              items:
-                "newdocument openfilemenu savePdf saveHtml restoredraft | preview print",
+      {/* ... all your modals before here remain unchanged ... */}
+
+      {/* Render PDF Preview in Iframe OR TinyMCE Editor */}
+      {pdfPopup && pdfBase64 ? (
+        <div className="w-full h-[90vh] border rounded overflow-hidden shadow-inner">
+          <iframe
+            src={`data:application/pdf;base64,${pdfBase64.split(",")[1] || pdfBase64}`}
+            title="PDF Preview"
+            className="w-full h-full"
+            frameBorder="0"
+          />
+        </div>
+      ) : (
+        <Editor
+          onInit={handleEditorInit}
+          id={editorId}
+          tinymceScriptSrc={
+            import.meta.env.BASE_URL + "tinymce/js/tinymce/tinymce.min.js"
+          }
+          initialValue={config.html || ""}
+          init={{
+            height: "100%",
+            width: "100%",
+            menubar: true,
+            branding: false,
+            selector: "textarea",
+            plugins: [
+              "advlist",
+              "autolink",
+              "quickbars",
+              "emoticons",
+              "wordcount",
+              "lists",
+              "link",
+              "image",
+              "imagetools",
+              "charmap",
+              "anchor",
+              "searchreplace",
+              "visualblocks",
+              "code",
+              "fullscreen",
+              "insertdatetime",
+              "media",
+              "table",
+              "preview",
+              "help",
+              "pagebreak",
+              "fullscreen",
+              "exportpdf",
+            ],
+            toolbar1:
+              "undo redo exportpdf print quicklink | bold italic blockquote link | blocks | fontsize | fontfamily | fontsizeinput | fullscreen | lineheight forecolor | bullist numlist outdent indent | alignleft aligncenter alignright alignjustify | table | wave blockdiagram | emoticons wordcount searchreplace quickimage pagebreak",
+            quickbars_insert_toolbar: false,
+            menu: {
+              file: {
+                title: "File",
+                items:
+                  "newdocument openfilemenu insertpdf savePdf saveHtml restoredraft | preview print",
+              },
             },
-          },
-          setup: (editor) => {
-            editor.ui.registry.addMenuItem("openfilemenu", {
-              text: "Open",
-              icon: "browse",
-              onAction: () => setShowOpenModal(true),
-            });
-            editor.ui.registry.addMenuItem("savePdf", {
-              text: "Save as PDF",
-              icon: "export-pdf",
-              onAction: () => {
-                setSaveType("pdf");
-                setShowSaveModal(true);
-              },
-            });
-            editor.ui.registry.addMenuItem("saveHtml", {
-              text: "Save as HTML",
-              icon: "new-document",
-              onAction: () => {
-                setSaveType("html");
-                setShowSaveModal(true);
-              },
-            });
-            editor.ui.registry.addButton("wave", {
-              text: "Wave",
-              onAction: () => {
-                if (!showModal && !showOutputModal) setShowModal(true);
-              },
-            });
-            editor.ui.registry.addButton("blockdiagram", {
-              text: "Block Diagram",
-              onAction: () => {
-                alert("Block Diagram feature not implemented yet.");
-              },
-            });
-          },
-          extended_valid_elements:
-            "iframe[src|width|height|style|sandbox|allowfullscreen|frameborder]",
-          valid_elements: "*[*]",
-          content_style:
-            "body { font-family:Helvetica,Arial,sans-serif; font-size:14px; margin: 0; padding: 12px;}",
-        }}
-      />
+            setup: (editor) => {
+              editor.ui.registry.addMenuItem("openfilemenu", {
+                text: "Open",
+                icon: "browse",
+                onAction: () => setShowOpenModal(true),
+              });
+              editor.ui.registry.addMenuItem("savePdf", {
+                text: "Save as PDF",
+                icon: "export-pdf",
+                onAction: () => {
+                  setSaveType("base64");
+                  setShowSaveModal(true);
+                },
+              });
+              editor.ui.registry.addMenuItem("insertpdf", {
+                text: "Upload PDF",
+                icon: "upload",
+                onAction: function () {
+                  openPdfUploadDialog(editor);
+                },
+              });
+              editor.ui.registry.addMenuItem("saveHtml", {
+                text: "Save as HTML",
+                icon: "new-document",
+                onAction: () => {
+                  setSaveType("html");
+                  setShowSaveModal(true);
+                },
+              });
+              editor.ui.registry.addButton("wave", {
+                text: "Wave",
+                onAction: () => {
+                  if (!showModal && !showOutputModal) setShowModal(true);
+                },
+              });
+              editor.ui.registry.addButton("blockdiagram", {
+                text: "Block Diagram",
+                onAction: () => {
+                  alert("Block Diagram feature not implemented yet.");
+                },
+              });
+            },
+            extended_valid_elements:
+              "iframe[src|width|height|style|sandbox|allowfullscreen|frameborder]",
+            valid_elements: "*[*]",
+            content_style:
+              "body { font-family: Helvetica, Arial, sans-serif; font-size: 14px; margin: 0; padding: 12px; } p { line-height: 0.5; }",
+          }}
+        />
+      )}
     </div>
+
   );
 }
 

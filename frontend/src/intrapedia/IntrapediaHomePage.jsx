@@ -69,27 +69,25 @@ const IntrapediaHomePage = () => {
     }, 400); // debounce delay
   };
 
-  const handleNavigation = (type, id) => {
-    if (!id) {
-      console.error("No ID provided for navigation");
-      return;
-    }
+const handleNavigation = (fileName, type, id) => {
+  if (!id) {
+    console.error("No ID provided for navigation");
+    return;
+  }
 
-    switch (type) {
-      case "base64":
-        navigate("/uvm-reg-block", { state: { id } });
-        break;
-      case "xlsx":
-        navigate("/input-field", { state: { id } });
-        break;
-      case "html":
-      case "pdf":
-        navigate("/docSphere", { state: { id } });
-        break;
-      default:
-        console.warn("Unsupported type:", type);
-    }
-  };
+  const fileFormat = fileName.split('.').pop().toLowerCase();
+
+  if (type === "base64" && fileFormat === "uvm_script") {
+    navigate("/uvm-reg-block", { state: { id } });
+  } else if (fileFormat === "xlsx") {
+    navigate("/input-field", { state: { id } });
+  } else if (fileFormat === "html" || fileFormat === "pdf") {
+    navigate("/docSphere", { state: { id } });
+  } else {
+    console.warn("Unsupported type or format:", type, fileFormat);
+  }
+};
+
 
   const handleKeyDown = (event) => {
     if (event.key === "Enter") {
@@ -136,7 +134,7 @@ const IntrapediaHomePage = () => {
                   <li
                     key={index}
                     onClick={() => {
-                      handleNavigation(item.fileType, item._id);
+                      handleNavigation(item.fileName, item.fileType, item._id);
                       // navigate(`/editor/${item._id}`);
                       setIsOpen(false);
                       setSearchInput("");
