@@ -15,6 +15,16 @@ const HtmlPopModel = ({ isOpen, onClose, setData }) => {
         },
       });
 
+
+      let fileType = data.data.fileName.split(".").pop();
+
+      if (fileType === "pdf" && data.data.fileType === "base64") {
+        const src = `data:application/pdf;base64,${data.data.base64}`;
+        setData({ src, fileType: "pdf" });
+        return;
+      }
+
+
       setData(data.data.htmlData);
       onClose();
     } catch (error) {
