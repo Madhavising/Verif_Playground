@@ -7,6 +7,7 @@ import html2pdf from "html2pdf.js";
 import { useSelector } from "react-redux";
 import HtmlPopModel from "../components/htmlPopUpModel";
 import { useLocation } from "react-router-dom";
+import { toast, ToastContainer } from "react-toastify";
 
 function DocSphere(props) {
   const editorRef = useRef(null);
@@ -17,7 +18,7 @@ function DocSphere(props) {
   const [showOutputModal, setShowOutputModal] = useState(false);
   const [showSaveModal, setShowSaveModal] = useState(false);
   const [fileNameInput, setFileNameInput] = useState("");
-  const [saveType, setSaveType] = useState("base64");
+  const [saveType, setSaveType] = useState("pdf");
   const [showOpenModal, setShowOpenModal] = useState(false);
   const [pdfBase64, setPdfBase64] = useState(null);
   const [pdfFileName, setPdfFileName] = useState("");
@@ -38,28 +39,22 @@ function DocSphere(props) {
           },
         });
 
-        const fileName = data?.data?.fileName || "";
-        const fileFormat = fileName.split(".").pop().toLowerCase();
+        let response = data.data;
+        const fileType = response.fileName.split(".").pop();
 
-        if (data?.data?.fileType === "base64" && fileFormat === "pdf") {
-          const base64Data = data.data.base64;
-
-          // Optional: validate base64 string
-          if (base64Data) {
-            const decodedPdf = atob(base64Data);
-            editorRef.current?.setContent(decodedPdf); // added optional chaining
-          } else {
-            console.warn("No base64 data found for PDF.");
-          }
-
-          return;
-        }
-
-        if (data?.data?.htmlData) {
-          editorRef.current?.setContent(data.data.htmlData);
+        if (fileType === "pdf" && response.fileType === "pdf") {
+          const base64Data = response.base64;
+          const decoded = `data:application/pdf;base64,${base64Data}`;
+          setPdfBase64(decoded);
+          setPdfPopup(true);
         } else {
-          console.warn("No HTML data found.");
+          if (data?.data?.htmlData) {
+            editorRef.current?.setContent(response.htmlData);
+          } else {
+            console.warn("No HTML data found.");
+          }
         }
+
       } catch (error) {
         console.error("Error fetching script:", error);
       }
@@ -131,8 +126,8 @@ function DocSphere(props) {
     const extractBase64Data = pdfBase64.split(",")[1] || pdfBase64;
 
     const payload = {
-      htmlData: extractBase64Data,
-      fileType: "base64",
+      base64: extractBase64Data,
+      fileType: "pdf",
       fileName: `${pdfFileName}.pdf`,
       userId: _id,
       organization: companyName,
@@ -142,7 +137,8 @@ function DocSphere(props) {
     try {
       await axios.post(`${baseUrl}/api/createScript`, payload);
 
-      alert("PDF saved successfully!");
+      toast.success("Document saved successfully!");
+
       setShowPdfSaveModal(false);
       setPdfFileName("");
       setPdfBase64(null);
@@ -151,6 +147,7 @@ function DocSphere(props) {
       alert("Failed to save PDF.");
     }
   }, [pdfBase64, pdfFileName, baseUrl, _id, companyName]);
+
 
   function openPdfUploadDialog(editor) {
     const input = document.createElement("input");
@@ -247,14 +244,19 @@ function DocSphere(props) {
   const saveContentToDatabase = useCallback(
     async (content, fileName) => {
       try {
-        await axios.post(`${baseUrl}/api/createScript`, {
-          htmlData: content,
+        const payload = {
           fileType: saveType,
           fileName,
           userId: _id,
           organization: companyName,
-        });
-        console.log("Document saved to DB successfully");
+          ...(saveType === "pdf"
+            ? { base64: content }
+            : { htmlData: content }),
+        };
+
+        await axios.post(`${baseUrl}/api/createScript`, payload);
+
+        toast.success("Document saved successfully!");
       } catch (err) {
         console.error("Save to DB failed:", err);
         alert("Database save failed.");
@@ -262,6 +264,7 @@ function DocSphere(props) {
     },
     [_id, companyName, saveType]
   );
+
 
   const handleSaveDocument = async () => {
     const content = editorRef.current?.getContent();
@@ -273,12 +276,26 @@ function DocSphere(props) {
     }
 
     try {
-      const base64Content = btoa(content); // Convert HTML content to Base64
-
-      await saveContentToDatabase(base64Content, `${fileName}.pdf`);
-
       const container = document.createElement("div");
       container.innerHTML = content;
+
+      // Step 1: Generate PDF and get it as Blob
+      const pdfBlob = await html2pdf()
+        .set({
+          margin: 10,
+          filename: `${fileName}.pdf`, // Optional - used if you still want to allow user to download
+          image: { type: "jpeg", quality: 0.98 },
+          html2canvas: { scale: 2 },
+          jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
+        })
+        .from(container)
+        .outputPdf("blob");
+
+      // Step 2: Convert Blob to base64
+      const base64Pdf = await blobToBase64(pdfBlob);
+
+      // Step 3: Save base64 to database
+      await saveContentToDatabase(base64Pdf, `${fileName}.pdf`);
 
       await html2pdf()
         .set({
@@ -298,6 +315,17 @@ function DocSphere(props) {
       alert("Failed to save as PDF.");
     }
   };
+
+  // Utility to convert Blob to base64
+  const blobToBase64 = (blob) => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onloadend = () => resolve(reader.result.split(",")[1]); // removes the prefix like `data:application/pdf;base64,`
+      reader.onerror = reject;
+      reader.readAsDataURL(blob);
+    });
+  };
+
 
   const saveContentAsHtml = async () => {
     const content = editorRef.current?.getContent();
@@ -334,6 +362,7 @@ function DocSphere(props) {
 
   return (
     <div className="p-4 bg-gray-50 shadow-lg w-full h-full">
+      <ToastContainer />
       {/* Upload Modal */}
       {showModal && (
         <div className="fixed inset-0 bg-black bg-opacity-30 backdrop-blur-sm flex justify-center items-center z-50">
@@ -389,7 +418,7 @@ function DocSphere(props) {
               </button>
               <button
                 onClick={() =>
-                  saveType === "base64"
+                  saveType === "pdf"
                     ? handleSaveDocument()
                     : saveContentAsHtml()
                 }
@@ -466,24 +495,26 @@ function DocSphere(props) {
           onClose={() => setShowOpenModal(false)}
           setData={(value) => {
 
-            if (value?.fileType === "pdf") {
-              console.log("value.src", value.src)
+            const closeModal = () => setShowOpenModal(false);
+
+            if (value.fileType === "pdf") {
               setPdfPopup(true);
               setPdfBase64(value.src);
-              setShowOpenModal(false);
+              closeModal();
               return;
             }
 
-            // Otherwise treat as normal HTML
-            setPdfBase64(null); // clear PDF preview if switching back to HTML
-            setShowOpenModal(false);
+            // Handle normal HTML content
+            setPdfBase64(null); // Clear PDF preview if switching back to HTML
+            closeModal();
 
-            if (editorRef.current && typeof value === "string") {
+            if (editorRef.current) {
               editorRef.current.setContent(value);
             }
           }}
         />
       )}
+
 
       {/* TinyMCE Editor */}
       {/* ... all your modals before here remain unchanged ... */}
@@ -557,7 +588,7 @@ function DocSphere(props) {
                 text: "Save as PDF",
                 icon: "export-pdf",
                 onAction: () => {
-                  setSaveType("base64");
+                  setSaveType("pdf");
                   setShowSaveModal(true);
                 },
               });

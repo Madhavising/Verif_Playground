@@ -63,7 +63,6 @@ import React, { useState } from "react";
 import { useSelector } from "react-redux";
 import { FaEdit, FaUserCircle } from "react-icons/fa";
 import { toast, ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
 
 // Capitalize utility
 const capitalize = (str) =>

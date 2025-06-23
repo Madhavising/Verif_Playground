@@ -26,6 +26,7 @@ import ProtectedRoute from "./routes/protectedRoute.jsx";
 import IntrapediaHomePage from "./intrapedia/IntrapediaHomePage.jsx";
 import CircuitDiagram from "./circuitDiagram/CircuitDiagram.jsx";
 import SearchList from "./intrapedia/searchList.jsx";
+import "react-toastify/dist/ReactToastify.css";
 
 function App() {
   const dispatch = useDispatch();
