@@ -8,6 +8,7 @@ import { useSelector } from "react-redux";
 import HtmlPopModel from "../components/htmlPopUpModel";
 import { useLocation } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
+import { ArrowLeft } from "lucide-react";
 
 function DocSphere(props) {
   const editorRef = useRef(null);
@@ -522,6 +523,16 @@ function DocSphere(props) {
       {/* Render PDF Preview in Iframe OR TinyMCE Editor */}
       {pdfPopup && pdfBase64 ? (
         <div className="w-full h-[90vh] border rounded overflow-hidden shadow-inner">
+          <button
+            onClick={() => {
+              setPdfPopup(false); // or clear pdfBase64 if needed
+              setPdfBase64(""); // optional: reset base64 data
+            }}
+            className="flex items-center gap-2 text-blue-600 hover:text-blue-800   shadow-sm transition"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            Back
+          </button>
           <iframe
             src={`data:application/pdf;base64,${pdfBase64.split(",")[1] || pdfBase64}`}
             title="PDF Preview"
