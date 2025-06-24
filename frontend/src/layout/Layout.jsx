@@ -30,7 +30,7 @@ const Layout = () => {
       {/* Content Wrapper */}
       <div className="flex flex-1 overflow-hidden">
         {/* Sidebar */}
-        <div className={`transition-all duration-300 ${isSidebarOpen ? "w-64" : "w-16"} bg-gray-900`}>
+        <div className={`transition-all duration-300 ${isSidebarOpen ? "w-56" : "w-16"} bg-gray-900`}>
           <Sidebar isOpen={isSidebarOpen} toggleSidebar={toggleSidebar} />
         </div>
 

@@ -32,7 +32,7 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
   return (
     <div
       className={`h-screen bg-[#1e1e2f] text-gray-300 transition-all duration-300 ease-in-out 
-      ${isOpen ? "w-64" : "w-16"} fixed z-50 border-r border-gray-700`}
+      ${isOpen ? "w-56" : "w-16"} fixed z-50 border-r border-gray-700`}
     >
       <div className="flex flex-col h-full justify-between">
         {/* Top Logo + Toggle */}
@@ -60,7 +60,7 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
                 key={index}
                 to={to}
                 className={`group relative flex items-center px-3 py-2 rounded-md transition-colors duration-200 text-sm
-                ${isActive ? "bg-blue-600 text-white" : "hover:bg-gray-700 hover:text-white"}
+                ${isActive ? "bg-red-600 text-white" : "hover:bg-gray-700 hover:text-white"}
                 `}
               >
                 <Icon

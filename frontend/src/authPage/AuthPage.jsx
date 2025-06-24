@@ -4,6 +4,8 @@ import { motion } from "framer-motion";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import axios from "axios";
 import { useDispatch } from "react-redux";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 import { baseUrl } from "../api";
 import { getUserDetails } from "../utils/auth";
@@ -38,16 +40,15 @@ const AuthPage = () => {
       ...(isLogin
         ? {}
         : {
-          companyName: formData.companyName,
-          firstName: formData.firstName,
-          lastName: formData.lastName,
-        }),
+            companyName: formData.companyName,
+            firstName: formData.firstName,
+            lastName: formData.lastName,
+          }),
     };
 
     try {
       const endpoint = isLogin ? "/api/auth/login" : "/api/auth/register";
       const response = await axios.post(`${baseUrl}${endpoint}`, payload);
-      console.log("response", response)
 
       if (!response.status) throw new Error("Authentication failed.");
 
@@ -57,14 +58,17 @@ const AuthPage = () => {
         try {
           const user = await getUserDetails(response.data.token);
           dispatch(setUser({ ...user, token: response.data.token }));
-          window.location.reload();
+          toast.success("Login successful!");
+          setTimeout(() => {
+            window.location.reload(); // or use navigate('/')
+          }, 1000);
         } catch (err) {
-          alert("Login succeeded, but fetching user details failed.");
+          toast.warning("Login succeeded, but fetching user details failed.");
         }
       }
 
       if (!isLogin) {
-        alert("Registration successful! Please login.");
+        toast.success("Registration successful! Please login.");
         setFormData({
           companyName: "",
           firstName: "",
@@ -80,7 +84,7 @@ const AuthPage = () => {
         err.response?.data?.message ||
         err.message ||
         "An unexpected error occurred";
-      alert(errorMsg);
+      toast.error(errorMsg);
     }
   };
 
@@ -112,7 +116,7 @@ const AuthPage = () => {
         </div>
       </div>
 
-      {/* Right Form */}
+      {/* Right Side Form */}
       <div className="flex-1 flex items-center justify-center bg-white p-6">
         <div className="max-w-md w-full space-y-6">
           <h2 className="text-3xl font-bold text-center text-red-600">
@@ -121,19 +125,65 @@ const AuthPage = () => {
           <form className="space-y-5" onSubmit={handleSubmit}>
             {!isLogin && (
               <>
-                <input type="text" name="companyName" placeholder="Company Name" required value={formData.companyName} onChange={handleChange} className="w-full p-3 bg-gray-100 border rounded-lg" />
-                <input type="text" name="firstName" placeholder="First Name" required value={formData.firstName} onChange={handleChange} className="w-full p-3 bg-gray-100 border rounded-lg" />
-                <input type="text" name="lastName" placeholder="Last Name" required value={formData.lastName} onChange={handleChange} className="w-full p-3 bg-gray-100 border rounded-lg" />
+                <input
+                  type="text"
+                  name="companyName"
+                  placeholder="Company Name"
+                  required
+                  value={formData.companyName}
+                  onChange={handleChange}
+                  className="w-full p-3 bg-gray-100 border rounded-lg"
+                />
+                <input
+                  type="text"
+                  name="firstName"
+                  placeholder="First Name"
+                  required
+                  value={formData.firstName}
+                  onChange={handleChange}
+                  className="w-full p-3 bg-gray-100 border rounded-lg"
+                />
+                <input
+                  type="text"
+                  name="lastName"
+                  placeholder="Last Name"
+                  required
+                  value={formData.lastName}
+                  onChange={handleChange}
+                  className="w-full p-3 bg-gray-100 border rounded-lg"
+                />
               </>
             )}
-            <input type="email" name="email" placeholder="Email" required value={formData.email} onChange={handleChange} className="w-full p-3 bg-gray-100 border rounded-lg" />
+            <input
+              type="email"
+              name="email"
+              placeholder="Email"
+              required
+              value={formData.email}
+              onChange={handleChange}
+              className="w-full p-3 bg-gray-100 border rounded-lg"
+            />
             <div className="relative">
-              <input type={showPassword ? "text" : "password"} name="password" placeholder="Password" required value={formData.password} onChange={handleChange} className="w-full p-3 bg-gray-100 border rounded-lg" />
-              <span className="absolute right-3 top-4 cursor-pointer text-gray-600" onClick={togglePasswordVisibility}>
+              <input
+                type={showPassword ? "text" : "password"}
+                name="password"
+                placeholder="Password"
+                required
+                value={formData.password}
+                onChange={handleChange}
+                className="w-full p-3 bg-gray-100 border rounded-lg"
+              />
+              <span
+                className="absolute right-3 top-4 cursor-pointer text-gray-600"
+                onClick={togglePasswordVisibility}
+              >
                 {showPassword ? <FaEyeSlash /> : <FaEye />}
               </span>
             </div>
-            <button type="submit" className="w-full bg-red-600 text-white py-3 rounded-lg font-semibold hover:bg-red-700 transition">
+            <button
+              type="submit"
+              className="w-full bg-red-600 text-white py-3 rounded-lg font-semibold hover:bg-red-700 transition"
+            >
               {isLogin ? "Login" : "Register"}
             </button>
           </form>
@@ -145,9 +195,21 @@ const AuthPage = () => {
           </p>
         </div>
       </div>
+
+      {/* Toast Container */}
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light"
+      />
     </div>
   );
 };
 
 export default AuthPage;
-

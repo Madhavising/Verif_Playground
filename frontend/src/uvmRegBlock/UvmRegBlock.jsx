@@ -5,6 +5,8 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { baseUrl_1, baseUrl } from "../api";
 import axios from "axios";
 import { ArrowLeft } from "lucide-react";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 function UVMRegBlock() {
   const [step, setStep] = useState(1);
@@ -110,11 +112,13 @@ function UVMRegBlock() {
     a.download = "uvm_script.sv";
     a.click();
     URL.revokeObjectURL(url);
+
+    toast.success("Download completed successfully!");
   };
 
   const saveScript = () => {
     if (!result) {
-      alert("Nothing to save!");
+      toast.error("Nothing to save!");
       return;
     }
     const saved = {
@@ -125,11 +129,13 @@ function UVMRegBlock() {
     const existing = JSON.parse(localStorage.getItem("uvmScripts") || "[]");
     existing.unshift(saved);
     localStorage.setItem("uvmScripts", JSON.stringify(existing));
+    toast.success("Script saved successfully!");
     navigate("/dashboard");
   };
 
   return (
     <div className="h-full bg-gray-50 px-2 py-2 font-sans">
+        <ToastContainer/>
       {/* Back Button + Title */}
       <div className="flex items-center justify-between mb-5">
         <button

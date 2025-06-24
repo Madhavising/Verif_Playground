@@ -41,9 +41,7 @@ export default function ChatWindow({ onClose }) {
         <h2 className="text-sm font-bold tracking-wide">
           VeriBot
         </h2>
-        {/* <button onClick={onClose}>
-          <X className="w-5 h-5 hover:text-gray-200 transition" />
-        </button> */}
+      
       </div>
 
       {/* Chat messages */}

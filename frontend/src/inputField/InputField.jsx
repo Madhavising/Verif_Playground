@@ -18,9 +18,8 @@ const InputField = () => {
   const location = useLocation();
   const { id } = location.state || {};
 
-
-  const [rows, setRows] = useState([
-    {
+  const [rows, setRows] = useState(
+    Array.from({ length: 7 }, () => ({
       registerName: "",
       offset: "",
       readWrite: "",
@@ -28,8 +27,8 @@ const InputField = () => {
       defaultValue: [""],
       resetValue: [""],
       description: "",
-    },
-  ]);
+    }))
+  );
 
   const handleInputChange = (e, rowIndex, field, subIndex) => {
     const updatedRows = [...rows];
@@ -123,31 +122,30 @@ const InputField = () => {
       return;
     }
 
-
     const userId = user?.userData?._id || "";
     const organization = user?.userData?.companyName || "";
 
     const filePayload = {
       fileName: `${ipName}_register_definitions.xlsx`,
-      fileType: 'xlsx',
+      fileType: "xlsx",
       formData: {
         ipName: ipName,
-        data: rows
+        data: rows,
       },
       userId: userId,
-      organization: organization
+      organization: organization,
     };
 
     try {
       const res = await axios.post(`${baseUrl}/api/createScript`, filePayload);
       if (res.status === 201) {
-        alert('File saved successfully!');
+        alert("File saved successfully!");
       } else {
         alert(`Failed to save file: ${res.statusText}`);
       }
     } catch (error) {
-      console.error('Error saving file:', error.message);
-      alert('An error occurred while saving the file.');
+      console.error("Error saving file:", error.message);
+      alert("An error occurred while saving the file.");
     }
   };
 
@@ -199,19 +197,19 @@ const InputField = () => {
         "Fields",
         "Default Value",
         "Reset Value",
-        "Description"
-      ]
+        "Description",
+      ],
     ];
 
     // Table body (rows)
-    const body = rows.map(item => [
+    const body = rows.map((item) => [
       item.registerName,
       item.offset,
       item.readWrite,
       item.fields.join(", "),
       item.defaultValue.join(", "),
       item.resetValue.join(", "),
-      item.description
+      item.description,
     ]);
 
     autoTable(doc, {
@@ -246,7 +244,6 @@ const InputField = () => {
     fetchScript();
   }, [id]);
 
-
   return (
     <div className="max-w-screen p-2  font-normal bg-white shadow-xl rounded-xl border border-gray-200">
       {/* Top Bar */}
@@ -278,7 +275,7 @@ const InputField = () => {
       {/* IP name */}
       <div className="mb-2 mt-2 flex items-center gap-2">
         <label htmlFor="ipName" className="text-lg font-semibold">
-          IP Name:
+          &nbsp; IP Name:
         </label>
         <input
           id="ipName"
@@ -407,13 +404,17 @@ const InputField = () => {
         </table>
       </div>
 
-      <UserPopupModal isOpen={isOpen} onClose={() => setIsOpen(false)} setRows={setRows} />
+      <UserPopupModal
+        isOpen={isOpen}
+        onClose={() => setIsOpen(false)}
+        setRows={setRows}
+      />
 
       {/* Bottom Actions */}
       <div className="flex justify-start mt-6 gap-4">
         <button
           onClick={handleAddRow}
-          className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md font-semibold shadow"
+          className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-md font-semibold shadow"
           title="Add Row"
         >
           <FaPlus />

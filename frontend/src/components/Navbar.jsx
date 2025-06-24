@@ -36,9 +36,12 @@ const Navbar = () => {
             alt="Logo"
             className="w-11 h-11 rounded-md"
           />
-          <span className="text-[20px] font-bold font-satoshi text-white tracking-[0.02em] leading-none">
-            VERiF Playground
-          </span>
+          <div className="flex ">
+            <span className="text-lg font-bold text-white font-inter tracking-tight leading-snug">
+              VERiF{" "}
+              <span className="text-gray-200 font-bold">Playground! </span>
+            </span>
+          </div>
         </Link>
       </div>
 
@@ -61,26 +64,59 @@ const Navbar = () => {
 
           {/* Dropdown Menu */}
           {isDropdownOpen && (
-            <div className="absolute right-0 top-12 w-48 bg-white text-black border border-gray-200 rounded-lg shadow-lg z-10 text-sm">
-              <div className="px-4 py-3 border-b border-gray-100">
-                <div className="font-medium flex items-center gap-2">
-                  <FaRegUser className="text-base" />
-                  <span>{fullName}</span>
+            <div className="absolute right-0 top-12 w-64 bg-white rounded-2xl shadow-2xl z-50 border border-gray-200 animate-slideDown">
+              {/* User card */}
+              <div className="flex items-center gap-3 px-5 py-4 border-b border-gray-100">
+                <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 text-lg">
+                  <FaRegUser />
+                </div>
+                <div className="flex flex-col">
+                  <span className="text-sm font-semibold text-gray-900">
+                    {fullName}
+                  </span>
+                  <span className="text-xs text-gray-500">Manage Profile</span>
                 </div>
               </div>
-              <Link
-                to="/profile"
-                onClick={() => setIsDropdownOpen(false)}
-                className="block px-4 py-2 hover:bg-gray-100 transition"
-              >
-                Profile
-              </Link>
-              <button
-                onClick={handleLogout}
-                className="w-full text-left px-4 py-2 hover:bg-gray-100 transition"
-              >
-                Logout
-              </button>
+
+              {/* Navigation items */}
+              <div className="flex flex-col py-2">
+                <Link
+                  to="/profile"
+                  onClick={() => setIsDropdownOpen(false)}
+                  className="px-5 py-3 hover:bg-gray-50 text-gray-700 transition-all duration-200 font-medium flex items-center gap-2"
+                >
+                  <svg
+                    className="w-4 h-4 text-gray-500"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth={2}
+                    viewBox="0 0 24 24"
+                  >
+                    <path d="M5.121 17.804A13.937 13.937 0 0112 15c2.686 0 5.175.79 7.121 2.137M15 10a3 3 0 11-6 0 3 3 0 016 0z" />
+                  </svg>
+                  Profile
+                </Link>
+
+                <button
+                  onClick={handleLogout}
+                  className="px-5 py-3 hover:bg-gray-50 text-gray-700 transition-all duration-200 font-medium flex items-center gap-2"
+                >
+                  <svg
+                    className="w-4 h-4 text-gray-500"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth={2}
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1m0-10V5"
+                    />
+                  </svg>
+                  Logout
+                </button>
+              </div>
             </div>
           )}
         </div>
