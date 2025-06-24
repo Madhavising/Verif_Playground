@@ -28,7 +28,7 @@ const createScript = async (req, res) => {
     const fileFormat = scriptData.fileName.split(".").pop();
 
 
-    if (base64 && fileType === "base64" && fileFormat === "uvm_script") {
+    if (base64 && fileType === "base64" || fileFormat === "pdf") {
       scriptData.base64 = base64;
     }
 
@@ -36,9 +36,6 @@ const createScript = async (req, res) => {
       scriptData.htmlData = htmlData;
     }
 
-    if (htmlData && fileType === "base64" && fileFormat === "pdf") {
-      scriptData.base64 = htmlData;
-    }
 
     if (formData && Array.isArray(formData.data)) {
       scriptData.formData = formData;

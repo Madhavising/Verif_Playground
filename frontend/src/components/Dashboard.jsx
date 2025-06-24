@@ -106,7 +106,8 @@ export default function Dashboard() {
           break;
         }
         case "pdf": {
-          setScript(fileData.htmlData || "");
+          const src = `data:application/pdf;base64,${fileData.base64}`;
+          setScript(src || "");
           setFileType("pdf");
           break;
         }
@@ -227,58 +228,58 @@ export default function Dashboard() {
               <tbody>
                 {isLoadingFiles
                   ? Array(3)
-                      .fill(0)
-                      .map((_, i) => (
-                        <tr key={i} className="animate-pulse border-b">
-                          <td className="py-2">
-                            <div className="h-4 w-24 bg-gray-300 rounded skeleton" />
-                          </td>
-                          <td className="py-2">
-                            <div className="h-4 w-20 bg-gray-300 rounded skeleton" />
-                          </td>
-                          <td className="py-2">
-                            <div className="h-4 w-20 bg-gray-300 rounded skeleton" />
-                          </td>
-                          <td className="py-2">
-                            <div className="h-4 w-28 bg-gray-300 rounded skeleton" />
-                          </td>
-                          <td className="py-2 space-x-2">
-                            <div className="h-4 w-16 bg-gray-300 rounded skeleton" />
-                          </td>
-                        </tr>
-                      ))
-                  : recentFiles.map((file, idx) => (
-                      <tr key={idx} className="hover:bg-gray-100 border-b">
-                        <td className="py-2">{file.fileName}</td>
-                        <td className="py-2">{`${file.username}`}</td>
-                        <td className="py-2">{file.organization}</td>
-                        <td className="py-2 text-xs text-gray-500">
-                          {moment(file.createdAt).format(
-                            "dddd, YYYY-MM-DD HH:mm"
-                          )}
+                    .fill(0)
+                    .map((_, i) => (
+                      <tr key={i} className="animate-pulse border-b">
+                        <td className="py-2">
+                          <div className="h-4 w-24 bg-gray-300 rounded skeleton" />
+                        </td>
+                        <td className="py-2">
+                          <div className="h-4 w-20 bg-gray-300 rounded skeleton" />
+                        </td>
+                        <td className="py-2">
+                          <div className="h-4 w-20 bg-gray-300 rounded skeleton" />
+                        </td>
+                        <td className="py-2">
+                          <div className="h-4 w-28 bg-gray-300 rounded skeleton" />
                         </td>
                         <td className="py-2 space-x-2">
-                          <button
-                            onClick={() => getSingleFile(file._id)}
-                            title="View"
-                          >
-                            <Eye className="w-4 h-4" />
-                          </button>
-                          <button
-                            onClick={() => setIsShareOpen(true)}
-                            title="Share"
-                          >
-                            <Share2 className="w-4 h-4" />
-                          </button>
-                          <button
-                            onClick={() => deleteScript(file._id)}
-                            title="Delete"
-                          >
-                            <Trash2 className="w-4 h-4 text-red-500" />
-                          </button>
+                          <div className="h-4 w-16 bg-gray-300 rounded skeleton" />
                         </td>
                       </tr>
-                    ))}
+                    ))
+                  : recentFiles.map((file, idx) => (
+                    <tr key={idx} className="hover:bg-gray-100 border-b">
+                      <td className="py-2">{file.fileName}</td>
+                      <td className="py-2">{`${file.username}`}</td>
+                      <td className="py-2">{file.organization}</td>
+                      <td className="py-2 text-xs text-gray-500">
+                        {moment(file.createdAt).format(
+                          "dddd, YYYY-MM-DD HH:mm"
+                        )}
+                      </td>
+                      <td className="py-2 space-x-2">
+                        <button
+                          onClick={() => getSingleFile(file._id)}
+                          title="View"
+                        >
+                          <Eye className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={() => setIsShareOpen(true)}
+                          title="Share"
+                        >
+                          <Share2 className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={() => deleteScript(file._id)}
+                          title="Delete"
+                        >
+                          <Trash2 className="w-4 h-4 text-red-500" />
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
               </tbody>
             </table>
           </div>
@@ -306,14 +307,11 @@ export default function Dashboard() {
                 {fileType === "html" && (
                   <div dangerouslySetInnerHTML={{ __html: script }} />
                 )}
-                {fileType === "pdf" && (
-                  <div dangerouslySetInnerHTML={{ __html: script }} />
-                )}
 
-                {fileType === "xlsx" && script && (
+                {(fileType === "xlsx" || fileType === "pdf") && script && (
                   <iframe
                     src={script}
-                    title="Generated PDF"
+                    title={`Generated ${fileType.toUpperCase()}`}
                     className="w-full h-[70vh] border rounded"
                   />
                 )}
@@ -321,10 +319,10 @@ export default function Dashboard() {
                 {!["base64", "html", "pdf", "doc", "docx", "xlsx"].includes(
                   fileType
                 ) && (
-                  <div>
-                    <p>Unsupported file type.</p>
-                  </div>
-                )}
+                    <div>
+                      <p>Unsupported file type.</p>
+                    </div>
+                  )}
               </pre>
             </div>
           </div>
@@ -444,32 +442,32 @@ export default function Dashboard() {
           <ul className="space-y-4">
             {isLoadingActivity
               ? Array(3)
-                  .fill(0)
-                  .map((_, i) => (
-                    <li
-                      key={i}
-                      className="flex items-center space-x-3 animate-pulse"
-                    >
-                      <div className="w-8 h-8 rounded-full bg-gray-300 skeleton" />
-                      <div className="h-4 w-48 bg-gray-300 rounded skeleton" />
-                    </li>
-                  ))
+                .fill(0)
+                .map((_, i) => (
+                  <li
+                    key={i}
+                    className="flex items-center space-x-3 animate-pulse"
+                  >
+                    <div className="w-8 h-8 rounded-full bg-gray-300 skeleton" />
+                    <div className="h-4 w-48 bg-gray-300 rounded skeleton" />
+                  </li>
+                ))
               : recentActivity.map((activity, idx) => {
-                  const name = activity.username || "Unknown User";
-                  const fileName = activity.fileName || "a file";
+                const name = activity.username || "Unknown User";
+                const fileName = activity.fileName || "a file";
 
-                  return (
-                    <li key={idx} className="flex items-center space-x-3">
-                      <div className="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center text-sm font-medium">
-                        {name.charAt(0).toUpperCase()}
-                      </div>
-                      <div className="text-sm">
-                        <span className="font-semibold">{name}</span> uploaded{" "}
-                        <span className="text-gray-500">{fileName}</span>
-                      </div>
-                    </li>
-                  );
-                })}
+                return (
+                  <li key={idx} className="flex items-center space-x-3">
+                    <div className="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center text-sm font-medium">
+                      {name.charAt(0).toUpperCase()}
+                    </div>
+                    <div className="text-sm">
+                      <span className="font-semibold">{name}</span> uploaded{" "}
+                      <span className="text-gray-500">{fileName}</span>
+                    </div>
+                  </li>
+                );
+              })}
           </ul>
           <p className="mt-2 text-sm text-gray-500 text-right">
             Page {pageActivity} of {totalPagesActivity}
