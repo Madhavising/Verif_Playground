@@ -95,6 +95,8 @@ function DocSphere(props) {
 
     try {
       setLoading(true);
+
+      // Upload the file
       const response = await axios.post(
         `${baseUrl}/waveform/upload`,
         formData,
@@ -106,7 +108,11 @@ function DocSphere(props) {
       const outputUrl = response.data.output;
       const fullOutputUrl = `${baseUrl}${outputUrl}`;
 
-      setGeneratedHtml(fullOutputUrl);
+      // Convert image at fullOutputUrl to base64
+      const base64Image = await convertImageUrlToBase64(fullOutputUrl);
+
+      // Set the base64 string (instead of the URL)
+      setGeneratedHtml(base64Image);
       setShowOutputModal(true);
       setShowModal(false);
     } catch (error) {
@@ -117,6 +123,20 @@ function DocSphere(props) {
       setSelectedFile(null);
     }
   };
+
+
+  const convertImageUrlToBase64 = async (url) => {
+    const response = await fetch(url);
+    const blob = await response.blob();
+
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onloadend = () => resolve(reader.result);
+      reader.onerror = reject;
+      reader.readAsDataURL(blob);
+    });
+  };
+
 
   const handlePdfSave = useCallback(async () => {
     if (!pdfBase64 || !pdfFileName.trim()) {
