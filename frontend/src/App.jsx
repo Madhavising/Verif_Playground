@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 
 import { getUserDetails, isTokenValid } from "./utils/auth";
 import { setUser } from "./store/slice/userSclice";
@@ -15,12 +15,13 @@ import InputField from "./inputField/InputField";
 import UvmRegBlock from "./uvmRegBlock/UvmRegBlock";
 
 import Layout from "./layout/Layout";
-import VerificationLayout from "./layout/VerificationLayout";
+// import VerificationLayout from "./layout/VerificationLayout";
 import Profile from "./components/Profile";
 import Loading from "./components/Loading";
 import Dashboard from "./components/Dashboard";
 import DemoRequestPage from "./components/DemoRequestPage";
 import WaveInput from "./inputField/WaveInput.jsx";
+import UserPage from "./userPage/UserPage.jsx"
 
 import ProtectedRoute from "./routes/protectedRoute.jsx";
 import IntrapediaHomePage from "./intrapedia/IntrapediaHomePage.jsx";
@@ -30,6 +31,7 @@ import "react-toastify/dist/ReactToastify.css";
 
 function App() {
   const dispatch = useDispatch();
+  const user = useSelector((state) => state.user.userData)
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -111,6 +113,8 @@ function App() {
           <Route path="asicverify" element={<ASICVerification />} />
           <Route path="demo-request-page" element={<DemoRequestPage />} />
           <Route path="circuit-diagram" element={<CircuitDiagram />} />
+          {
+            user && user.role === "admin" && <Route path="users" element={<UserPage />} />}
         </Route>
 
         {/* Fallback route */}

@@ -27,12 +27,14 @@ const userSchema = new mongoose.Schema({
   },
 
   companyName: { type: String }, // Optional field
-  dateCreated: { type: Date, default: Date.now },
   role: {
     type: String,
-
-    enum: ["Admin", "Superadmin", "User"],
+    enum: ["admin", "superadmin", "user"],
+    default: "user",
   },
+}, {
+  versionKey: false,
+  timestamps: true
 });
 
 // Hash password before saving to DB

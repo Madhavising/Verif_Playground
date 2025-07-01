@@ -4,7 +4,7 @@ const User = require("../models/User");
 
 // Register a new user
 const registerUser = async (req, res) => {
-  const { firstName, lastName, email, password, companyName } = req.body;
+  const { firstName, lastName, email, password, companyName, role } = req.body;
 
   try {
     // Check if user already exists
@@ -20,8 +20,12 @@ const registerUser = async (req, res) => {
       email: email.toLowerCase(),
       password, // Password is hashed by the schema middleware
       companyName,
-      role: "User"
     });
+
+
+    if (role === "admin") {
+      newUser.role = "admin"
+    }
 
     await newUser.save();
     res.status(201).json({ message: "User registered successfully" });
@@ -86,4 +90,24 @@ const getUserDetailsById = async (req, res) => {
   }
 };
 
-module.exports = { registerUser, loginUser, getUserDetailsById };
+const getAllUsers = async (req, res) => {
+  const userId = req.params.userId;
+
+  try {
+    const user = await User.findById(userId).lean().exec();
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found." });
+    }
+
+    const allUsers = await User.find({ companyName: user.companyName }).sort({ createdAt: -1 }).lean().exec();
+
+    return res.status(200).json({ status: true, data: allUsers });
+  } catch (error) {
+    console.error("Error getting user:", error.message);
+    return res.status(500).json({ message: "Error getting user", error: error.message });
+  }
+};
+
+
+module.exports = { registerUser, loginUser, getUserDetailsById, getAllUsers };

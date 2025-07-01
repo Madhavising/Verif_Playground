@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import axios from "axios";
@@ -15,14 +14,13 @@ const AuthPage = () => {
   const [isLogin, setIsLogin] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
-    companyName: "",
+ 
     firstName: "",
     lastName: "",
     email: "",
     password: "",
   });
 
-  const navigate = useNavigate();
   const dispatch = useDispatch();
 
   const togglePasswordVisibility = () => setShowPassword(!showPassword);
@@ -40,7 +38,6 @@ const AuthPage = () => {
       ...(isLogin
         ? {}
         : {
-            companyName: formData.companyName,
             firstName: formData.firstName,
             lastName: formData.lastName,
           }),
@@ -60,9 +57,10 @@ const AuthPage = () => {
           dispatch(setUser({ ...user, token: response.data.token }));
           toast.success("Login successful!");
           setTimeout(() => {
-            window.location.reload(); // or use navigate('/')
+            window.location.reload();
           }, 1000);
         } catch (err) {
+          console.log("Fetch user Error", err.message)
           toast.warning("Login succeeded, but fetching user details failed.");
         }
       }
@@ -70,7 +68,6 @@ const AuthPage = () => {
       if (!isLogin) {
         toast.success("Registration successful! Please login.");
         setFormData({
-          companyName: "",
           firstName: "",
           lastName: "",
           email: "",
@@ -91,7 +88,6 @@ const AuthPage = () => {
   const handleSwitchMode = () => {
     setIsLogin((prev) => !prev);
     setFormData({
-      companyName: "",
       firstName: "",
       lastName: "",
       email: "",
@@ -125,15 +121,7 @@ const AuthPage = () => {
           <form className="space-y-5" onSubmit={handleSubmit}>
             {!isLogin && (
               <>
-                <input
-                  type="text"
-                  name="companyName"
-                  placeholder="Company Name"
-                  required
-                  value={formData.companyName}
-                  onChange={handleChange}
-                  className="w-full p-3 bg-gray-100 border rounded-lg"
-                />
+              
                 <input
                   type="text"
                   name="firstName"

@@ -5,6 +5,7 @@ import {
   Home,
   Box,
   Send,
+  User,
   FileText,
   CheckCircle2,
   BarChart,
@@ -14,20 +15,23 @@ import {
   CircuitBoard,
   Globe2Icon,
 } from "lucide-react";
+import { useSelector } from "react-redux";
 
 const navItems = [
   { to: "/intrapediaHome", label: "Intrapedia", icon: Globe2Icon },
   { to: "/input-field", label: "Create Register Map", icon: Box },
   { to: "/docSphere", label: "DocSphere", icon: FileText },
-    { to: "/circuit-diagram", label: "Circuit Daigram", icon: CircuitBoard },
+  { to: "/circuit-diagram", label: "Circuit Daigram", icon: CircuitBoard },
   { to: "/demo-request-page", label: "Request", icon: Send },
   { to: "/autoVerify", label: "AutoVerify", icon: CheckCircle2 },
   { to: "/regressionTracker", label: "Tracker", icon: BarChart },
   { to: "/dataHub", label: "DataHub", icon: Database },
+  { to: "/users", label: "Users", icon: User, adminOnly: true }
 ];
 
 const Sidebar = ({ isOpen, toggleSidebar }) => {
   const location = useLocation();
+  const user = useSelector((state) => state.user.userData)
 
   return (
     <div
@@ -52,33 +56,33 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
 
         {/* Nav Links */}
         <nav className="flex-1 px-2 py-4 space-y-1 overflow-y-auto">
-          {navItems.map(({ to, label, icon: Icon }, index) => {
-            const isActive = location.pathname === to;
+          {navItems.filter(item => !item.adminOnly || user?.role === "admin")
+            .map(({ to, label, icon: Icon }, index) => {
+              const isActive = location.pathname === to;
 
-            return (
-              <Link
-                key={index}
-                to={to}
-                className={`group relative flex items-center px-3 py-2 rounded-md transition-colors duration-200 text-sm
+              return (
+                <Link
+                  key={index}
+                  to={to}
+                  className={`group relative flex items-center px-3 py-2 rounded-md transition-colors duration-200 text-sm
                 ${isActive ? "bg-red-600 text-white" : "hover:bg-gray-700 hover:text-white"}
                 `}
-              >
-                <Icon
-                  size={20}
-                  className={`min-w-[20px] transition-transform duration-300 ${
-                    isActive ? "text-white" : "text-gray-400 group-hover:text-white"
-                  }`}
-                />
-                {isOpen && <span className="ml-3">{label}</span>}
+                >
+                  <Icon
+                    size={20}
+                    className={`min-w-[20px] transition-transform duration-300 ${isActive ? "text-white" : "text-gray-400 group-hover:text-white"
+                      }`}
+                  />
+                  {isOpen && <span className="ml-3">{label}</span>}
 
-                {!isOpen && (
-                  <span className="absolute left-16 top-1/2 -translate-y-1/2 bg-black text-white text-xs px-2 py-1 rounded z-50 opacity-0 group-hover:opacity-100 whitespace-nowrap transition-opacity">
-                    {label}
-                  </span>
-                )}
-              </Link>
-            );
-          })}
+                  {!isOpen && (
+                    <span className="absolute left-16 top-1/2 -translate-y-1/2 bg-black text-white text-xs px-2 py-1 rounded z-50 opacity-0 group-hover:opacity-100 whitespace-nowrap transition-opacity">
+                      {label}
+                    </span>
+                  )}
+                </Link>
+              );
+            })}
         </nav>
 
         {/* Bottom Toggle */}
