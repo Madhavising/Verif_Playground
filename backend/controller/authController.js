@@ -7,13 +7,11 @@ const registerUser = async (req, res) => {
   const { firstName, lastName, email, password, companyName, role } = req.body;
 
   try {
-    // Check if user already exists
     const existingUser = await User.findOne({ email: email.toLowerCase() });
     if (existingUser) {
       return res.status(400).json({ message: "Email already exists." });
     }
 
-    // Create and save new user
     const newUser = new User({
       firstName,
       lastName,
@@ -109,5 +107,54 @@ const getAllUsers = async (req, res) => {
   }
 };
 
+const uploadImage = async (req, res) => {
+  const user = req.user;
+  const file = req.file;
 
-module.exports = { registerUser, loginUser, getUserDetailsById, getAllUsers };
+  console.log("file", file)
+
+  if (!file) {
+    return res.status(400).json({ status: false, message: "No file uploaded" });
+  }
+
+  try {
+    const filePath = file.path;
+
+    const updatedUser = await User.findByIdAndUpdate(
+      user._id,
+      { image: filePath },
+      { new: true }
+    );
+
+    return res.status(200).json({
+      status: true,
+      message: "File uploaded and user updated successfully",
+      data: updatedUser,
+    });
+  } catch (error) {
+    console.error("Error uploading file:", error.message);
+    return res.status(500).json({
+      status: false,
+      message: "Error uploading file",
+      error: error.message,
+    });
+  }
+};
+
+
+const updateProfile = async (req, res) => {
+  const user = req.user;
+  try {
+
+    const updatedUser = await User.findByIdAndUpdate(user._id, req.body, { new: true });
+
+    return res.status(200).json({ status: true, data: updatedUser })
+
+  } catch (error) {
+    console.error("Error getting profile:", error.message);
+    return res.status(500).json({ message: "Error getting profile", error: error.message });
+  }
+}
+
+
+module.exports = { registerUser, loginUser, getUserDetailsById, getAllUsers, updateProfile, uploadImage };

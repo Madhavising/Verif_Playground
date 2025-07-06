@@ -3,6 +3,7 @@ const bcrypt = require("bcrypt");
 const validator = require("validator");
 
 const userSchema = new mongoose.Schema({
+  image: { type: String, required: true },
   firstName: { type: String, required: true },
   lastName: { type: String, required: true },
   email: {
@@ -25,7 +26,13 @@ const userSchema = new mongoose.Schema({
         "Password must be at least 8 characters long and include at least one uppercase letter, one lowercase letter, one number, and one special character.",
     },
   },
-
+  workPhone: { type: String },
+  personalMobile : {type : String},
+  extension : {type : String},
+  department : {type : String},
+  designation : {type : String},
+  reportingTo : {type : String},
+  seatingLocation : {type : String},
   companyName: { type: String }, // Optional field
   role: {
     type: String,

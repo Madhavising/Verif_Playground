@@ -26,6 +26,8 @@ app.use("/api", scriptRouter);
 app.use(express.static(fileModel.outputDir));
 app.use('/waveform', uploadRoutes);
 
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
 // Get Execution Stats
 app.get("/api/stats", (req, res) => {
   const successCount = executionHistory.filter((item) => !item.output.includes("Error")).length;
