@@ -21,17 +21,16 @@ const navItems = [
   { to: "/intrapediaHome", label: "Intrapedia", icon: Globe2Icon },
   { to: "/input-field", label: "Create Register Map", icon: Box },
   { to: "/docSphere", label: "DocSphere", icon: FileText },
-  { to: "/circuit-diagram", label: "Circuit Daigram", icon: CircuitBoard },
   { to: "/demo-request-page", label: "Request", icon: Send },
   { to: "/autoVerify", label: "AutoVerify", icon: CheckCircle2 },
   { to: "/regressionTracker", label: "Tracker", icon: BarChart },
   { to: "/dataHub", label: "DataHub", icon: Database },
-  { to: "/users", label: "Users", icon: User, adminOnly: true }
+  { to: "/users", label: "Users", icon: User, adminOnly: true },
 ];
 
 const Sidebar = ({ isOpen, toggleSidebar }) => {
   const location = useLocation();
-  const user = useSelector((state) => state.user.userData)
+  const user = useSelector((state) => state.user.userData);
 
   return (
     <div
@@ -49,14 +48,18 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
               </span>
             )}
           </Link>
-          <button onClick={toggleSidebar} className="hidden lg:inline-block text-gray-400 hover:text-white">
+          <button
+            onClick={toggleSidebar}
+            className="hidden lg:inline-block text-gray-400 hover:text-white"
+          >
             {isOpen ? <ChevronLeft size={18} /> : <ChevronRight size={18} />}
           </button>
         </div>
 
         {/* Nav Links */}
         <nav className="flex-1 px-2 py-4 space-y-1 overflow-y-auto">
-          {navItems.filter(item => !item.adminOnly || user?.role === "admin")
+          {navItems
+            .filter((item) => !item.adminOnly || user?.role === "admin")
             .map(({ to, label, icon: Icon }, index) => {
               const isActive = location.pathname === to;
 
@@ -65,13 +68,20 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
                   key={index}
                   to={to}
                   className={`group relative flex items-center px-3 py-2 rounded-md transition-colors duration-200 text-sm
-                ${isActive ? "bg-red-600 text-white" : "hover:bg-gray-700 hover:text-white"}
+                ${
+                  isActive
+                    ? "bg-red-600 text-white"
+                    : "hover:bg-gray-700 hover:text-white"
+                }
                 `}
                 >
                   <Icon
                     size={20}
-                    className={`min-w-[20px] transition-transform duration-300 ${isActive ? "text-white" : "text-gray-400 group-hover:text-white"
-                      }`}
+                    className={`min-w-[20px] transition-transform duration-300 ${
+                      isActive
+                        ? "text-white"
+                        : "text-gray-400 group-hover:text-white"
+                    }`}
                   />
                   {isOpen && <span className="ml-3">{label}</span>}
 

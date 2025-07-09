@@ -6,7 +6,7 @@ import { baseUrl } from "../api";
 import html2pdf from "html2pdf.js";
 import { useSelector } from "react-redux";
 import HtmlPopModel from "../components/htmlPopUpModel";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
 import { ArrowLeft } from "lucide-react";
 
@@ -28,6 +28,8 @@ function DocSphere(props) {
   const { user } = useSelector((state) => state);
   const location = useLocation();
   const { id } = location.state || {};
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchScript = async () => {
@@ -55,7 +57,6 @@ function DocSphere(props) {
             console.warn("No HTML data found.");
           }
         }
-
       } catch (error) {
         console.error("Error fetching script:", error);
       }
@@ -124,7 +125,6 @@ function DocSphere(props) {
     }
   };
 
-
   const convertImageUrlToBase64 = async (url) => {
     const response = await fetch(url);
     const blob = await response.blob();
@@ -136,7 +136,6 @@ function DocSphere(props) {
       reader.readAsDataURL(blob);
     });
   };
-
 
   const handlePdfSave = useCallback(async () => {
     if (!pdfBase64 || !pdfFileName.trim()) {
@@ -154,7 +153,6 @@ function DocSphere(props) {
       organization: companyName,
     };
 
-
     try {
       await axios.post(`${baseUrl}/api/createScript`, payload);
 
@@ -168,7 +166,6 @@ function DocSphere(props) {
       alert("Failed to save PDF.");
     }
   }, [pdfBase64, pdfFileName, baseUrl, _id, companyName]);
-
 
   function openPdfUploadDialog(editor) {
     const input = document.createElement("input");
@@ -270,9 +267,7 @@ function DocSphere(props) {
           fileName,
           userId: _id,
           organization: companyName,
-          ...(saveType === "pdf"
-            ? { base64: content }
-            : { htmlData: content }),
+          ...(saveType === "pdf" ? { base64: content } : { htmlData: content }),
         };
 
         await axios.post(`${baseUrl}/api/createScript`, payload);
@@ -285,7 +280,6 @@ function DocSphere(props) {
     },
     [_id, companyName, saveType]
   );
-
 
   const handleSaveDocument = async () => {
     const content = editorRef.current?.getContent();
@@ -346,7 +340,6 @@ function DocSphere(props) {
       reader.readAsDataURL(blob);
     });
   };
-
 
   const saveContentAsHtml = async () => {
     const content = editorRef.current?.getContent();
@@ -515,7 +508,6 @@ function DocSphere(props) {
           isOpen={showOpenModal}
           onClose={() => setShowOpenModal(false)}
           setData={(value) => {
-
             const closeModal = () => setShowOpenModal(false);
 
             if (value.fileType === "pdf") {
@@ -536,7 +528,6 @@ function DocSphere(props) {
         />
       )}
 
-
       {/* TinyMCE Editor */}
       {/* ... all your modals before here remain unchanged ... */}
 
@@ -554,7 +545,9 @@ function DocSphere(props) {
             Back
           </button>
           <iframe
-            src={`data:application/pdf;base64,${pdfBase64.split(",")[1] || pdfBase64}`}
+            src={`data:application/pdf;base64,${
+              pdfBase64.split(",")[1] || pdfBase64
+            }`}
             title="PDF Preview"
             className="w-full h-full"
             frameBorder="0"
@@ -600,7 +593,7 @@ function DocSphere(props) {
               "exportpdf",
             ],
             toolbar1:
-              "undo redo exportpdf print quicklink | bold italic blockquote link | blocks | fontsize | fontfamily | fontsizeinput | fullscreen | lineheight forecolor | bullist numlist outdent indent | alignleft aligncenter alignright alignjustify | table | wave blockdiagram | emoticons wordcount searchreplace quickimage pagebreak",
+              "undo redo exportpdf print quicklink | bold italic blockquote link | blocks | fontsize | fontfamily | fontsizeinput | fullscreen | lineheight forecolor | bullist numlist outdent indent | alignleft aligncenter alignright alignjustify | table | wave blockdiagram circuitdiagram | emoticons wordcount searchreplace quickimage pagebreak",
             quickbars_insert_toolbar: false,
             menu: {
               file: {
@@ -650,6 +643,12 @@ function DocSphere(props) {
                   alert("Block Diagram feature not implemented yet.");
                 },
               });
+              editor.ui.registry.addButton("circuitdiagram", {
+                text: "Circuit Diagram",
+                onAction: () => {
+                  navigate("/circuit-diagram"); 
+                },
+              });
             },
             extended_valid_elements:
               "iframe[src|width|height|style|sandbox|allowfullscreen|frameborder]",
@@ -660,7 +659,6 @@ function DocSphere(props) {
         />
       )}
     </div>
-
   );
 }
 
