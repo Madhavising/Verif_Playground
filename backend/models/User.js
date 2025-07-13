@@ -3,7 +3,7 @@ const bcrypt = require("bcrypt");
 const validator = require("validator");
 
 const userSchema = new mongoose.Schema({
-  image: { type: String, required: true },
+  image: { type: String },
   firstName: { type: String, required: true },
   lastName: { type: String, required: true },
   email: {
