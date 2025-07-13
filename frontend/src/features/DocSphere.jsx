@@ -654,7 +654,7 @@ function DocSphere(props) {
               "iframe[src|width|height|style|sandbox|allowfullscreen|frameborder]",
             valid_elements: "*[*]",
             content_style:
-              "body { font-family: Helvetica, Arial, sans-serif; font-size: 14px; margin: 0; padding: 12px; } p { line-height: 0.5; }",
+              "body { font-family: Helvetica, Arial, sans-serif; font-size: 14px; margin: 0; padding: 12px; }",
           }}
         />
       )}
