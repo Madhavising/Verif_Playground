@@ -1,8 +1,11 @@
-import { X, Send, User, Bot } from "lucide-react";
+import { Loader2, Send, User, Bot } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
+import axios from "axios";
+import { baseUrl_1 } from "../api";
 
 export default function ChatWindow({ onClose }) {
   const [input, setInput] = useState("");
+  const [loading, setLoading] = useState(false);
   const [messages, setMessages] = useState([
     { from: "bot", text: "Hi! How can I assist you today?" },
   ]);
@@ -13,21 +16,38 @@ export default function ChatWindow({ onClose }) {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  const handleSend = () => {
+  const handleSend = async () => {
     if (!input.trim()) return;
 
-    const userMsg = { from: "user", text: input };
-    setMessages((prev) => [...prev, userMsg]);
+    const userMessage = { from: "user", text: input };
+    setMessages((prev) => [...prev, userMessage]);
     setInput("");
+    setLoading(true);
 
-    // Simulated bot reply
-    setTimeout(() => {
-      const botMsg = {
-        from: "bot",
-        text: "This is a sample response.",
-      };
-      setMessages((prev) => [...prev, botMsg]);
-    }, 600);
+    // Show typing indicator
+    setMessages((prev) => [...prev, { from: "bot", text: "Typing..." }]);
+
+    try {
+      const response = await axios.post(`${baseUrl_1}/api/chat`, { question: input });
+
+      if (response.status !== 200) {
+        throw new Error(response.statusText);
+      }
+
+      const botReply = { from: "bot", text: response.data.answer };
+
+      // Replace "Typing..." with actual bot response
+      setMessages((prev) => [...prev.slice(0, -1), botReply]);
+
+    } catch (error) {
+      console.error("Error sending message:", error);
+      setMessages((prev) => [
+        ...prev.slice(0, -1),
+        { from: "bot", text: "Sorry, I couldn't process your request." },
+      ]);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleKeyDown = (e) => {
@@ -38,10 +58,7 @@ export default function ChatWindow({ onClose }) {
     <div className="w-80 h-96 bg-white rounded-xl shadow-xl flex flex-col border border-gray-200 animate-slide-up transition-all">
       {/* Header */}
       <div className="bg-red-600 text-white p-3 rounded-t-xl flex justify-between items-center shadow">
-        <h2 className="text-sm font-bold tracking-wide">
-          VeriBot
-        </h2>
-      
+        <h2 className="text-sm font-bold tracking-wide">VeriBot</h2>
       </div>
 
       {/* Chat messages */}
@@ -49,15 +66,12 @@ export default function ChatWindow({ onClose }) {
         className="flex-1 p-3 overflow-y-auto space-y-3 bg-gray-50 text-sm"
         style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
       >
-        {/* Hide scrollbar for webkit */}
         <style>{`::-webkit-scrollbar { display: none; }`}</style>
 
         {messages.map((msg, idx) => (
           <div
             key={idx}
-            className={`flex items-end gap-2 ${
-              msg.from === "user" ? "justify-end" : "justify-start"
-            }`}
+            className={`flex items-end gap-2 ${msg.from === "user" ? "justify-end" : "justify-start"}`}
           >
             {msg.from === "bot" && (
               <div className="bg-gray-300 p-1 rounded-full">
@@ -72,7 +86,14 @@ export default function ChatWindow({ onClose }) {
                   : "bg-gray-200 text-gray-800"
               }`}
             >
-              {msg.text}
+              {loading && msg.text === "Typing..." ? (
+                <div className="flex items-center gap-1">
+                  <Loader2 size={14} className="animate-spin" />
+                  <span>Typing...</span>
+                </div>
+              ) : (
+                msg.text
+              )}
             </div>
 
             {msg.from === "user" && (
@@ -99,9 +120,10 @@ export default function ChatWindow({ onClose }) {
           />
           <button
             onClick={handleSend}
-            className="bg-red-600 hover:bg-red-700 text-white p-2 rounded-md transition"
+            disabled={loading}
+            className="bg-red-600 hover:bg-red-700 text-white p-2 rounded-md transition flex items-center justify-center"
           >
-            <Send size={18} />
+            {loading ? <Loader2 className="animate-spin" size={18} /> : <Send size={18} />}
           </button>
         </div>
       </div>
