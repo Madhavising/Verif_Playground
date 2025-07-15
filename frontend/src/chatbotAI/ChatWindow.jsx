@@ -28,7 +28,9 @@ export default function ChatWindow({ onClose }) {
     setMessages((prev) => [...prev, { from: "bot", text: "Typing..." }]);
 
     try {
-      const response = await axios.post(`${baseUrl_1}/api/chat`, { question: input });
+      const response = await axios.post(`${baseUrl_1}/api/chat`, {
+        question: input,
+      });
 
       if (response.status !== 200) {
         throw new Error(response.statusText);
@@ -38,7 +40,6 @@ export default function ChatWindow({ onClose }) {
 
       // Replace "Typing..." with actual bot response
       setMessages((prev) => [...prev.slice(0, -1), botReply]);
-
     } catch (error) {
       console.error("Error sending message:", error);
       setMessages((prev) => [
@@ -71,7 +72,9 @@ export default function ChatWindow({ onClose }) {
         {messages.map((msg, idx) => (
           <div
             key={idx}
-            className={`flex items-end gap-2 ${msg.from === "user" ? "justify-end" : "justify-start"}`}
+            className={`flex items-end gap-2 ${
+              msg.from === "user" ? "justify-end" : "justify-start"
+            }`}
           >
             {msg.from === "bot" && (
               <div className="bg-gray-300 p-1 rounded-full">
@@ -123,7 +126,11 @@ export default function ChatWindow({ onClose }) {
             disabled={loading}
             className="bg-red-600 hover:bg-red-700 text-white p-2 rounded-md transition flex items-center justify-center"
           >
-            {loading ? <Loader2 className="animate-spin" size={18} /> : <Send size={18} />}
+            {loading ? (
+              <Loader2 className="animate-spin" size={18} />
+            ) : (
+              <Send size={18} />
+            )}
           </button>
         </div>
       </div>
