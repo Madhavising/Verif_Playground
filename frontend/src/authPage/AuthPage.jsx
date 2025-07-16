@@ -14,7 +14,7 @@ const AuthPage = () => {
   const [isLogin, setIsLogin] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
- 
+
     firstName: "",
     lastName: "",
     email: "",
@@ -38,9 +38,9 @@ const AuthPage = () => {
       ...(isLogin
         ? {}
         : {
-            firstName: formData.firstName,
-            lastName: formData.lastName,
-          }),
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+        }),
     };
 
     try {
@@ -121,7 +121,7 @@ const AuthPage = () => {
           <form className="space-y-5" onSubmit={handleSubmit}>
             {!isLogin && (
               <>
-              
+
                 <input
                   type="text"
                   name="firstName"
@@ -170,10 +170,13 @@ const AuthPage = () => {
             </div>
             <button
               type="submit"
-              className="w-full bg-red-600 text-white py-3 rounded-lg font-semibold hover:bg-red-700 transition"
+              disabled={!isLogin}
+              className={`w-full py-3 rounded-lg font-semibold transition 
+                ${isLogin ? "bg-red-600 hover:bg-red-700 text-white" : "bg-gray-400 text-gray-700 cursor-not-allowed"}`}
             >
               {isLogin ? "Login" : "Register"}
             </button>
+
           </form>
           <p className="text-center text-sm text-gray-600">
             {isLogin ? "Don't have an account?" : "Already have an account?"}
