@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Bell } from "lucide-react";
 import { FaRegUser } from "react-icons/fa6";
@@ -25,6 +25,19 @@ const Navbar = () => {
     setIsDropdownOpen(false);
     window.location.reload();
   };
+
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (
+        !e.target.closest("#user-dropdown") &&
+        !e.target.closest("#user-button")
+      ) {
+        setIsDropdownOpen(false);
+      }
+    };
+    document.addEventListener("click", handleClickOutside);
+    return () => document.removeEventListener("click", handleClickOutside);
+  }, []);
 
   return (
     <nav className="bg-gradient-to-b from-black to-red-500 text-white sticky top-0 z-50 border-b border-gray-300 px-4 py-4 flex justify-between items-center w-full shadow-sm">
@@ -56,6 +69,7 @@ const Navbar = () => {
 
           {/* User Button */}
           <button
+            id="user-button"
             onClick={() => setIsDropdownOpen((prev) => !prev)}
             className="w-9 h-9 flex items-center justify-center bg-white border border-gray-300 text-black rounded-full font-medium shadow-sm hover:shadow transition"
           >
@@ -64,7 +78,10 @@ const Navbar = () => {
 
           {/* Dropdown Menu */}
           {isDropdownOpen && (
-            <div className="absolute right-0 top-12 w-64 bg-white rounded-2xl shadow-2xl z-50 border border-gray-200 animate-slideDown">
+            <div
+              id="user-dropdown"
+              className="absolute right-0 top-12 w-64 bg-white rounded-2xl shadow-2xl z-50 border border-gray-200 animate-slideDown"
+            >
               {/* User card */}
               <div className="flex items-center gap-3 px-5 py-4 border-b border-gray-100">
                 <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 text-lg">
