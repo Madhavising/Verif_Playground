@@ -11,6 +11,7 @@ const scriptRouter = require("./routes/scriptRoutes");
 const path = require('path');
 const fileModel = require('./models/fileModels');
 const uploadRoutes = require('./routes/uploadRoutes');
+const demoRoutes = require('./routes/demoRoutes')
 
 dotenv.config();
 
@@ -23,6 +24,7 @@ app.use(express.urlencoded({ limit: '10mb', extended: true }));
 app.use("/api/auth", authRoutes);
 app.use("/api", executeRoutes);
 app.use("/api", scriptRouter);
+app.use('/api', demoRoutes);
 app.use(express.static(fileModel.outputDir));
 app.use('/waveform', uploadRoutes);
 
