@@ -21,7 +21,7 @@ import Loading from "./components/Loading";
 import Dashboard from "./components/Dashboard";
 import DemoRequestPage from "./components/DemoRequestPage";
 import WaveInput from "./inputField/WaveInput.jsx";
-import UserPage from "./userPage/UserPage.jsx"
+import UserPage from "./userPage/UserPage.jsx";
 
 import ProtectedRoute from "./routes/protectedRoute.jsx";
 import IntrapediaHomePage from "./intrapedia/IntrapediaHomePage.jsx";
@@ -31,7 +31,7 @@ import "react-toastify/dist/ReactToastify.css";
 
 function App() {
   const dispatch = useDispatch();
-  const user = useSelector((state) => state.user.userData)
+  const user = useSelector((state) => state.user.userData);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -89,6 +89,8 @@ function App() {
           }
         />
 
+        <Route path="request-demo" element={<DemoRequestPage />} />
+
         {/* Protected routes wrapped in ProtectedRoute */}
         <Route
           path="/"
@@ -111,10 +113,10 @@ function App() {
           <Route path="regressionTracker" element={<RegressionTracker />} />
           <Route path="dataHub" element={<DataHub />} />
           <Route path="asicverify" element={<ASICVerification />} />
-          <Route path="demo-request-page" element={<DemoRequestPage />} />
           <Route path="circuit-diagram" element={<CircuitDiagram />} />
-          {
-            user && user.role === "admin" && <Route path="users" element={<UserPage />} />}
+          {user && user.role === "admin" && (
+            <Route path="users" element={<UserPage />} />
+          )}
         </Route>
 
         {/* Fallback route */}
