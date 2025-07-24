@@ -4,20 +4,18 @@ const DemoRequest = require('../models/demoModel');
 exports.handleDemoRequest = async (req, res) => {
   try {
     const { phone, name, email, company, demoDetails } = req.body;
+    console.log(req.body)
 
-    if (!phone || !name || !email) {
+    if (!phone || !name || !email || !company) {
       return res.status(400).json({ message: 'Required fields missing' });
     }
 
-    const existingEmail = await DemoRequest.findOne({ email });
-    const existingPhone = await DemoRequest.findOne({ phone });
+   const existingEntry = await DemoRequest.findOne({
+  $or: [{ email }, { phone }]
+});
 
-    if (existingEmail) {
-      return res.status(400).json({ message: "A request with this email already exists." });
-    }
-
-    if (existingPhone) {
-      return res.status(400).json({ message: "A request with this phone number already exists." });
+    if (existingEntry) {
+      return res.status(400).json({ message: "A request with this email or phone already exists." });
     }
 
     const newDemo = new DemoRequest({
