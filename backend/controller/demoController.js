@@ -3,34 +3,29 @@ const DemoRequest = require('../models/demoModel');
 
 exports.handleDemoRequest = async (req, res) => {
   try {
-    const { feature, name, email, company, demoDetails } = req.body;
+    const { phone, name, email, company, demoDetails } = req.body;
 
-    if (!feature || !name || !email) {
+    if (!phone || !name || !email) {
       return res.status(400).json({ message: 'Required fields missing' });
     }
 
-    const existingRequest = await DemoRequest.findOne({ email });
+    const existingEmail = await DemoRequest.findOne({ email });
+    const existingPhone = await DemoRequest.findOne({ phone });
 
-    if (existingRequest) {
+    if (existingEmail) {
       return res.status(400).json({ message: "A request with this email already exists." });
     }
 
-
-    let fileData = null;
-    if (req.file) {
-      fileData = {
-        data: req.file.buffer.toString('base64'),
-        contentType: req.file.mimetype
-      };
+    if (existingPhone) {
+      return res.status(400).json({ message: "A request with this phone number already exists." });
     }
 
     const newDemo = new DemoRequest({
-      feature,
       name,
       email,
+      phone,
       company: company || '',
-      demoDetails: demoDetails || '',
-      file: fileData
+      demoDetails: demoDetails || ''
     });
 
     await newDemo.save();
